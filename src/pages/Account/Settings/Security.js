@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import router from 'umi/router';
 import styles from './Style.less';
-import PageHeaderWrapper from '@ant-design/pro-layout/es/PageHeaderWrapper';
+import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 
 import { Menu, Form, Input, Button } from 'antd';
 
