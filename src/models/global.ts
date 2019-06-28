@@ -8,6 +8,7 @@ import router from 'umi/router';
 export interface NoticeItem extends NoticeIconData {
   id: string;
   type: string;
+  status: string;
 }
 
 export interface GlobalModelState {
@@ -149,7 +150,7 @@ const GlobalModel: GlobalModelType = {
         if (!sessionStorage['token'] && pathname !== '/login') {
           router.push('/login');
         }
-
+        
         if (typeof (window as any).ga !== 'undefined') {
           (window as any).ga('send', 'pageview', pathname + search);
         }

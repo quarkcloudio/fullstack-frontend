@@ -4,8 +4,8 @@ import { FormComponentProps } from 'antd/es/form';
 import { Dispatch } from 'redux';
 import styles from './Style.less';
 import router from 'umi/router';
-import PageHeaderWrapper from '@/components/PageHeaderWrapper';
-import { Row, Col, Menu, Form, Input, Button } from 'antd';
+import { PageHeaderWrapper } from '@ant-design/pro-layout';
+import { Menu, Form, Input, Button } from 'antd';
 
 interface IFormComponentProps extends FormComponentProps {
   dispatch: Dispatch<any>;
@@ -13,7 +13,7 @@ interface IFormComponentProps extends FormComponentProps {
 }
 
 @connect(({ loading }: { loading: { effects: { [key: string]: string } } }) => ({
-  submitting: loading.effects['login/login'],
+  submitting: loading.effects['account/changeAccountProfile'],
 }))
 
 class InfoPage extends Component<IFormComponentProps> {
@@ -65,13 +65,12 @@ class InfoPage extends Component<IFormComponentProps> {
     });
   };
 
-  handleMenuClick = (key: any) => {
-    if (key === 'info') {
+  handleMenuClick = (e: any) => {
+    if (e.key === 'info') {
       router.push('/account/settings/info');
       return;
     }
-
-    if (key === 'security') {
+    if (e.key === 'security') {
       router.push('/account/settings/security');
       return;
     }
@@ -97,7 +96,7 @@ class InfoPage extends Component<IFormComponentProps> {
 
     return (
 
-      <PageHeaderWrapper>
+      <PageHeaderWrapper title={false}>
         <div className={styles.container}>
           <div className={styles.sider}>
             <Menu

@@ -2,7 +2,6 @@ import { IConfig, IPlugin } from 'umi-types';
 
 import defaultSettings from './defaultSettings';
 // https://umijs.org/config/
-import os from 'os';
 import slash from 'slash2';
 import webpackPlugin from './plugin.config';
 
@@ -10,8 +9,10 @@ const { pwa, primaryColor } = defaultSettings;
 
 // preview.pro.ant.design only do not use in your production ;
 // preview.pro.ant.design 专用环境变量，请不要在你的项目中使用它。
+const { ANT_DESIGN_PRO_ONLY_DO_NOT_USE_IN_YOUR_PRODUCTION } = process.env;
 
-const { ANT_DESIGN_PRO_ONLY_DO_NOT_USE_IN_YOUR_PRODUCTION, TEST, NODE_ENV } = process.env;
+const isAntDesignProPreview = ANT_DESIGN_PRO_ONLY_DO_NOT_USE_IN_YOUR_PRODUCTION === 'site';
+
 const plugins: IPlugin[] = [
   [
     'umi-plugin-react',
@@ -41,15 +42,10 @@ const plugins: IPlugin[] = [
             },
           }
         : false,
-      ...(!TEST && os.platform() === 'darwin'
-        ? {
-            dll: {
-              include: ['dva', 'dva/router', 'dva/saga', 'dva/fetch'],
-              exclude: ['@babel/runtime', 'netlify-lambda'],
-            },
-            hardSource: false,
-          }
-        : {}),
+      dll: {
+        include: ['dva', 'dva/router', 'dva/saga', 'dva/fetch'],
+        exclude: ['@babel/runtime', 'netlify-lambda'],
+      },
     },
   ],
   [
@@ -61,49 +57,38 @@ const plugins: IPlugin[] = [
       autoAddMenu: true,
     },
   ],
-]; // 针对 preview.pro.ant.design 的 GA 统计代码
-// preview.pro.ant.design only do not use in your production ; preview.pro.ant.design 专用环境变量，请不要在你的项目中使用它。
+];
 
-if (ANT_DESIGN_PRO_ONLY_DO_NOT_USE_IN_YOUR_PRODUCTION === 'site') {
+// 针对 preview.pro.ant.design 的 GA 统计代码
+if (isAntDesignProPreview) {
   plugins.push([
     'umi-plugin-ga',
     {
       code: 'UA-72788897-6',
     },
   ]);
+  plugins.push([
+    'umi-plugin-pro',
+    {
+      serverUrl: 'https://ant-design-pro.netlify.com',
+    },
+  ]);
 }
 
-const uglifyJSOptions =
-  NODE_ENV === 'production'
-    ? {
-        uglifyOptions: {
-          // remove console.* except console.error
-          compress: {
-            drop_console: true,
-            pure_funcs: ['console.error'],
-          },
-        },
-      }
-    : {};
 export default {
-  // add for transfer to umi
   plugins,
-  define: {
-    ANT_DESIGN_PRO_ONLY_DO_NOT_USE_IN_YOUR_PRODUCTION:
-      ANT_DESIGN_PRO_ONLY_DO_NOT_USE_IN_YOUR_PRODUCTION || '', // preview.pro.ant.design only do not use in your production ; preview.pro.ant.design 专用环境变量，请不要在你的项目中使用它。
-  },
   history: 'hash', // url模式
   base: '/admin/',
   publicPath: '/admin/',
   block: {
     defaultGitUrl: 'https://github.com/ant-design/pro-blocks',
   },
-  treeShaking: true,
+  hash: true,
   targets: {
     ie: 11,
   },
-  devtool: ANT_DESIGN_PRO_ONLY_DO_NOT_USE_IN_YOUR_PRODUCTION ? 'source-map' : false,
-  // 路由配置
+  devtool: isAntDesignProPreview ? 'source-map' : false,
+  // umi routes: https://umijs.org/zh/guide/router.html
   routes: [
     // auth
     {
@@ -577,20 +562,21 @@ export default {
             },
           ],
         },
+        {
+          component: './404',
+        },
       ],
     },
+    {
+      component: './404',
+    },
   ],
-  // Theme for antd
-  // https://ant.design/docs/react/customize-theme-cn
-  theme: {
+    theme: {
     'primary-color': primaryColor,
   },
-  proxy: {
-    '/api': {
-      target: 'http://www.project.com/',
-      changeOrigin: true,
-      pathRewrite: { '^/api': '/api' },
-    },
+  define: {
+    ANT_DESIGN_PRO_ONLY_DO_NOT_USE_IN_YOUR_PRODUCTION:
+      ANT_DESIGN_PRO_ONLY_DO_NOT_USE_IN_YOUR_PRODUCTION || '', // preview.pro.ant.design only do not use in your production ; preview.pro.ant.design 专用环境变量，请不要在你的项目中使用它。
   },
   ignoreMomentLocale: true,
   lessLoaderOptions: {
@@ -603,7 +589,7 @@ export default {
       context: {
         resourcePath: string;
       },
-      localIdentName: string,
+      _: string,
       localName: string,
     ) => {
       if (
@@ -631,6 +617,12 @@ export default {
   manifest: {
     basePath: '/',
   },
-  uglifyJSOptions,
   chainWebpack: webpackPlugin,
+  proxy: {
+    '/api': {
+      target: 'http://www.project.com/',
+      changeOrigin: true,
+      pathRewrite: { '^/api': '/api' },
+    },
+  },
 } as IConfig;

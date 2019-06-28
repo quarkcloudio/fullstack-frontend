@@ -1,11 +1,14 @@
-import { routerRedux } from 'dva/router';
-import { Reducer, AnyAction } from 'redux';
+import { AnyAction, Reducer } from 'redux';
+import { parse, stringify } from 'qs';
+
 import { EffectsCommandMap } from 'dva';
-import { stringify, parse } from 'qs';
+import { routerRedux } from 'dva/router';
 import { accountLogin } from '@/services/api';
 import { message } from 'antd';
 
-export function getPageQuery() {
+export function getPageQuery(): {
+  [key: string]: string;
+} {
   return parse(window.location.href.split('?')[1]);
 }
 

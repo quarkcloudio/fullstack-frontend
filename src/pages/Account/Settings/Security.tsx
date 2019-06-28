@@ -1,31 +1,43 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'dva';
-import router from 'umi/router';
+import { FormComponentProps } from 'antd/es/form';
+import { Dispatch } from 'redux';
 import styles from './Style.less';
-import PageHeaderWrapper from '@/components/PageHeaderWrapper';
-
+import router from 'umi/router';
+import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import { Menu, Form, Input, Button } from 'antd';
 
-@connect(({ account }) => ({
-  account,
+interface IFormComponentProps extends FormComponentProps {
+  dispatch: Dispatch<any>;
+  submitting: boolean;
+}
+
+@connect(({ loading }: { loading: { effects: { [key: string]: string } } }) => ({
+  submitting: loading.effects['account/changeAccountPassword'],
 }))
-@Form.create()
-class SecurityPage extends PureComponent {
+
+class SecurityPage extends Component<IFormComponentProps> {
+
   state = {
     msg: '',
     url: '',
-    data: {},
+    data: {
+      username:'',
+      nickname:'',
+      email:''
+    },
     status: '',
     pagination: {},
     loading: false,
   };
 
-  handleSubmit = e => {
+  handleSubmit = (e: React.FormEvent) => {
+    const { dispatch, form } = this.props;
     e.preventDefault();
-    this.props.form.validateFields((err, values) => {
-      // 验证正确提交表单
+    form.validateFields((err, values) => {
+      console.log(values);
       if (!err) {
-        this.props.dispatch({
+        dispatch({
           type: 'account/changeAccountPassword',
           payload: {
             ...values,
@@ -35,20 +47,23 @@ class SecurityPage extends PureComponent {
     });
   };
 
-  handleMenuClick = ({ key }) => {
-    if (key === 'info') {
+  handleMenuClick = (e: any) => {
+    if (e.key === 'info') {
       router.push('/account/settings/info');
       return;
     }
-
-    if (key === 'security') {
+    if (e.key === 'security') {
       router.push('/account/settings/security');
       return;
     }
   };
 
   render() {
-    const { getFieldDecorator } = this.props.form;
+    const { submitting } = this.props;
+
+    const {
+      form: { getFieldDecorator },
+    } = this.props;
 
     const formItemLayout = {
       labelCol: {
@@ -115,7 +130,11 @@ class SecurityPage extends PureComponent {
                   )}
                 </Form.Item>
                 <Form.Item wrapperCol={{ span: 12, offset: 5 }}>
-                  <Button type="primary" htmlType="submit">
+                  <Button 
+                    type="primary"
+                    loading={submitting}
+                    htmlType="submit"
+                  >
                     提交
                   </Button>
                 </Form.Item>
@@ -128,4 +147,4 @@ class SecurityPage extends PureComponent {
   }
 }
 
-export default SecurityPage;
+export default Form.create<IFormComponentProps>()(SecurityPage);

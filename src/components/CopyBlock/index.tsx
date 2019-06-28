@@ -1,7 +1,7 @@
 import { Icon, Popover, Typography } from 'antd';
+import React, { useRef } from 'react';
 
 import { FormattedMessage } from 'umi-plugin-react/locale';
-import React, { useRef } from 'react';
 import { connect } from 'dva';
 import { isAntDesignPro } from '@/utils/utils';
 import styles from './index.less';
@@ -33,7 +33,7 @@ const onBlockCopy = (label: string) => {
 const BlockCodeView: React.SFC<{
   url: string;
 }> = ({ url }) => {
-  const blockUrl = `npx umi block add ${firstUpperCase(url)}  --path=${url}`;
+  const blockUrl = `npx umi block add ${firstUpperCase(url)} --path=${url}`;
   return (
     <div className={styles['copy-block-view']}>
       <Typography.Paragraph
