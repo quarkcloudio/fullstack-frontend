@@ -4,7 +4,7 @@ import { FormComponentProps } from 'antd/es/form';
 import { Dispatch } from 'redux';
 import styles from './Style.less';
 import router from 'umi/router';
-import { PageHeaderWrapper } from '@ant-design/pro-layout';
+import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import { Menu, Form, Input, Button } from 'antd';
 
 interface IFormComponentProps extends FormComponentProps {
