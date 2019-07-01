@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import router from 'umi/router';
 import styles from './Index.less';
-import PageHeaderWrapper from '@ant-design/pro-layout/lib/PageHeaderWrapper';
+import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import { routerRedux } from 'dva/router';
 import { stringify } from 'qs';
 
@@ -423,7 +423,7 @@ class IndexPage extends PureComponent {
     };
 
     return (
-      <PageHeaderWrapper>
+      <PageHeaderWrapper title={false}>
         <div className={styles.container}>
           <div className={styles.tableHeader}>
             <Row type="flex" justify="start">

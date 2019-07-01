@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import { formatMessage, FormattedMessage } from 'umi/locale';
 import { Button, Row, Col, Icon, Steps, Card } from 'antd';
 import Result from '@/components/Result';
-import PageHeaderWrapper from '@ant-design/pro-layout/lib/PageHeaderWrapper';
+import { PageHeaderWrapper } from '@ant-design/pro-layout';
 
 const { Step } = Steps;
 

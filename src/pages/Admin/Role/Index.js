@@ -381,7 +381,7 @@ class IndexPage extends PureComponent {
     };
 
     return (
-      <PageHeaderWrapper>
+      <PageHeaderWrapper title={false}>
         <div className={styles.container}>
           <div className={styles.tableHeader}>
             <Row type="flex" justify="start">

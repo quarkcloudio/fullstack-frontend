@@ -140,7 +140,7 @@ class EditPage extends PureComponent {
     };
 
     return (
-      <PageHeaderWrapper>
+      <PageHeaderWrapper title={false}>
         <div className={styles.container}>
           <Card
             size="small"

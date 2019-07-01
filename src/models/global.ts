@@ -1,9 +1,10 @@
-import { Effect } from './connect.d';
-import { NoticeIconData } from '@/components/NoticeIcon';
 import { Reducer } from 'redux';
 import { Subscription } from 'dva';
-import { getNotices,getAccountMenus } from '@/services/api';
 import router from 'umi/router';
+
+import { Effect } from './connect.d';
+import { NoticeIconData } from '@/components/NoticeIcon';
+import { getNotices, getAccountMenus } from '@/services/api';
 
 export interface NoticeItem extends NoticeIconData {
   id: string;
@@ -23,7 +24,7 @@ export interface GlobalModelType {
     fetchNotices: Effect;
     clearNotices: Effect;
     changeNoticeReadState: Effect;
-    getMenuData:Effect;
+    getMenuData: Effect;
   };
   reducers: {
     changeLayoutCollapsed: Reducer<GlobalModelState>;
@@ -101,13 +102,13 @@ const GlobalModel: GlobalModelType = {
         },
       });
     },
-    *getMenuData({ payload }, { put, call}) {
+    *getMenuData({ payload }, { put, call }) {
       const response = yield call(getAccountMenus);
       if (response.status === 'success') {
         const menuData = response.data;
         yield put({
           type: 'save',
-          payload: { menuData:menuData },
+          payload: { menuData: menuData },
         });
       }
     },
@@ -150,7 +151,7 @@ const GlobalModel: GlobalModelType = {
         if (!sessionStorage['token'] && pathname !== '/login') {
           router.push('/login');
         }
-        
+
         if (typeof (window as any).ga !== 'undefined') {
           (window as any).ga('send', 'pageview', pathname + search);
         }

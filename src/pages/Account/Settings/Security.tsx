@@ -4,7 +4,7 @@ import { FormComponentProps } from 'antd/es/form';
 import { Dispatch } from 'redux';
 import styles from './Style.less';
 import router from 'umi/router';
-import PageHeaderWrapper from '@/components/PageHeaderWrapper';
+import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import { Menu, Form, Input, Button } from 'antd';
 
 interface IFormComponentProps extends FormComponentProps {
@@ -15,16 +15,14 @@ interface IFormComponentProps extends FormComponentProps {
 @connect(({ loading }: { loading: { effects: { [key: string]: string } } }) => ({
   submitting: loading.effects['account/changeAccountPassword'],
 }))
-
 class SecurityPage extends Component<IFormComponentProps> {
-
   state = {
     msg: '',
     url: '',
     data: {
-      username:'',
-      nickname:'',
-      email:''
+      username: '',
+      nickname: '',
+      email: '',
     },
     status: '',
     pagination: {},
@@ -77,7 +75,7 @@ class SecurityPage extends Component<IFormComponentProps> {
     };
 
     return (
-      <PageHeaderWrapper>
+      <PageHeaderWrapper title={false}>
         <div className={styles.container}>
           <div className={styles.sider}>
             <Menu
@@ -130,11 +128,7 @@ class SecurityPage extends Component<IFormComponentProps> {
                   )}
                 </Form.Item>
                 <Form.Item wrapperCol={{ span: 12, offset: 5 }}>
-                  <Button 
-                    type="primary"
-                    loading={submitting}
-                    htmlType="submit"
-                  >
+                  <Button type="primary" loading={submitting} htmlType="submit">
                     提交
                   </Button>
                 </Form.Item>

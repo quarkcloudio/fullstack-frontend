@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import router from 'umi/router';
 import styles from './Recharge.less';
-import PageHeaderWrapper from '@ant-design/pro-layout/lib/PageHeaderWrapper';
+import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import moment from 'moment';
 import 'moment/locale/zh-cn';
 moment.locale('zh-cn');
@@ -113,7 +113,7 @@ class RechargePage extends PureComponent {
     };
 
     return (
-      <PageHeaderWrapper>
+      <PageHeaderWrapper title={false}>
         <div className={styles.container}>
           <Card
             size="small"

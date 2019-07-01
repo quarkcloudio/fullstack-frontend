@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import router from 'umi/router';
 import styles from './Edit.less';
-import PageHeaderWrapper from '@ant-design/pro-layout/lib/PageHeaderWrapper';
+import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import BraftEditor from 'braft-editor';
 import 'braft-editor/dist/index.css';
 import moment from 'moment';
@@ -273,7 +273,7 @@ class EditPage extends PureComponent {
     };
 
     return (
-      <PageHeaderWrapper>
+      <PageHeaderWrapper title={false}>
         <div className={styles.container}>
           <Form onSubmit={this.handleSubmit}>
             <Tabs
