@@ -124,8 +124,8 @@ export default {
           ],
         },
         {
-          path: '/builderDemo',
-          name: 'builderDemo',
+          path: '/builder',
+          name: 'builder',
           routes: [
             {
               path: '/builder/index',

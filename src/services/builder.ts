@@ -20,22 +20,15 @@ export async function changeStatus(params: any) {
 }
 
 export async function create(params: any) {
-  return request(`../../api/admin/${params.controllerName}/create?${stringify(params)}`);
-}
-
-export async function store(params: any) {
-  return request(`../../api/admin/${params.controllerName}/store`, {
-    method: 'post',
-    body: params,
-  });
+  return request(`../../api/${params.controllerName}?${stringify(params)}`);
 }
 
 export async function edit(params: any) {
-  return request(`../../api/admin/${params.controllerName}/edit?${stringify(params)}`);
+  return request(`../../api/${params.controllerName}?${stringify(params)}`);
 }
 
-export async function save(params: any) {
-  return request(`../../api/admin/${params.controllerName}/save`, {
+export async function submit(params: any) {
+  return request(`../../api/${params.action}`, {
     method: 'post',
     body: params,
   });

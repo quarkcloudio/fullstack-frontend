@@ -7,9 +7,8 @@ import {
   destroy,
   changeStatus,
   create,
-  store,
   edit,
-  save,
+  submit,
 } from '@/services/builder';
 
 export interface ModelType {
@@ -21,13 +20,11 @@ export interface ModelType {
     destroy: Effect;
     changeStatus: Effect;
     create: Effect;
-    store: Effect;
     edit: Effect;
-    save: Effect;
+    submit: Effect;
     modalCreate: Effect;
-    modalStore: Effect;
     modalEdit: Effect;
-    modalSave: Effect;
+    modalSubmit: Effect;
     myPublished: Effect;
   };
   reducers: {
@@ -111,22 +108,6 @@ const Builder: ModelType = {
         }
       }
     },
-    *store({ type, payload }, { put, call, select }) {
-      const response = yield call(store, payload);
-      // 操作成功
-      if (response.status === 'success') {
-        // 提示信息
-        message.success(response.msg, 3);
-        // 页面跳转
-        yield put(
-          routerRedux.push({
-            pathname: response.url,
-          }),
-        );
-      } else {
-        message.error(response.msg, 3);
-      }
-    },
     *edit({ payload, callback }, { put, call, select }) {
       const response = yield call(edit, payload);
       if (response.status === 'success') {
@@ -140,8 +121,8 @@ const Builder: ModelType = {
         }
       }
     },
-    *save({ type, payload }, { put, call, select }) {
-      const response = yield call(save, payload);
+    *submit({ type, payload }, { put, call, select }) {
+      const response = yield call(submit, payload);
       // 操作成功
       if (response.status === 'success') {
         // 提示信息
@@ -170,17 +151,6 @@ const Builder: ModelType = {
         }
       }
     },
-    // 弹窗保存数据
-    *modalStore({ type, payload }, { put, call, select }) {
-      const response = yield call(store, payload);
-      // 操作成功
-      if (response.status === 'success') {
-        // 提示信息
-        message.success(response.msg, 3);
-      } else {
-        message.error(response.msg, 3);
-      }
-    },
     // 弹窗编辑数据
     *modalEdit({ payload, callback }, { put, call, select }) {
       const response = yield call(edit, payload);
@@ -196,8 +166,8 @@ const Builder: ModelType = {
       }
     },
     // 弹窗保存编辑数据
-    *modalSave({ type, payload }, { put, call, select }) {
-      const response = yield call(save, payload);
+    *modalSubmit({ type, payload }, { put, call, select }) {
+      const response = yield call(submit, payload);
       // 操作成功
       if (response.status === 'success') {
         // 提示信息
