@@ -6,7 +6,7 @@ import BasicForm from '@/components/Builder/BasicForm';
 class FormPage extends PureComponent {
   render() {
     return (
-      <BasicForm title={'test'} action={'admin/article/store'} fields={['xxx']} data={['xxx']} />
+      <BasicForm title={'test'} action={'admin/demo/store'} fieldsAndDataUrl={'admin/demo/builderForm'} />
     );
   }
 }

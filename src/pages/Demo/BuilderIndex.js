@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import router from 'umi/router';
-import styles from './Index.less';
+import styles from './BuilderIndex.less';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import { routerRedux } from 'dva/router';
 import { stringify } from 'qs';

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styles from './BasicForm.less';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import BraftEditor from 'braft-editor';
@@ -39,6 +39,7 @@ export interface BasicFormProps extends FormComponentProps {
   action?: string;
   fields?: [];
   data?: [];
+  fieldsAndDataUrl?: [];
   submitting: boolean;
   dispatch: Dispatch<any>;
 }
@@ -56,24 +57,43 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
     },
   };
 
-  const {
+  let {
     title,
     action,
     fields,
-    data
+    data,
+    fieldsAndDataUrl,
+    submitting,
+    dispatch,
+    form
   } = props;
 
-  const { submitting } = props;
-  const {
-    form: { getFieldDecorator },
-  } = props;
+  const { getFieldDecorator } = form;
+
+  /**
+   * constructor
+   */
+  useEffect(() => {
+    if (dispatch) {
+      dispatch({
+        type: 'builder/getFieldsAndData',
+        payload: {
+          fieldsAndDataUrl: fieldsAndDataUrl,
+        },
+        callback: (res:any) => {
+          // 执行成功后，进行回调
+          if (res) {
+            // 接口得到数据，放到state里
+            data = res.data;
+          }
+        },
+      });
+    }
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
-    const { dispatch, form } = props;
-
     e.preventDefault();
     form.validateFieldsAndScroll((err, values) => {
-
       if (!err) {
         dispatch({
           type: 'builder/submit',

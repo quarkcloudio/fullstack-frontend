@@ -124,16 +124,16 @@ export default {
           ],
         },
         {
-          path: '/builder',
-          name: 'builder',
+          path: '/demo',
+          name: 'demo',
           routes: [
             {
-              path: '/builder/index',
-              component: './Builder/Index',
+              path: '/demo/builderIndex',
+              component: './Demo/BuilderIndex',
             },
             {
-              path: '/builder/form',
-              component: './Builder/Form',
+              path: '/demo/builderForm',
+              component: './Demo/BuilderForm',
             },
           ],
         },
