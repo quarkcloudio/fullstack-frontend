@@ -4,9 +4,10 @@ import { MenuDataItem } from '@ant-design/pro-layout';
 import { RouterTypes } from 'umi';
 import { GlobalModelState } from './global';
 import { DefaultSettings as SettingModelState } from '../../config/defaultSettings';
-import { UserModelState } from './user';
+import { BuilderModelState } from './builder';
+import { AccountModelState } from './account';
 
-export { GlobalModelState, SettingModelState, UserModelState };
+export { GlobalModelState, SettingModelState, BuilderModelState };
 
 export interface Loading {
   global: boolean;
@@ -15,7 +16,8 @@ export interface Loading {
     global?: boolean;
     menu?: boolean;
     setting?: boolean;
-    user?: boolean;
+    builder?: boolean;
+    account?: boolean;
   };
 }
 
@@ -23,7 +25,8 @@ export interface ConnectState {
   global: GlobalModelState;
   loading: Loading;
   settings: SettingModelState;
-  user: UserModelState;
+  builder: BuilderModelState;
+  account: AccountModelState;
 }
 
 export type Effect = (

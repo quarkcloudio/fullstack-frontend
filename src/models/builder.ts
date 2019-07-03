@@ -3,17 +3,28 @@ import { Reducer } from 'redux';
 import { Effect,Subscription } from 'dva';
 import { message } from 'antd';
 import { 
-  getFieldsAndData,
-  submit,
+  getFormInfo,
+  formSubmit,
 } from '@/services/builder';
+
+export interface BuilderModelState {
+  formLoading:boolean;
+  controls: [];
+  labelCol: [];
+  wrapperCol: [];
+  submitName: string;
+  submitType: string;
+  submitLayout: string;
+  action: string;
+}
 
 export interface ModelType {
   namespace: string;
   state: {};
   subscriptions:{ setup: Subscription };
   effects: {
-    getFieldsAndData: Effect;
-    submit: Effect;
+    getFormInfo: Effect;
+    formSubmit: Effect;
   };
   reducers: {
     updateState: Reducer<{}>;
@@ -21,32 +32,29 @@ export interface ModelType {
 }
 
 const Builder: ModelType = {
+
   namespace: 'builder',
 
-  state: {
-    msg: '',
-    url: '',
-    data: [],
-    pagination: [],
-    status: '',
-  },
+  state: {},
 
   subscriptions: {
     setup({ dispatch, history }) {
       return history.listen(({ pathname }) => {
-        //打开页面时，进行操作
-        console.log('subscriptions');
+        //打开页面时
       });
     },
   },
 
   effects: {
-    *getFieldsAndData({ payload, callback }, { put, call, select }) {
-      const response = yield call(getFieldsAndData, payload);
+    *getFormInfo({ payload, callback }, { put, call, select }) {
+      const response = yield call(getFormInfo, payload);
       if (response.status === 'success') {
+
+        const data = { ...response.data, formLoading:false};
+
         yield put({
           type: 'updateState',
-          payload: response,
+          payload: data,
         });
 
         if (callback && typeof callback === 'function') {
@@ -54,8 +62,8 @@ const Builder: ModelType = {
         }
       }
     },
-    *submit({ type, payload }, { put, call, select }) {
-      const response = yield call(submit, payload);
+    *formSubmit({ type, payload }, { put, call, select }) {
+      const response = yield call(formSubmit, payload);
       // 操作成功
       if (response.status === 'success') {
         // 提示信息

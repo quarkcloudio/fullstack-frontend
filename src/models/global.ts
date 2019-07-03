@@ -15,6 +15,7 @@ export interface NoticeItem extends NoticeIconData {
 export interface GlobalModelState {
   collapsed: boolean;
   notices: NoticeItem[];
+  menuData: [];
 }
 
 export interface GlobalModelType {

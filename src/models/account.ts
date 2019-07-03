@@ -6,6 +6,7 @@ import { Reducer } from 'redux';
 export interface CurrentUser {
   avatar?: string;
   nickname?: string;
+  username?: string;
   title?: string;
   group?: string;
   signature?: string;
