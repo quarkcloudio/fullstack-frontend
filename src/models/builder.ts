@@ -8,6 +8,9 @@ import {
 } from '@/services/builder';
 
 export interface BuilderModelState {
+  previewImage:string;
+  previewVisible:boolean;
+  imageList:[];
   formLoading:boolean;
   controls: [];
   labelCol: [];
@@ -28,6 +31,9 @@ export interface ModelType {
   };
   reducers: {
     updateState: Reducer<{}>;
+    updateImageList: Reducer<{}>;
+    previewImage: Reducer<{}>;
+    updateAllImageList:Reducer<{}>;
   };
 }
 
@@ -50,7 +56,14 @@ const Builder: ModelType = {
       const response = yield call(getFormInfo, payload);
       if (response.status === 'success') {
 
-        const data = { ...response.data, formLoading:false};
+        let imageList:any = [];
+        response.data.controls.map((control:any) => {
+          if(control.type == 'image') {
+            imageList = control.list;
+          }
+        })
+
+        const data = { ...response.data, formLoading:false,imageList:imageList};
 
         yield put({
           type: 'updateState',
@@ -84,6 +97,19 @@ const Builder: ModelType = {
     updateState(state, action) {
       return {
         ...action.payload,
+      };
+    },
+    updateImageList(state, action) {
+      state.imageList = action.payload.imageList;
+      return {
+        ...state,
+      };
+    },
+    previewImage(state, action) {
+      state.previewVisible = action.payload.previewVisible;
+      state.previewImage = action.payload.previewImage;
+      return {
+        ...state,
       };
     },
   },

@@ -353,7 +353,7 @@ class CreatePage extends PureComponent {
                       {
                         rules: [{ type: 'number', message: '必须为数字' }],
                       },
-                    )(<InputNumber min={0} max={100000} />)}{' '}
+                    )(<InputNumber min={0} max={100000} />)}
                     (越大越靠前)
                   </Form.Item>
                 </Form.Item>
