@@ -8,9 +8,9 @@ import {
 } from '@/services/builder';
 
 export interface BuilderModelState {
+  pageRandom:string;
   previewImage:string;
   previewVisible:boolean;
-  imageList:[];
   formLoading:boolean;
   controls: [];
   labelCol: [];
@@ -28,12 +28,12 @@ export interface ModelType {
   effects: {
     getFormInfo: Effect;
     formSubmit: Effect;
+    updateFileList: Effect;
   };
   reducers: {
     updateState: Reducer<{}>;
-    updateImageList: Reducer<{}>;
+    updateList: Reducer<{}>;
     previewImage: Reducer<{}>;
-    updateAllImageList:Reducer<{}>;
   };
 }
 
@@ -41,7 +41,19 @@ const Builder: ModelType = {
 
   namespace: 'builder',
 
-  state: {},
+  state: {
+    pageRandom:null,
+    previewImage:'',
+    previewVisible:false,
+    formLoading:false,
+    controls: [],
+    labelCol: [],
+    wrapperCol: [],
+    submitName: null,
+    submitType: null,
+    submitLayout: null,
+    action: null,
+  },
 
   subscriptions: {
     setup({ dispatch, history }) {
@@ -56,14 +68,7 @@ const Builder: ModelType = {
       const response = yield call(getFormInfo, payload);
       if (response.status === 'success') {
 
-        let imageList:any = [];
-        response.data.controls.map((control:any) => {
-          if(control.type == 'image') {
-            imageList = control.list;
-          }
-        })
-
-        const data = { ...response.data, formLoading:false,imageList:imageList};
+        const data = { ...response.data, formLoading:false};
 
         yield put({
           type: 'updateState',
@@ -91,6 +96,12 @@ const Builder: ModelType = {
         message.error(response.msg, 3);
       }
     },
+    *updateFileList({ payload, callback }, { put, call, select }) {
+      yield put({
+        type: 'updateList',
+        payload: payload,
+      });
+    },
   },
 
   reducers: {
@@ -99,8 +110,13 @@ const Builder: ModelType = {
         ...action.payload,
       };
     },
-    updateImageList(state, action) {
-      state.imageList = action.payload.imageList;
+    updateList(state, action) {
+      state.controls.map((control:any,key:any) => {
+        if(control.name == action.payload.controlName) {
+          state.controls[key]['list'] = action.payload.fileList;
+        }
+      })
+      state.pageRandom = Math.random();
       return {
         ...state,
       };

@@ -36,12 +36,12 @@ const Option = Select.Option;
 const RadioGroup = Radio.Group;
 
 export interface BasicFormProps extends FormComponentProps {
+  pageRandom:string;
   previewImage: string;
   previewVisible: boolean;
-  imageList:any;
   formLoading: boolean;
   action?: string;
-  controls?: any;
+  controls?: [];
   labelCol?: any;
   wrapperCol?: any;
   submitName?: string;
@@ -55,7 +55,7 @@ export interface BasicFormProps extends FormComponentProps {
 const BasicForm: React.SFC<BasicFormProps> = props => {
 
   const {
-    imageList,
+    pageRandom,
     previewImage,
     previewVisible,
     formLoading,
@@ -92,6 +92,23 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
     e.preventDefault();
     form.validateFieldsAndScroll((err, values) => {
       if (!err) {
+
+        controls.map((control:any,key:any) => {
+          if(control.type == 'image' || control.type == 'file') {
+            values[control.name] = control.list;
+          }
+
+          if(control.type == 'datePicker') {
+            values[control.name] = values[control.name].format('YYYY-MM-DD HH:mm:ss');
+          }
+
+          if(control.type == 'editor') {
+            values[control.name] = values[control.name].toHTML();
+          }
+        })
+
+        console.log(values)
+
         dispatch({
           type: 'builder/formSubmit',
           payload: {
@@ -158,7 +175,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
     xhr.send(fd);
   };
 
-  const handleCancel = () => { 
+  const handleCancel = () => {
     dispatch({
       type: 'builder/previewImage',
       payload: {
@@ -169,7 +186,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
    };
 
   return (
-    <Spin spinning={formLoading}>
+    <Spin spinning={formLoading} >
       <Form onSubmit={handleSubmit} style={{ marginTop: 15 }}>
         {!!controls &&
           controls.map((control:any) => {
@@ -357,73 +374,170 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
             }
 
             if(control.type == "image") {
+              // 多图片上传模式
+              if(control.mode == "multiple") {
+                let uploadButton = (
+                  <div>
+                    <Icon type="plus" />
+                    <div className="ant-upload-text">{control.button}</div>
+                  </div>
+                );
+                var getFileList = control.list;
+                return (
+                  <Form.Item 
+                    labelCol={control.labelCol?control.labelCol:labelCol} 
+                    wrapperCol={control.wrapperCol?control.wrapperCol:wrapperCol} 
+                    label={control.labelName}
+                    extra={control.extra}
+                  >
+                    <Upload
+                      name={'file'}
+                      listType={"picture-card"}
+                      fileList={getFileList}
+                      multiple={true}
+                      onPreview={(file:any) => {
+                        dispatch({
+                          type: 'builder/previewImage',
+                          payload: {
+                            previewImage : file.url || file.thumbUrl,
+                            previewVisible : true,
+                          }
+                        }
+                      )}}
+                      action={'/api/admin/picture/upload'}
+                      headers={{authorization: 'Bearer ' + sessionStorage['token']}}
+                      beforeUpload = {(file:any) => {
+                        let canUpload = false;
+                        for(var i = 0; i < control.limitType.length; i++) {
+                          if(control.limitType[i] == file.type) {
+                            canUpload = true;
+                          }
+                        }
+                        if (!canUpload) {
+                          message.error('请上传正确格式的图片!');
+                          return false;
+                        }
+                        const isLtSize = file.size / 1024 / 1024 < control.limitSize;
+                        if (!isLtSize) {
+                          message.error('图片大小不可超过'+control.limitSize+'MB!');
+                          return false;
+                        }
+                        return true;
+                      }}
+                      onChange = {(info:any) => {
+                        let fileList = info.fileList;
+                        fileList = fileList.slice(-control.limitNum);
+                        fileList = fileList.map((file:any) => {
+                          if (file.response) {
+                            file.url = file.response.data.url;
+                            file.uid = file.response.data.id;
+                          }
+                          return file;
+                        });
+      
+                        fileList = fileList.filter((file:any) => {
+                          if (file.response) {
+                            return file.response.status === 'success';
+                          }
+                          return true;
+                        });
+      
+                        dispatch({
+                          type: 'builder/updateFileList',
+                          payload: {
+                            fileList : fileList,
+                            controlName : control.name
+                          }
+                        });
+                      }}
+                    >
+                      {control.list >= 3 ? null : uploadButton}
+                    </Upload>
+                    <Modal
+                      visible={previewVisible}
+                      footer={null}
+                      onCancel={handleCancel}
+                    >
+                      <img style={{ width: '100%' }} src={previewImage} />
+                    </Modal>
+                  </Form.Item>
+                );
+              } else {
+                // 单图片上传模式
+                let uploadButton = (
+                  <div>
+                    <Icon type="plus" />
+                    <div className="ant-upload-text">{control.button}</div>
+                  </div>
+                );
 
-              const uploadButton = (
-                <div>
-                  <Icon type="plus" />
-                  <div className="ant-upload-text">{control.button}</div>
-                </div>
-              );
+                return (
+                  <Form.Item 
+                    labelCol={control.labelCol?control.labelCol:labelCol} 
+                    wrapperCol={control.wrapperCol?control.wrapperCol:wrapperCol} 
+                    label={control.labelName}
+                    extra={control.extra}
+                  >
+                    <Upload
+                      name={'file'}
+                      listType={"picture-card"}
+                      showUploadList={false}
+                      action={'/api/admin/picture/upload'}
+                      headers={{authorization: 'Bearer ' + sessionStorage['token']}}
+                      beforeUpload = {(file:any) => {
+                        let canUpload = false;
+                        for(var i = 0; i < control.limitType.length; i++) {
+                          if(control.limitType[i] == file.type) {
+                            canUpload = true;
+                          }
+                        }
+                        if (!canUpload) {
+                          message.error('请上传正确格式的图片!');
+                          return false;
+                        }
+                        const isLtSize = file.size / 1024 / 1024 < control.limitSize;
+                        if (!isLtSize) {
+                          message.error('图片大小不可超过'+control.limitSize+'MB!');
+                          return false;
+                        }
+                        return true;
+                      }}
+                      onChange = {(info:any) => {
+                        if (info.file.status === 'done') {
+                          // Get this url from response in real world.
+                          if (info.file.response.status === 'success') {
+                            let fileList = [];
 
-              // 图片上传
-              const uploadPictureProps = {
-                name: 'file',
-                listType: 'picture-card',
-                fileList: imageList,
-                onPreview: (file:any) => {
-                  dispatch({
-                    type: 'builder/previewImage',
-                    payload: {
-                      previewImage : file.url || file.thumbUrl,
-                      previewVisible : true,
-                    }
-                  });
-                },
-                action: '/api/admin/picture/upload',
-                headers: {
-                  authorization: 'Bearer ' + sessionStorage['token'],
-                },
-                beforeUpload: (file:any) => {
-                  if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
-                    message.error('请上传jpg或png格式的图片!');
-                    return false;
-                  }
-                  const isLt2M = file.size / 1024 / 1024 < 2;
-                  if (!isLt2M) {
-                    message.error('图片大小不可超过2MB!');
-                    return false;
-                  }
-                  return true;
-                },
-                onChange: (info:any) => {
-                  let fileList = info.fileList;
+                            if (info.file.response) {
+                              info.file.url = info.file.response.data.url;
+                              info.file.uid = info.file.response.data.id;
+                            }
 
-                  fileList = fileList.slice(-3);
+                            fileList[0] = info.file;
+                            dispatch({
+                              type: 'builder/updateFileList',
+                              payload: {
+                                fileList : fileList,
+                                controlName : control.name
+                              }
+                            });
+                          } else {
+                            message.error(info.file.response.msg);
+                          }
+                        }
+                      }}
+                    >
+                      {control.list ? (
+                        <img src={control.list[0]['url']} alt="avatar" width={80} />
+                      ) : (uploadButton)}
+                    </Upload>
+                  </Form.Item>
+                );
+              }
+            }
 
-                  fileList = fileList.map((file:any) => {
-                    if (file.response) {
-                      file.url = file.response.data.url;
-                      file.uid = file.response.data.id;
-                    }
-                    return file;
-                  });
-
-                  fileList = fileList.filter((file:any) => {
-                    if (file.response) {
-                      return file.response.status === 'success';
-                    }
-                    return true;
-                  });
-
-                  dispatch({
-                    type: 'builder/updateImageList',
-                    payload: {
-                      imageList : fileList,
-                    }
-                  });
-                },
-              };
-
+            if(control.type=='file') {
+              var getFileList = control.list;
               return (
                 <Form.Item 
                   labelCol={control.labelCol?control.labelCol:labelCol} 
@@ -431,26 +545,77 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                   label={control.labelName}
                   extra={control.extra}
                 >
-                  <Upload {...uploadPictureProps}>
-                    {imageList >= 3 ? null : uploadButton}
-                  </Upload>
-                  <Modal
-                    visible={previewVisible}
-                    footer={null}
-                    onCancel={handleCancel}
+                  <Upload
+                    name={'file'}
+                    fileList={getFileList}
+                    multiple={true}
+                    action={'/api/admin/picture/upload'}
+                    headers={{authorization: 'Bearer ' + sessionStorage['token']}}
+                    beforeUpload = {(file:any) => {
+                      let canUpload = false;
+                      for(var i = 0; i < control.limitType.length; i++) {
+                        if(control.limitType[i] == file.type) {
+                          canUpload = true;
+                        }
+                      }
+                      if (!canUpload) {
+                        message.error('请上传正确格式的文件!');
+                        return false;
+                      }
+                      const isLtSize = file.size / 1024 / 1024 < control.limitSize;
+                      if (!isLtSize) {
+                        message.error('文件大小不可超过'+control.limitSize+'MB!');
+                        return false;
+                      }
+                      return true;
+                    }}
+                    onChange = {(info:any) => {
+                      let fileList = info.fileList;
+                      fileList = fileList.slice(-control.limitNum);
+                      fileList = fileList.map((file:any) => {
+                        if (file.response) {
+                          if(file.response.status === 'success') {
+                            file.url = file.response.data.url;
+                            file.uid = file.response.data.id;
+                          }
+                        }
+                        return file;
+                      });
+    
+                      fileList = fileList.filter((file:any) => {
+                        if (file.response) {
+                          return file.response.status === 'success';
+                        }
+                        return true;
+                      });
+    
+                      dispatch({
+                        type: 'builder/updateFileList',
+                        payload: {
+                          fileList : fileList,
+                          controlName : control.name
+                        }
+                      });
+                    }}
                   >
-                    <img style={{ width: '100%' }} src={previewImage} />
-                  </Modal>
+                    <Button>
+                      <Icon type="upload" /> {control.button}
+                    </Button>
+                  </Upload>
                 </Form.Item>
               );
             }
 
           })}
-        <Form.Item {...submitLayout} >
-          <Button type = {submitType} htmlType="submit" loading={submitting}>
-            {submitName}
-          </Button>
-        </Form.Item>
+
+        {!!submitName && 
+          <Form.Item {...submitLayout} >
+            <Button type = {submitType} htmlType="submit" loading={submitting}>
+              {submitName}
+            </Button>
+          </Form.Item>
+        }
+
       </Form>
     </Spin>
   );
@@ -467,8 +632,8 @@ export default Form.create<BasicFormProps>()(
     submitLayout: builder.submitLayout,
     action: builder.action,
     formLoading: builder.formLoading,
-    imageList:builder.imageList,
     previewVisible:builder.previewVisible,
-    previewImage:builder.previewImage
+    previewImage:builder.previewImage,
+    pageRandom:builder.pageRandom
   }))(BasicForm),
 );
