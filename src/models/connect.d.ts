@@ -4,10 +4,11 @@ import { MenuDataItem } from '@ant-design/pro-layout';
 import { RouterTypes } from 'umi';
 import { GlobalModelState } from './global';
 import { DefaultSettings as SettingModelState } from '../../config/defaultSettings';
-import { BuilderModelState } from './builder';
+import { BasicFormModelState } from './basicForm';
+import { BasicListModelState } from './basicList';
 import { AccountModelState } from './account';
 
-export { GlobalModelState, SettingModelState, BuilderModelState };
+export { GlobalModelState, SettingModelState, BasicListModelState };
 
 export interface Loading {
   global: boolean;
@@ -16,7 +17,8 @@ export interface Loading {
     global?: boolean;
     menu?: boolean;
     setting?: boolean;
-    builder?: boolean;
+    basicForm?: boolean;
+    basicList?: boolean;
     account?: boolean;
   };
 }
@@ -25,7 +27,8 @@ export interface ConnectState {
   global: GlobalModelState;
   loading: Loading;
   settings: SettingModelState;
-  builder: BuilderModelState;
+  basicForm: BasicFormModelState;
+  basicList: BasicListModelState;
   account: AccountModelState;
 }
 

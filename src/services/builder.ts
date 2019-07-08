@@ -11,3 +11,7 @@ export async function formSubmit(params: any) {
     body: params,
   });
 }
+
+export async function getListInfo(params: any) {
+  return request(`../../api/${params.url}?${stringify(params)}`);
+}

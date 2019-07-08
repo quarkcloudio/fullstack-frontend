@@ -7,7 +7,9 @@ import {
   formSubmit,
 } from '@/services/builder';
 
-export interface BuilderModelState {
+export interface BasicFormModelState {
+  pageTitle:string;
+  name:string;
   pageRandom:string;
   previewImage:string;
   previewVisible:boolean;
@@ -37,11 +39,13 @@ export interface ModelType {
   };
 }
 
-const Builder: ModelType = {
+const BasicForm: ModelType = {
 
-  namespace: 'builder',
+  namespace: 'basicForm',
 
   state: {
+    pageTitle:'',
+    name:'',
     pageRandom:null,
     previewImage:'',
     previewVisible:false,
@@ -131,4 +135,4 @@ const Builder: ModelType = {
   },
 };
 
-export default Builder;
+export default BasicForm;
