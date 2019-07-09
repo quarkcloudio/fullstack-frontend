@@ -99,15 +99,15 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
       if (!err) {
 
         controls.map((control:any,key:any) => {
-          if(control.type == 'image' || control.type == 'file') {
+          if(control.controlType == 'image' || control.controlType == 'file') {
             values[control.name] = control.list;
           }
 
-          if(control.type == 'datePicker') {
+          if(control.controlType == 'datePicker') {
             values[control.name] = values[control.name].format('YYYY-MM-DD HH:mm:ss');
           }
 
-          if(control.type == 'editor') {
+          if(control.controlType == 'editor') {
             values[control.name] = values[control.name].toHTML();
           }
         })
@@ -202,7 +202,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
         <Form onSubmit={handleSubmit} style={{ marginTop: 15 }}>
           {!!controls &&
             controls.map((control:any) => {
-              if(control.type == "text") {
+              if(control.controlType == "text") {
                 return (
                   <Form.Item 
                     labelCol={control.labelCol?control.labelCol:labelCol} 
@@ -218,7 +218,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                 );
               }
 
-              if(control.type == "textArea") {
+              if(control.controlType == "textArea") {
                 return (
                   <Form.Item 
                     labelCol={control.labelCol?control.labelCol:labelCol} 
@@ -234,7 +234,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                 );
               }
 
-              if(control.type == "inputNumber") {
+              if(control.controlType == "inputNumber") {
                 return (
                   <Form.Item 
                     labelCol={control.labelCol?control.labelCol:labelCol} 
@@ -250,7 +250,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                 );
               }
 
-              if(control.type == "checkbox") {
+              if(control.controlType == "checkbox") {
                 return (
                   <Form.Item 
                     labelCol={control.labelCol?control.labelCol:labelCol} 
@@ -272,7 +272,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                 );
               }
 
-              if(control.type == "radio") {
+              if(control.controlType == "radio") {
                 return (
                   <Form.Item 
                     labelCol={control.labelCol?control.labelCol:labelCol} 
@@ -294,7 +294,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                 );
               }
 
-              if(control.type == "select") {
+              if(control.controlType == "select") {
                 return (
                   <Form.Item 
                     labelCol={control.labelCol?control.labelCol:labelCol} 
@@ -318,7 +318,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                 );
               }
 
-              if(control.type == "switch") {
+              if(control.controlType == "switch") {
                 return (
                   <Form.Item 
                     labelCol={control.labelCol?control.labelCol:labelCol} 
@@ -337,7 +337,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                 );
               }
 
-              if(control.type == "datePicker") {
+              if(control.controlType == "datePicker") {
                 return (
                   <Form.Item 
                     labelCol={control.labelCol?control.labelCol:labelCol} 
@@ -362,7 +362,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                 );
               }
 
-              if(control.type == "editor") {
+              if(control.controlType == "editor") {
                 return (
                   <Form.Item 
                     labelCol={control.labelCol?control.labelCol:labelCol} 
@@ -385,7 +385,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                 );
               }
 
-              if(control.type == "image") {
+              if(control.controlType == "image") {
                 // 多图片上传模式
                 if(control.mode == "multiple") {
                   let uploadButton = (
@@ -548,7 +548,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                 }
               }
 
-              if(control.type=='file') {
+              if(control.controlType=='file') {
                 var getFileList = control.list;
                 return (
                   <Form.Item 

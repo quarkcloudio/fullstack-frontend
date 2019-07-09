@@ -34,9 +34,12 @@ const confirm = Modal.confirm;
 const Option = Select.Option;
 
 export interface BasicListProps extends FormComponentProps {
+  pageTitle:string;
   pageRandom:string;
   previewImage: string;
   previewVisible: boolean;
+  table: [];
+  headerButtons:[];
   url?: string;
   submitting: boolean;
   dispatch: Dispatch<any>;
@@ -45,9 +48,12 @@ export interface BasicListProps extends FormComponentProps {
 const BasicList: React.SFC<BasicListProps> = props => {
 
   const {
+    pageTitle,
     pageRandom,
     previewImage,
     previewVisible,
+    table,
+    headerButtons,
     url,
     submitting,
     dispatch,
@@ -94,31 +100,41 @@ const BasicList: React.SFC<BasicListProps> = props => {
         previewVisible : false,
       }
     });
-   };
+  };
+
+
+   const openFormModel = () => {
+    alert('x')
+  };
 
   return (
     <div className={styles.container}>
       <div className={styles.tableHeader}>
         <Row type="flex" justify="start">
           <Col span={12}>
-            <h5 className={styles.tableHeaderTitle}>文章列表</h5>
+            <h5 className={styles.tableHeaderTitle}>{pageTitle}</h5>
           </Col>
           <Col span={12}>
             <div className={styles.floatRight}>
-              <Button type="primary">
-                <Icon type="plus-circle" />
-                发布文章
-              </Button>
-              &nbsp;
-              <a
-                href={''}
-                target="_blank"
-              >
-                <Button>
-                  <Icon type="export" />
-                  导出数据
+            {!!headerButtons &&
+            headerButtons.map((headerButton:any) => {
+              return (
+              <span>
+                <Button
+                  href={headerButton.href ? headerButton.href : false}
+                  size={headerButton.size}
+                  type={headerButton.type}
+                  target={headerButton.target ? headerButton.target : false}
+                  onClick={!!headerButton.onClick && eval(headerButton.onClick)}
+                  style={headerButton.style}
+                >
+                  {!!headerButton.icon && (<Icon type={headerButton.icon} />)}
+                  {headerButton.name}
                 </Button>
-              </a>
+                &nbsp;
+              </span>
+              );
+            })}
             </div>
           </Col>
         </Row>
@@ -127,11 +143,6 @@ const BasicList: React.SFC<BasicListProps> = props => {
       <div className={styles.tableToolBar}>
         <Row type="flex" justify="start">
           <Col span={8}>
-            <ButtonGroup>
-              <Button>全选</Button>
-              <Button>取消</Button>
-            </ButtonGroup>
-            <Divider type="vertical" />
             <Button>审核</Button>&nbsp;
             <Button>禁用</Button>&nbsp;
             <Button type="danger">
@@ -236,6 +247,8 @@ const BasicList: React.SFC<BasicListProps> = props => {
 
       <div className={styles.tableData}>
         <Table
+          columns={table.columns}
+          dataSource={table.dataSource}
         />
       </div>
     </div>
@@ -247,6 +260,9 @@ export default Form.create<BasicListProps>()(
     submitting: loading.effects['basicList/formSubmit'],
     previewVisible:basicList.previewVisible,
     previewImage:basicList.previewImage,
+    pageTitle:basicList.pageTitle,
+    table:basicList.table,
+    headerButtons:basicList.headerButtons,
     pageRandom:basicList.pageRandom
   }))(BasicList),
 );

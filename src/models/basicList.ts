@@ -11,9 +11,9 @@ export interface BasicListModelState {
   pageRandom:string;
   previewImage:string;
   previewVisible:boolean;
-  formLoading:boolean;
-  controls: [];
-  labelCol: [];
+  pageTitle:string;
+  table: [];
+  headerButtons: [];
   wrapperCol: [];
   submitName: string;
   submitType: string;
@@ -43,9 +43,9 @@ const BasicList: ModelType = {
     pageRandom:null,
     previewImage:'',
     previewVisible:false,
-    formLoading:false,
-    controls: [],
-    labelCol: [],
+    pageTitle:'',
+    table: [],
+    headerButtons: [],
     wrapperCol: [],
     submitName: null,
     submitType: null,
