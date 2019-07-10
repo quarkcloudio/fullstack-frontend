@@ -5,6 +5,7 @@ import { message } from 'antd';
 import { 
   getListInfo,
   formSubmit,
+  changeStatus,
 } from '@/services/builder';
 
 export interface BasicListModelState {
@@ -14,10 +15,12 @@ export interface BasicListModelState {
   pageTitle:string;
   table: [];
   headerButtons: [];
-  wrapperCol: [];
-  submitName: string;
-  submitType: string;
-  submitLayout: string;
+  toolbarButtons: [];
+  search: [];
+  advancedSearch: [];
+  formModel: [];
+  advancedSearchExpand:boolean;
+  selectedRowKeys:[];
   action: string;
 }
 
@@ -28,6 +31,7 @@ export interface ModelType {
   effects: {
     getListInfo: Effect;
     formSubmit: Effect;
+    changeStatus: Effect;
   };
   reducers: {
     updateState: Reducer<{}>;
@@ -46,10 +50,12 @@ const BasicList: ModelType = {
     pageTitle:'',
     table: [],
     headerButtons: [],
-    wrapperCol: [],
-    submitName: null,
-    submitType: null,
-    submitLayout: null,
+    toolbarButtons: [],
+    search: [],
+    advancedSearch: false,
+    formModel: [],
+    advancedSearchExpand:false,
+    selectedRowKeys:[],
     action: null,
   },
 
@@ -94,6 +100,20 @@ const BasicList: ModelType = {
         message.error(response.msg, 3);
       }
     },
+    *changeStatus({ payload, callback }, { put, call, select }) {
+      const response = yield call(changeStatus, payload);
+      // 操作成功
+      if (response.status === 'success') {
+        // 提示信息
+        message.success(response.msg, 3);
+
+        if (callback && typeof callback === 'function') {
+          callback(response); // 返回结果
+        }
+      } else {
+        message.error(response.msg, 3);
+      }
+    },
   },
 
   reducers: {
@@ -105,6 +125,18 @@ const BasicList: ModelType = {
     previewImage(state, action) {
       state.previewVisible = action.payload.previewVisible;
       state.previewImage = action.payload.previewImage;
+      return {
+        ...state,
+      };
+    },
+    advancedSearchExpand(state, action) {
+      state.advancedSearchExpand = action.payload.advancedSearchExpand;
+      return {
+        ...state,
+      };
+    },
+    selectedRowKeys(state, action) {
+      state.selectedRowKeys = action.payload.selectedRowKeys;
       return {
         ...state,
       };

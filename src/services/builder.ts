@@ -8,10 +8,17 @@ export async function getFormInfo(params: any) {
 export async function formSubmit(params: any) {
   return request(`../../api/${params.action}`, {
     method: 'post',
-    body: params,
+    data: params,
   });
 }
 
 export async function getListInfo(params: any) {
   return request(`../../api/${params.url}?${stringify(params)}`);
+}
+
+export async function changeStatus(params: any) {
+  return request(`../../api/${params.url}`, {
+    method: 'post',
+    data: params,
+  });
 }

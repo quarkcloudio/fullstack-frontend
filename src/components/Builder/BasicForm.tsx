@@ -35,6 +35,7 @@ const { TextArea } = Input;
 const TabPane = Tabs.TabPane;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
+const { RangePicker } = DatePicker;
 
 export interface BasicFormProps extends FormComponentProps {
   pageTitle:string;
@@ -104,6 +105,25 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
           }
 
           if(control.controlType == 'datePicker') {
+            values[control.name] = values[control.name].format('YYYY-MM-DD HH:mm:ss');
+          }
+
+          if(control.controlType == 'rangePicker') {
+
+            if (values[control.name]) {
+              if (values[control.name][0] && values[control.name][1]) {
+                // 时间标准化
+                let dateStart = values[control.name][0].format('YYYY-MM-DD HH:mm:ss');
+                let dateEnd = values[control.name][1].format('YYYY-MM-DD HH:mm:ss');
+      
+                // 先清空对象
+                values[control.name] = [];
+      
+                // 重新赋值对象
+                values[control.name] = [dateStart, dateEnd];
+              }
+            }
+
             values[control.name] = values[control.name].format('YYYY-MM-DD HH:mm:ss');
           }
 
@@ -346,7 +366,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                     extra={control.extra}
                   >
                     {getFieldDecorator(control.name,{
-                      initialValue: moment(control.value, 'YYYY-MM-DD HH:mm:ss'),
+                      initialValue: moment(control.value, control.format),
                       rules: control.rules
                     })(
                       <DatePicker
@@ -356,6 +376,33 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                         locale={locale}
                         format={control.format}
                         placeholder={control.placeholder}
+                      />
+                    )}
+                  </Form.Item>
+                );
+              }
+
+              if(control.controlType == "rangePicker") {
+                return (
+                  <Form.Item 
+                    labelCol={control.labelCol?control.labelCol:labelCol} 
+                    wrapperCol={control.wrapperCol?control.wrapperCol:wrapperCol} 
+                    label={control.labelName}
+                    extra={control.extra}
+                  >
+                    {getFieldDecorator(control.name,{
+                      initialValue: [
+                        !!control.value[0]&&moment(control.value[0], control.format),
+                        !!control.value[1]&&moment(control.value[1], control.format)
+                      ],
+                      rules: control.rules
+                    })(
+                      <RangePicker
+                        showTime={control.showTime}
+                        size={control.size}
+                        style={control.style}
+                        locale={locale}
+                        format={control.format}
                       />
                     )}
                   </Form.Item>
