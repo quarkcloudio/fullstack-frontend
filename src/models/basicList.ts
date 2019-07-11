@@ -4,23 +4,21 @@ import { Effect,Subscription } from 'dva';
 import { message } from 'antd';
 import { 
   getListInfo,
-  formSubmit,
   changeStatus,
 } from '@/services/builder';
 
 export interface BasicListModelState {
-  pageRandom:string;
-  previewImage:string;
-  previewVisible:boolean;
   pageTitle:string;
-  table: [];
+  pageRandom:string;
+  pageLoading:boolean;
   headerButtons: [];
   toolbarButtons: [];
   search: [];
   advancedSearch: [];
-  formModel: [];
   advancedSearchExpand:boolean;
-  selectedRowKeys:[];
+  table: [];
+  selectedRowKeys:[]
+  formModel: [];
   action: string;
 }
 
@@ -30,12 +28,13 @@ export interface ModelType {
   subscriptions:{ setup: Subscription };
   effects: {
     getListInfo: Effect;
-    formSubmit: Effect;
     changeStatus: Effect;
   };
   reducers: {
     updateState: Reducer<{}>;
-    previewImage: Reducer<{}>;
+    pageLoading: Reducer<{}>;
+    selectedRowKeys: Reducer<{}>;
+    advancedSearchExpand: Reducer<{}>;
   };
 }
 
@@ -44,18 +43,17 @@ const BasicList: ModelType = {
   namespace: 'basicList',
 
   state: {
-    pageRandom:null,
-    previewImage:'',
-    previewVisible:false,
     pageTitle:'',
-    table: [],
+    pageRandom:null,
+    pageLoading:true,
     headerButtons: [],
     toolbarButtons: [],
     search: [],
     advancedSearch: false,
-    formModel: [],
     advancedSearchExpand:false,
+    table: [],
     selectedRowKeys:[],
+    formModel: [],
     action: null,
   },
 
@@ -69,11 +67,15 @@ const BasicList: ModelType = {
 
   effects: {
     *getListInfo({ payload, callback }, { put, call, select }) {
+      const data = { pageLoading:true};
+      yield put({
+        type: 'pageLoading',
+        payload: data,
+      });
+
       const response = yield call(getListInfo, payload);
       if (response.status === 'success') {
-
-        const data = { ...response.data, formLoading:false};
-
+        const data = { ...response.data, pageLoading:false};
         yield put({
           type: 'updateState',
           payload: data,
@@ -84,24 +86,15 @@ const BasicList: ModelType = {
         }
       }
     },
-    *formSubmit({ type, payload }, { put, call, select }) {
-      const response = yield call(formSubmit, payload);
-      // 操作成功
-      if (response.status === 'success') {
-        // 提示信息
-        message.success(response.msg, 3);
-        // 页面跳转
-        yield put(
-          routerRedux.push({
-            pathname: response.url,
-          }),
-        );
-      } else {
-        message.error(response.msg, 3);
-      }
-    },
     *changeStatus({ payload, callback }, { put, call, select }) {
       const response = yield call(changeStatus, payload);
+
+      const data = { pageLoading:true};
+      yield put({
+        type: 'pageLoading',
+        payload: data,
+      });
+
       // 操作成功
       if (response.status === 'success') {
         // 提示信息
@@ -118,13 +111,13 @@ const BasicList: ModelType = {
 
   reducers: {
     updateState(state, action) {
+      action.payload.advancedSearchExpand = state.advancedSearchExpand;
       return {
         ...action.payload,
       };
     },
-    previewImage(state, action) {
-      state.previewVisible = action.payload.previewVisible;
-      state.previewImage = action.payload.previewImage;
+    pageLoading(state, action) {
+      state.pageLoading = action.payload.pageLoading;
       return {
         ...state,
       };

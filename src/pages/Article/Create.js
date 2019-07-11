@@ -306,14 +306,14 @@ class CreatePage extends PureComponent {
                       rules: [{ required: true, message: '请输入标题！' }],
                     })(<Input className={styles.middleItem} placeholder="请输入标题" />)}
                   </Form.Item>
-                  <Form.Item style={{ display: 'inline-block', marginBottom: 8, marginLeft: 10 }}>
+                  <Form.Item style={{ display: 'inline-block',  marginLeft: 10 }}>
                     简略标题：
                     {getFieldDecorator('name')(
                       <Input className={styles.smallItem} placeholder="请输入简略标题" />,
                     )}
                   </Form.Item>
                 </Form.Item>
-                <Form.Item style={{ marginBottom: 8 }} {...formItemLayout} label="描述">
+                <Form.Item  {...formItemLayout} label="描述">
                   {getFieldDecorator('description')(
                     <TextArea
                       className={styles.middleItem}
@@ -322,7 +322,7 @@ class CreatePage extends PureComponent {
                     />,
                   )}
                 </Form.Item>
-                <Form.Item style={{ marginBottom: 8 }} {...formItemLayout} label="标签">
+                <Form.Item  {...formItemLayout} label="标签">
                   {getFieldDecorator('tags')(
                     <Input
                       className={styles.middleItem}
@@ -337,13 +337,13 @@ class CreatePage extends PureComponent {
                       <Input className={styles.smallItem} placeholder="请输入作者" />,
                     )}
                   </Form.Item>
-                  <Form.Item style={{ display: 'inline-block', marginBottom: 8, marginLeft: 10 }}>
+                  <Form.Item style={{ display: 'inline-block',  marginLeft: 10 }}>
                     来源：
                     {getFieldDecorator('source')(
                       <Input className={styles.smallItem} placeholder="请输入来源" />,
                     )}
                   </Form.Item>
-                  <Form.Item style={{ display: 'inline-block', marginBottom: 8, marginLeft: 10 }}>
+                  <Form.Item style={{ display: 'inline-block',  marginLeft: 10 }}>
                     排序：
                     {getFieldDecorator(
                       'level',
@@ -357,7 +357,7 @@ class CreatePage extends PureComponent {
                     (越大越靠前)
                   </Form.Item>
                 </Form.Item>
-                <Form.Item style={{ marginBottom: 8 }} {...formItemLayout} label="推荐位">
+                <Form.Item  {...formItemLayout} label="推荐位">
                   {getFieldDecorator('position')(
                     <Checkbox.Group style={{ width: '100%' }}>
                       <Checkbox value={1}>首页推荐</Checkbox>
@@ -367,7 +367,7 @@ class CreatePage extends PureComponent {
                     </Checkbox.Group>,
                   )}
                 </Form.Item>
-                <Form.Item style={{ marginBottom: 8 }} {...formItemLayout} label="展现形式">
+                <Form.Item  {...formItemLayout} label="展现形式">
                   {getFieldDecorator('show_type', {
                     initialValue: 1,
                   })(
@@ -379,7 +379,7 @@ class CreatePage extends PureComponent {
                     </RadioGroup>,
                   )}
                 </Form.Item>
-                <Form.Item style={{ marginBottom: 8 }} {...formItemLayout} label="封面图">
+                <Form.Item  {...formItemLayout} label="封面图">
                   <Upload {...uploadPictureProps}>
                     {this.state.coverList >= 3 ? null : uploadButton}
                   </Upload>
@@ -391,7 +391,7 @@ class CreatePage extends PureComponent {
                     <img style={{ width: '100%' }} src={this.state.previewImage} />
                   </Modal>
                 </Form.Item>
-                <Form.Item style={{ marginBottom: 8 }} {...formItemLayout} label="分类">
+                <Form.Item  {...formItemLayout} label="分类">
                   {getFieldDecorator(
                     'category_id',
                     {
@@ -408,13 +408,13 @@ class CreatePage extends PureComponent {
                     </Select>,
                   )}
                 </Form.Item>
-                <Form.Item style={{ marginBottom: 8 }} {...formItemLayout} label="允许评论">
+                <Form.Item  {...formItemLayout} label="允许评论">
                   {getFieldDecorator('comment_status', {
                     initialValue: true,
                     valuePropName: 'checked',
                   })(<Switch checkedChildren="是" unCheckedChildren="否" />)}
                 </Form.Item>
-                <Form.Item style={{ marginBottom: 8 }} {...formItemLayout} label="内容">
+                <Form.Item  {...formItemLayout} label="内容">
                   <div className={styles.richEditor}>
                     <BraftEditor
                       value={this.state.data.content}
@@ -425,7 +425,7 @@ class CreatePage extends PureComponent {
                     />
                   </div>
                 </Form.Item>
-                <Form.Item style={{ marginBottom: 8 }} {...formItemLayout} label="发布时间">
+                <Form.Item  {...formItemLayout} label="发布时间">
                   {getFieldDecorator('created_at', {
                     initialValue: moment(),
                   })(
@@ -439,22 +439,22 @@ class CreatePage extends PureComponent {
                 </Form.Item>
               </TabPane>
               <TabPane tab="扩展" key="2">
-                <Form.Item style={{ marginBottom: 8 }} {...formItemLayout} label="评论量">
+                <Form.Item  {...formItemLayout} label="评论量">
                   {getFieldDecorator('comment', {
                     initialValue: 0,
                   })(<InputNumber className={styles.smallItem} min={0} max={100000} />)}
                 </Form.Item>
-                <Form.Item style={{ marginBottom: 8 }} {...formItemLayout} label="浏览量">
+                <Form.Item  {...formItemLayout} label="浏览量">
                   {getFieldDecorator('view', {
                     initialValue: 0,
                   })(<InputNumber className={styles.smallItem} min={0} max={100000} />)}
                 </Form.Item>
-                <Form.Item style={{ marginBottom: 8 }} {...formItemLayout} label="访问密码">
+                <Form.Item  {...formItemLayout} label="访问密码">
                   {getFieldDecorator('password')(
                     <Input className={styles.smallItem} placeholder="请输入访问密码" />,
                   )}
                 </Form.Item>
-                <Form.Item style={{ marginBottom: 8 }} {...formItemLayout} label="附件">
+                <Form.Item  {...formItemLayout} label="附件">
                   <Upload {...uploadFileProps}>
                     <Button>
                       <Icon type="upload" /> 上传附件
@@ -463,7 +463,7 @@ class CreatePage extends PureComponent {
                 </Form.Item>
               </TabPane>
             </Tabs>
-            <Form.Item style={{ marginBottom: 8 }} {...formItemLayout} label="状态">
+            <Form.Item  {...formItemLayout} label="状态">
               {getFieldDecorator('status', {
                 initialValue: true,
                 valuePropName: 'checked',

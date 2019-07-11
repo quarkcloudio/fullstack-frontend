@@ -43,7 +43,7 @@ export interface BasicFormProps extends FormComponentProps {
   pageRandom:string;
   previewImage: string;
   previewVisible: boolean;
-  formLoading: boolean;
+  pageLoading: boolean;
   action?: string;
   controls?: [];
   labelCol?: any;
@@ -64,14 +64,10 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
     pageRandom,
     previewImage,
     previewVisible,
-    formLoading,
-    action,
+    pageLoading,
     labelCol,
     wrapperCol,
     controls,
-    submitName,
-    submitType,
-    submitLayout,
     url,
     submitting,
     dispatch,
@@ -94,11 +90,20 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
     }
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+
+  const callback = (name,value,url) => {
+    if(name == 'submit') {
+      onSubmit(url);
+    }
+    if(name == 'reset') {
+      form.resetFields();
+    }
+  };
+
+  const onSubmit = (getUrl) => {
+
     form.validateFieldsAndScroll((err, values) => {
       if (!err) {
-
         controls.map((control:any,key:any) => {
           if(control.controlType == 'image' || control.controlType == 'file') {
             values[control.name] = control.list;
@@ -109,22 +114,17 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
           }
 
           if(control.controlType == 'rangePicker') {
-
             if (values[control.name]) {
               if (values[control.name][0] && values[control.name][1]) {
                 // 时间标准化
                 let dateStart = values[control.name][0].format('YYYY-MM-DD HH:mm:ss');
                 let dateEnd = values[control.name][1].format('YYYY-MM-DD HH:mm:ss');
-      
                 // 先清空对象
                 values[control.name] = [];
-      
                 // 重新赋值对象
                 values[control.name] = [dateStart, dateEnd];
               }
             }
-
-            values[control.name] = values[control.name].format('YYYY-MM-DD HH:mm:ss');
           }
 
           if(control.controlType == 'editor') {
@@ -135,9 +135,9 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
         console.log(values)
 
         dispatch({
-          type: 'basicForm/formSubmit',
+          type: 'basicForm/submit',
           payload: {
-            action: action,
+            url: getUrl,
             ...values,
           },
         });
@@ -218,8 +218,8 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
       bordered={false}
       extra={<a href="javascript:history.go(-1)">返回上一页</a>}
     >
-      <Spin spinning={formLoading} >
-        <Form onSubmit={handleSubmit} style={{ marginTop: 15 }}>
+      <Spin spinning={pageLoading} >
+        <Form style={{ marginTop: 15 }}>
           {!!controls &&
             controls.map((control:any) => {
               if(control.controlType == "text") {
@@ -665,16 +665,30 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                 );
               }
 
+              if(control.controlType == "button") {
+                return (
+                  <Form.Item 
+                    labelCol={control.labelCol?control.labelCol:labelCol}
+                    wrapperCol={control.wrapperCol?control.wrapperCol:wrapperCol}
+                    extra={control.extra}
+                  >
+                    <Button
+                      href={control.href ? control.href : false}
+                      size={control.size}
+                      type={control.type}
+                      target={control.target ? control.target : false}
+                      onClick={() => callback(control.onClick['name'],control.onClick['value'],control.onClick['url'])}
+                      style={control.style}
+                      loading={submitting}
+                    >
+                      {!!control.icon && (<Icon type={control.icon} />)}
+                      {control.name}
+                    </Button>
+                  </Form.Item>
+                );
+              }
+
             })}
-
-          {!!submitName && 
-            <Form.Item {...submitLayout} >
-              <Button type = {submitType} htmlType="submit" loading={submitting}>
-                {submitName}
-              </Button>
-            </Form.Item>
-          }
-
         </Form>
       </Spin>
     </Card>
@@ -686,15 +700,11 @@ export default Form.create<BasicFormProps>()(
   connect(({ loading ,basicForm}: ConnectState) => ({
     pageTitle: basicForm.pageTitle,
     name: basicForm.name,
-    submitting: loading.effects['basicForm/formSubmit'],
+    submitting: loading.effects['basicForm/submit'],
     controls: basicForm.controls,
     wrapperCol: basicForm.wrapperCol,
     labelCol: basicForm.labelCol,
-    submitName: basicForm.submitName,
-    submitType: basicForm.submitType,
-    submitLayout: basicForm.submitLayout,
-    action: basicForm.action,
-    formLoading: basicForm.formLoading,
+    pageLoading: basicForm.pageLoading,
     previewVisible:basicForm.previewVisible,
     previewImage:basicForm.previewImage,
     pageRandom:basicForm.pageRandom

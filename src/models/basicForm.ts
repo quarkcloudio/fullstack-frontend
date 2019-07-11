@@ -13,14 +13,10 @@ export interface BasicFormModelState {
   pageRandom:string;
   previewImage:string;
   previewVisible:boolean;
-  formLoading:boolean;
+  pageLoading:boolean;
   controls: [];
   labelCol: [];
   wrapperCol: [];
-  submitName: string;
-  submitType: string;
-  submitLayout: string;
-  action: string;
 }
 
 export interface ModelType {
@@ -29,13 +25,14 @@ export interface ModelType {
   subscriptions:{ setup: Subscription };
   effects: {
     getFormInfo: Effect;
-    formSubmit: Effect;
+    submit: Effect;
     updateFileList: Effect;
   };
   reducers: {
     updateState: Reducer<{}>;
     updateList: Reducer<{}>;
     previewImage: Reducer<{}>;
+    pageLoading: Reducer<{}>;
   };
 }
 
@@ -49,14 +46,10 @@ const BasicForm: ModelType = {
     pageRandom:null,
     previewImage:'',
     previewVisible:false,
-    formLoading:false,
+    pageLoading:true,
     controls: [],
     labelCol: [],
     wrapperCol: [],
-    submitName: null,
-    submitType: null,
-    submitLayout: null,
-    action: null,
   },
 
   subscriptions: {
@@ -69,10 +62,16 @@ const BasicForm: ModelType = {
 
   effects: {
     *getFormInfo({ payload, callback }, { put, call, select }) {
+
+      yield put({
+        type: 'pageLoading',
+        payload: { pageLoading:true},
+      });
+
       const response = yield call(getFormInfo, payload);
       if (response.status === 'success') {
 
-        const data = { ...response.data, formLoading:false};
+        const data = { ...response.data, pageLoading:false};
 
         yield put({
           type: 'updateState',
@@ -84,7 +83,7 @@ const BasicForm: ModelType = {
         }
       }
     },
-    *formSubmit({ type, payload }, { put, call, select }) {
+    *submit({ type, payload }, { put, call, select }) {
       const response = yield call(formSubmit, payload);
       // 操作成功
       if (response.status === 'success') {
@@ -112,6 +111,12 @@ const BasicForm: ModelType = {
     updateState(state, action) {
       return {
         ...action.payload,
+      };
+    },
+    pageLoading(state, action) {
+      state.pageLoading = action.payload.pageLoading;
+      return {
+        ...state,
       };
     },
     updateList(state, action) {

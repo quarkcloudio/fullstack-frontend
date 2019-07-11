@@ -6,7 +6,7 @@ export async function getFormInfo(params: any) {
 }
 
 export async function formSubmit(params: any) {
-  return request(`../../api/${params.action}`, {
+  return request(`../../api/${params.url}`, {
     method: 'post',
     data: params,
   });
