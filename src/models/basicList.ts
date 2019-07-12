@@ -18,7 +18,10 @@ export interface BasicListModelState {
   advancedSearchExpand:boolean;
   table: [];
   selectedRowKeys:[]
-  formModel: [];
+  modalTitle:string;
+  modalWidth:string;
+  modalFormUrl:string;
+  modalVisible:boolean;
   action: string;
 }
 
@@ -35,6 +38,8 @@ export interface ModelType {
     pageLoading: Reducer<{}>;
     selectedRowKeys: Reducer<{}>;
     advancedSearchExpand: Reducer<{}>;
+    modalVisible: Reducer<{}>;
+    resetState: Reducer<{}>;
   };
 }
 
@@ -53,14 +58,23 @@ const BasicList: ModelType = {
     advancedSearchExpand:false,
     table: [],
     selectedRowKeys:[],
-    formModel: [],
+    modalTitle:'',
+    modalWidth:'',
+    modalFormUrl:'',
+    modalVisible:false,
     action: null,
   },
 
   subscriptions: {
     setup({ dispatch, history }) {
       return history.listen(({ pathname }) => {
-        //打开页面时
+        let historyUrl = window.localStorage.getItem('historyUrl')
+        if(pathname != historyUrl) {
+          window.localStorage.setItem('historyUrl', pathname);
+          dispatch({
+            type: 'basicList/resetState',
+          });
+        }
       });
     },
   },
@@ -80,7 +94,6 @@ const BasicList: ModelType = {
           type: 'updateState',
           payload: data,
         });
-
         if (callback && typeof callback === 'function') {
           callback(response); // 返回结果
         }
@@ -116,6 +129,28 @@ const BasicList: ModelType = {
         ...action.payload,
       };
     },
+    resetState(state, action) {
+    let resetState = {
+        pageTitle:'',
+        pageRandom:null,
+        pageLoading:true,
+        headerButtons: [],
+        toolbarButtons: [],
+        search: [],
+        advancedSearch: false,
+        advancedSearchExpand:false,
+        table: [],
+        selectedRowKeys:[],
+        modalTitle:'',
+        modalWidth:'',
+        modalFormUrl:'',
+        modalVisible:false,
+        action: null,
+      }
+      return {
+        ...resetState,
+      };
+    },
     pageLoading(state, action) {
       state.pageLoading = action.payload.pageLoading;
       return {
@@ -124,6 +159,15 @@ const BasicList: ModelType = {
     },
     advancedSearchExpand(state, action) {
       state.advancedSearchExpand = action.payload.advancedSearchExpand;
+      return {
+        ...state,
+      };
+    },
+    modalVisible(state, action) {
+      state.modalTitle = action.payload.modalTitle;
+      state.modalWidth = action.payload.modalWidth;
+      state.modalVisible = action.payload.modalVisible;
+      state.modalFormUrl = action.payload.modalFormUrl;
       return {
         ...state,
       };

@@ -5,10 +5,11 @@ import { RouterTypes } from 'umi';
 import { GlobalModelState } from './global';
 import { DefaultSettings as SettingModelState } from '../../config/defaultSettings';
 import { BasicFormModelState } from './basicForm';
+import { ModalFormModelState } from './modalForm';
 import { BasicListModelState } from './basicList';
 import { AccountModelState } from './account';
 
-export { GlobalModelState, SettingModelState, BasicListModelState };
+export { GlobalModelState, SettingModelState,BasicFormModelState,ModalFormModelState, BasicListModelState };
 
 export interface Loading {
   global: boolean;
@@ -19,6 +20,7 @@ export interface Loading {
     setting?: boolean;
     basicForm?: boolean;
     basicList?: boolean;
+    modalForm?: boolean;
     account?: boolean;
   };
 }
@@ -29,6 +31,7 @@ export interface ConnectState {
   settings: SettingModelState;
   basicForm: BasicFormModelState;
   basicList: BasicListModelState;
+  modalForm: ModalFormModelState;
   account: AccountModelState;
 }
 

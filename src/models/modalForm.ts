@@ -7,7 +7,7 @@ import {
   formSubmit,
 } from '@/services/builder';
 
-export interface BasicFormModelState {
+export interface ModalFormModelState {
   pageTitle:string;
   name:string;
   pageRandom:string;
@@ -37,9 +37,9 @@ export interface ModelType {
   };
 }
 
-const BasicForm: ModelType = {
+const ModalForm: ModelType = {
 
-  namespace: 'basicForm',
+  namespace: 'modalForm',
 
   state: {
     pageTitle:'',
@@ -60,7 +60,7 @@ const BasicForm: ModelType = {
         if(pathname !== historyUrl) {
           window.localStorage.setItem('historyUrl', pathname);
           dispatch({
-            type: 'basicForm/resetState',
+            type: 'modalForm/resetState',
           });
         }
       });
@@ -121,21 +121,21 @@ const BasicForm: ModelType = {
       };
     },
     resetState(state, action) {
-      let resetState = {
-          pageTitle:'',
-          name:'',
-          pageRandom:null,
-          previewImage:'',
-          previewVisible:false,
-          pageLoading:true,
-          controls: [],
-          labelCol: [],
-          wrapperCol: [],
-        }
-        return {
-          ...resetState,
-        };
-      },
+    let resetState = {
+        pageTitle:'',
+        name:'',
+        pageRandom:null,
+        previewImage:'',
+        previewVisible:false,
+        pageLoading:true,
+        controls: [],
+        labelCol: [],
+        wrapperCol: []
+      }
+      return {
+        ...resetState,
+      };
+    },
     pageLoading(state, action) {
       state.pageLoading = action.payload.pageLoading;
       return {
@@ -163,4 +163,4 @@ const BasicForm: ModelType = {
   },
 };
 
-export default BasicForm;
+export default ModalForm;

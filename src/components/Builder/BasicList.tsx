@@ -9,7 +9,7 @@ import { FormComponentProps } from 'antd/es/form';
 import { connect } from 'dva';
 import { ConnectState } from '@/models/connect';
 import { routerRedux } from 'dva/router';
-import BasicForm from '@/components/Builder/BasicForm';
+import ModalForm from '@/components/Builder/ModalForm';
 
 import {
   Row,
@@ -46,7 +46,10 @@ export interface BasicListProps extends FormComponentProps {
   advancedSearchExpand:boolean;
   table: [];
   selectedRowKeys:[];
-  formModel:[];
+  modalTitle:string;
+  modalWidth:string;
+  modalFormUrl:string;
+  modalVisible:boolean;
   url?: string;
   submitting: boolean;
   dispatch: Dispatch<any>;
@@ -65,7 +68,10 @@ const BasicList: React.SFC<BasicListProps> = props => {
     advancedSearchExpand,
     table,
     selectedRowKeys,
-    formModel,
+    modalTitle,
+    modalWidth,
+    modalFormUrl,
+    modalVisible,
     url,
     submitting,
     dispatch,
@@ -116,10 +122,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
                       size={action.size}
                       type={action.type}
                       target={action.target ? action.target : false}
-                      onClick={() => callback(action.onClick['name'],[
-                        row.id,
-                        (action.name=='启用|禁用') ? ((row.status=='正常') ? 2 : 1) : (action.onClick['value'])
-                      ],action.onClick['url'])}
+                      onClick={() => callback(action.onClick['name'],(action.name=='启用|禁用') ? ((row.status=='正常') ? 'disable' : 'enable') : (action.onClick['value']),action.onClick['url']+'?id='+row.id)}
                       style={action.style}
                     >
                       {!!action.icon && (<Icon type={action.icon} />)}
@@ -132,10 +135,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
               if(action.controlType == "popconfirm") {
                 return (
                   <span>
-                    <Popconfirm title="确定删除吗？" onConfirm={() => callback(action.onConfirm['name'],[
-                        row.id,
-                        action.onConfirm['value']
-                      ],action.onConfirm['url'])}>
+                    <Popconfirm title="确定删除吗？" onConfirm={() => callback(action.onConfirm['name'],action.onConfirm['value'],action.onConfirm['url']+'?id='+row.id)}>
                       <Button
                         size={action.size}
                         type={action.type}
@@ -173,29 +173,31 @@ const BasicList: React.SFC<BasicListProps> = props => {
     }
   }, []);
 
-  const callback = (name,value,url) => {
+  const callback = (name,value,actionUrl) => {
     if(name == 'changeStatus') {
-      changeStatus(value,url);
+      changeStatus(actionUrl,value);
     }
     if(name == 'multiChangeStatus') {
-      multiChangeStatus(value,url);
+      multiChangeStatus(actionUrl,value);
     }
     if(name == 'search') {
-      onSearch(url);
+      onSearch(actionUrl);
     }
     if(name == 'resetSearch') {
       form.resetFields();
     }
+    if(name == 'openModal') {
+      openModal(actionUrl,value);
+    }
   };
 
   // 改变数据状态操作
-  const changeStatus = (value, getUrl) => {
+  const changeStatus = (actionUrl,value) => {
     dispatch({
       type: 'basicList/changeStatus',
       payload: {
-        id: value[0],
-        status:value[1],
-        url: getUrl,
+        url: actionUrl,
+        status:value,
       },
       callback: res => {
         // 调用model
@@ -212,14 +214,14 @@ const BasicList: React.SFC<BasicListProps> = props => {
   };
 
   // 改变多个数据状态操作
-  const multiChangeStatus = (status, getUrl) => {
+  const multiChangeStatus = (actionUrl,value) => {
     let ids = selectedRowKeys;
     dispatch({
       type: 'basicList/changeStatus',
       payload: {
+        url: actionUrl,
         id: ids,
-        status: status,
-        url: getUrl,
+        status: value,
       },
       callback: res => {
         // 调用model
@@ -252,7 +254,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
   };
 
   // 搜索
-  const onSearch = (getUrl:string) => {
+  const onSearch = (actionUrl:string) => {
 
     form.validateFields((err, values) => {
       search.map((control:any,key:any) => {
@@ -297,7 +299,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
         dispatch({
           type: 'basicList/getListInfo',
           payload: {
-            url: getUrl ? getUrl : url,
+            url: actionUrl ? actionUrl : url,
             ...table.pagination,
             search: values,
           }
@@ -330,10 +332,36 @@ const BasicList: React.SFC<BasicListProps> = props => {
   const rowSelection = {
     selectedRowKeys,
     onChange: onSelectChange,
-    getCheckboxProps: record => ({
-      name: record.name,
+    getCheckboxProps: row => ({
+      name: row.name,
     }),
     fixed: 'left',
+  };
+
+  const openModal = (actionUrl,value) => {
+    dispatch({
+      type: 'basicList/modalVisible',
+      payload: {
+        modalVisible:true,
+        modalFormUrl:actionUrl,
+        modalTitle:value.title,
+        modalWidth:value.width,
+        modalHeight:value.height,
+      }
+    });
+  };
+
+  const closeModal = (e) => {
+    dispatch({
+      type: 'basicList/modalVisible',
+      payload: {
+        modalVisible: false,
+        modalFormUrl:'',
+        modalTitle:'',
+        modalWidth:'',
+        modalHeight:'',
+      }
+    });
   };
 
   return (
@@ -672,16 +700,18 @@ const BasicList: React.SFC<BasicListProps> = props => {
           onChange={changePagination}
         />
       </div>
-
-      <Modal
-        title="新增菜单"
-        width={520}
-        visible={true}
-        centered={true}
-        footer={false}
-      >
-        <BasicForm url={'admin/demo/getFormInfo'} />
-      </Modal>
+      {!!modalFormUrl && (
+        <Modal
+          title={modalTitle}
+          width={modalWidth}
+          visible={modalVisible}
+          onCancel={closeModal}
+          centered={true}
+          footer={false}
+        >
+          <ModalForm url={modalFormUrl} />
+        </Modal>
+      )}
     </div>
   );
 };
@@ -699,6 +729,9 @@ export default Form.create<BasicListProps>()(
     advancedSearchExpand:basicList.advancedSearchExpand,
     table:basicList.table,
     selectedRowKeys:basicList.selectedRowKeys,
-    formModel:basicList.formModel,
+    modalTitle:basicList.modalTitle,
+    modalWidth:basicList.modalWidth,
+    modalFormUrl:basicList.modalFormUrl,
+    modalVisible:basicList.modalVisible,
   }))(BasicList),
 );

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import styles from './BasicForm.less';
+import styles from './modalForm.less';
 import BraftEditor from 'braft-editor';
 import 'braft-editor/dist/index.css';
 import moment from 'moment';
@@ -37,7 +37,7 @@ const Option = Select.Option;
 const RadioGroup = Radio.Group;
 const { RangePicker } = DatePicker;
 
-export interface BasicFormProps extends FormComponentProps {
+export interface ModalFormProps extends FormComponentProps {
   pageTitle:string;
   name:string;
   pageRandom:string;
@@ -56,7 +56,7 @@ export interface BasicFormProps extends FormComponentProps {
   dispatch: Dispatch<any>;
 }
 
-const BasicForm: React.SFC<BasicFormProps> = props => {
+const ModalForm: React.SFC<ModalFormProps> = props => {
 
   const {
     pageTitle,
@@ -82,7 +82,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
   useEffect(() => {
     if (dispatch) {
       dispatch({
-        type: 'basicForm/getFormInfo',
+        type: 'modalForm/getFormInfo',
         payload: {
           url: url,
         }
@@ -135,7 +135,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
         console.log(values)
 
         dispatch({
-          type: 'basicForm/submit',
+          type: 'modalForm/submit',
           payload: {
             url: getUrl,
             ...values,
@@ -202,7 +202,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
 
   const handleCancel = () => {
     dispatch({
-      type: 'basicForm/previewImage',
+      type: 'modalForm/previewImage',
       payload: {
         previewImage : null,
         previewVisible : false,
@@ -211,14 +211,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
    };
 
   return (
-  <div className={styles.container}>
-    <Card
-      size="small"
-      title={pageTitle}
-      bordered={false}
-      extra={<a href="javascript:history.go(-1)">返回上一页</a>}
-    >
-      <Spin spinning={pageLoading} style={{background:'#fff'}}>
+      <Spin spinning={pageLoading} >
         <Form style={{ marginTop: 15 }}>
           {!!controls &&
             controls.map((control:any) => {
@@ -456,7 +449,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                         multiple={true}
                         onPreview={(file:any) => {
                           dispatch({
-                            type: 'basicForm/previewImage',
+                            type: 'modalForm/previewImage',
                             payload: {
                               previewImage : file.url || file.thumbUrl,
                               previewVisible : true,
@@ -502,7 +495,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                           });
         
                           dispatch({
-                            type: 'basicForm/updateFileList',
+                            type: 'modalForm/updateFileList',
                             payload: {
                               fileList : fileList,
                               controlName : control.name
@@ -574,7 +567,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
 
                               fileList[0] = info.file;
                               dispatch({
-                                type: 'basicForm/updateFileList',
+                                type: 'modalForm/updateFileList',
                                 payload: {
                                   fileList : fileList,
                                   controlName : control.name
@@ -649,7 +642,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                         });
       
                         dispatch({
-                          type: 'basicForm/updateFileList',
+                          type: 'modalForm/updateFileList',
                           payload: {
                             fileList : fileList,
                             controlName : control.name
@@ -667,11 +660,22 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
 
               if(control.controlType == "button") {
                 return (
-                  <Form.Item 
-                    labelCol={control.labelCol?control.labelCol:labelCol}
-                    wrapperCol={control.wrapperCol?control.wrapperCol:wrapperCol}
-                    extra={control.extra}
+                  <span>
+                  <div style={{ height: '50px' }}></div>
+                  <div
+                    style={{
+                      position: 'absolute',
+                      left: 0,
+                      bottom: -25,
+                      width: '100%',
+                      borderTop: '1px solid #e9e9e9',
+                      textAlign: 'right',
+                      padding: '10px 16px',
+                    }}
                   >
+                    <Button style={{ marginRight: 8 }}>
+                      取消
+                    </Button>
                     <Button
                       href={control.href ? control.href : false}
                       size={control.size}
@@ -684,29 +688,28 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                       {!!control.icon && (<Icon type={control.icon} />)}
                       {control.name}
                     </Button>
-                  </Form.Item>
+                  </div>
+                  </span>
                 );
               }
 
             })}
         </Form>
       </Spin>
-    </Card>
-  </div>
   );
 };
 
-export default Form.create<BasicFormProps>()(
-  connect(({ loading ,basicForm}: ConnectState) => ({
-    pageTitle: basicForm.pageTitle,
-    name: basicForm.name,
-    submitting: loading.effects['basicForm/submit'],
-    controls: basicForm.controls,
-    wrapperCol: basicForm.wrapperCol,
-    labelCol: basicForm.labelCol,
-    pageLoading: basicForm.pageLoading,
-    previewVisible:basicForm.previewVisible,
-    previewImage:basicForm.previewImage,
-    pageRandom:basicForm.pageRandom
-  }))(BasicForm),
+export default Form.create<ModalFormProps>()(
+  connect(({ loading ,modalForm}: ConnectState) => ({
+    pageTitle: modalForm.pageTitle,
+    name: modalForm.name,
+    submitting: loading.effects['modalForm/submit'],
+    controls: modalForm.controls,
+    wrapperCol: modalForm.wrapperCol,
+    labelCol: modalForm.labelCol,
+    pageLoading: modalForm.pageLoading,
+    previewVisible:modalForm.previewVisible,
+    previewImage:modalForm.previewImage,
+    pageRandom:modalForm.pageRandom
+  }))(ModalForm),
 );
