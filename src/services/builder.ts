@@ -13,7 +13,7 @@ export async function formSubmit(params: any) {
 }
 
 export async function getListInfo(params: any) {
-  return request(`../../api/${params.url}`);
+  return request(`../../api/${params.url}?${stringify(params)}`);
 }
 
 export async function changeStatus(params: any) {

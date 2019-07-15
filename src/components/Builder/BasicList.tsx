@@ -12,6 +12,7 @@ import { routerRedux } from 'dva/router';
 import ModalForm from '@/components/Builder/ModalForm';
 
 import {
+  Spin,
   Row,
   Col,
   Icon,
@@ -39,6 +40,7 @@ export interface BasicListProps extends FormComponentProps {
   pageTitle:string;
   pageRandom:string;
   pageLoading: boolean;
+  formLoading: boolean;
   headerButtons:[];
   toolbarButtons:[];
   search:[];
@@ -61,6 +63,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
     pageTitle,
     pageRandom,
     pageLoading,
+    formLoading,
     headerButtons,
     toolbarButtons,
     search,
@@ -122,7 +125,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
                       size={action.size}
                       type={action.type}
                       target={action.target ? action.target : false}
-                      onClick={() => callback(action.onClick['name'],(action.name=='启用|禁用') ? ((row.status=='正常') ? 'disable' : 'enable') : (action.onClick['value']),action.onClick['url']+'?id='+row.id)}
+                      onClick={() => callback(action.onClick['name'],(action.name=='启用|禁用') ? ((row.status=='正常') ? [row.id,'2'] : [row.id,'1']) : [row.id,action.onClick['value']],action.onClick['url']+'?id='+row.id)}
                       style={action.style}
                     >
                       {!!action.icon && (<Icon type={action.icon} />)}
@@ -135,7 +138,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
               if(action.controlType == "popconfirm") {
                 return (
                   <span>
-                    <Popconfirm title="确定删除吗？" onConfirm={() => callback(action.onConfirm['name'],action.onConfirm['value'],action.onConfirm['url']+'?id='+row.id)}>
+                    <Popconfirm title="确定删除吗？" onConfirm={() => callback(action.onConfirm['name'],[row.id,action.onConfirm['value']],action.onConfirm['url']+'?id='+row.id)}>
                       <Button
                         size={action.size}
                         type={action.type}
@@ -164,6 +167,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
    */
   useEffect(() => {
     if (dispatch) {
+      sessionStorage.setItem('listUrl', url);
       dispatch({
         type: 'basicList/getListInfo',
         payload: {
@@ -193,16 +197,18 @@ const BasicList: React.SFC<BasicListProps> = props => {
 
   // 改变数据状态操作
   const changeStatus = (actionUrl,value) => {
+    console.log(value)
     dispatch({
       type: 'basicList/changeStatus',
       payload: {
         url: actionUrl,
-        status:value,
+        id:value[0],
+        status:value[1],
       },
       callback: res => {
         // 调用model
         dispatch({
-          type: 'basicList/getListInfo',
+          type: 'basicList/getList',
           payload: {
             url: url,
             ...table.pagination,
@@ -226,7 +232,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
       callback: res => {
         // 调用model
         dispatch({
-          type: 'basicList/getListInfo',
+          type: 'basicList/getList',
           payload: {
             url: url,
             ...table.pagination,
@@ -240,7 +246,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
   // 分页切换
   const changePagination = (pagination, filters, sorter) => {
     dispatch({
-      type: 'basicList/getListInfo',
+      type: 'basicList/getList',
       payload: {
         url: url,
         pageSize: pagination.pageSize, // 分页数量
@@ -297,7 +303,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
 
       if (!err) {
         dispatch({
-          type: 'basicList/getListInfo',
+          type: 'basicList/getList',
           payload: {
             url: actionUrl ? actionUrl : url,
             ...table.pagination,
@@ -351,7 +357,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
     });
   };
 
-  const closeModal = (e) => {
+  const closeModal = () => {
     dispatch({
       type: 'basicList/modalVisible',
       payload: {
@@ -365,6 +371,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
   };
 
   return (
+    <Spin spinning={pageLoading} tip="Loading..." style={{background:'#fff'}}>
     <div className={styles.container}>
       <div className={styles.tableHeader}>
         <Row type="flex" justify="start">
@@ -696,7 +703,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
           columns={table.columns}
           dataSource={table.dataSource}
           pagination={table.pagination}
-          loading={pageLoading}
+          loading={formLoading}
           onChange={changePagination}
         />
       </div>
@@ -713,6 +720,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
         </Modal>
       )}
     </div>
+    </Spin>
   );
 };
 
@@ -722,6 +730,7 @@ export default Form.create<BasicListProps>()(
     pageTitle:basicList.pageTitle,
     pageRandom:basicList.pageRandom,
     pageLoading:basicList.pageLoading,
+    formLoading:basicList.formLoading,
     headerButtons:basicList.headerButtons,
     toolbarButtons:basicList.toolbarButtons,
     search:basicList.search,

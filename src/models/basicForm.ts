@@ -42,6 +42,7 @@ const BasicForm: ModelType = {
   namespace: 'basicForm',
 
   state: {
+    url:'',
     pageTitle:'',
     name:'',
     pageRandom:null,
@@ -56,13 +57,7 @@ const BasicForm: ModelType = {
   subscriptions: {
     setup({ dispatch, history }) {
       return history.listen(({ pathname }) => {
-        let historyUrl = window.localStorage.getItem('historyUrl')
-        if(pathname !== historyUrl) {
-          window.localStorage.setItem('historyUrl', pathname);
-          dispatch({
-            type: 'basicForm/resetState',
-          });
-        }
+
       });
     },
   },
@@ -90,18 +85,25 @@ const BasicForm: ModelType = {
         }
       }
     },
-    *submit({ type, payload }, { put, call, select }) {
+    *submit({ payload, callback }, { put, call, select }) {
       const response = yield call(formSubmit, payload);
       // 操作成功
       if (response.status === 'success') {
         // 提示信息
         message.success(response.msg, 3);
+
         // 页面跳转
-        yield put(
-          routerRedux.push({
-            pathname: response.url,
-          }),
-        );
+        if(response.url) {
+          yield put(
+            routerRedux.push({
+              pathname: response.url,
+            }),
+          );
+        }
+
+        if (callback && typeof callback === 'function') {
+          callback(response); // 返回结果
+        }
       } else {
         message.error(response.msg, 3);
       }

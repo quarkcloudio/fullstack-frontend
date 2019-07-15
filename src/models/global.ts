@@ -145,9 +145,21 @@ const GlobalModel: GlobalModelType = {
   },
 
   subscriptions: {
-    setup({ history }): void {
+    setup({ dispatch, history }): void {
       // Subscribe history(url) change, trigger `load` action if pathname is `/`
       history.listen(({ pathname, search }): void => {
+
+        let historyUrl = sessionStorage.getItem('historyUrl')
+        if(pathname !== historyUrl || !sessionStorage['token']) {
+          sessionStorage.setItem('historyUrl', pathname);
+          dispatch({
+            type: 'basicForm/resetState',
+          });
+          dispatch({
+            type: 'basicList/resetState',
+          });
+        }
+
         // 未登录用户，进行登录
         if (!sessionStorage['token'] && pathname !== '/login') {
           router.push('/login');

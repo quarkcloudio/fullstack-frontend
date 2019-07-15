@@ -11,6 +11,7 @@ export interface BasicListModelState {
   pageTitle:string;
   pageRandom:string;
   pageLoading:boolean;
+  formLoading:boolean;
   headerButtons: [];
   toolbarButtons: [];
   search: [];
@@ -22,7 +23,6 @@ export interface BasicListModelState {
   modalWidth:string;
   modalFormUrl:string;
   modalVisible:boolean;
-  action: string;
 }
 
 export interface ModelType {
@@ -31,11 +31,13 @@ export interface ModelType {
   subscriptions:{ setup: Subscription };
   effects: {
     getListInfo: Effect;
+    getList: Effect;
     changeStatus: Effect;
   };
   reducers: {
     updateState: Reducer<{}>;
     pageLoading: Reducer<{}>;
+    formLoading: Reducer<{}>;
     selectedRowKeys: Reducer<{}>;
     advancedSearchExpand: Reducer<{}>;
     modalVisible: Reducer<{}>;
@@ -51,6 +53,7 @@ const BasicList: ModelType = {
     pageTitle:'',
     pageRandom:null,
     pageLoading:true,
+    formLoading:true,
     headerButtons: [],
     toolbarButtons: [],
     search: [],
@@ -62,20 +65,11 @@ const BasicList: ModelType = {
     modalWidth:'',
     modalFormUrl:'',
     modalVisible:false,
-    action: null,
   },
 
   subscriptions: {
     setup({ dispatch, history }) {
-      return history.listen(({ pathname }) => {
-        let historyUrl = window.localStorage.getItem('historyUrl')
-        if(pathname != historyUrl) {
-          window.localStorage.setItem('historyUrl', pathname);
-          dispatch({
-            type: 'basicList/resetState',
-          });
-        }
-      });
+
     },
   },
 
@@ -99,12 +93,31 @@ const BasicList: ModelType = {
         }
       }
     },
+    *getList({ payload, callback }, { put, call, select }) {
+      const data = { formLoading:true};
+      yield put({
+        type: 'formLoading',
+        payload: data,
+      });
+
+      const response = yield call(getListInfo, payload);
+      if (response.status === 'success') {
+        const data = { ...response.data, formLoading:false,pageLoading:false};
+        yield put({
+          type: 'updateState',
+          payload: data,
+        });
+        if (callback && typeof callback === 'function') {
+          callback(response); // 返回结果
+        }
+      }
+    },
     *changeStatus({ payload, callback }, { put, call, select }) {
       const response = yield call(changeStatus, payload);
 
-      const data = { pageLoading:true};
+      const data = { formLoading:true};
       yield put({
-        type: 'pageLoading',
+        type: 'formLoading',
         payload: data,
       });
 
@@ -134,6 +147,7 @@ const BasicList: ModelType = {
         pageTitle:'',
         pageRandom:null,
         pageLoading:true,
+        formLoading:true,
         headerButtons: [],
         toolbarButtons: [],
         search: [],
@@ -153,6 +167,12 @@ const BasicList: ModelType = {
     },
     pageLoading(state, action) {
       state.pageLoading = action.payload.pageLoading;
+      return {
+        ...state,
+      };
+    },
+    formLoading(state, action) {
+      state.formLoading = action.payload.formLoading;
       return {
         ...state,
       };

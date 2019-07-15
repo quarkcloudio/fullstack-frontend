@@ -44,7 +44,6 @@ export interface BasicFormProps extends FormComponentProps {
   previewImage: string;
   previewVisible: boolean;
   pageLoading: boolean;
-  action?: string;
   controls?: [];
   labelCol?: any;
   wrapperCol?: any;
@@ -208,9 +207,27 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
         previewVisible : false,
       }
     });
-   };
+  };
+
+  const closeModal = () => {
+    dispatch({
+      type: 'basicList/modalVisible',
+      payload: {
+        modalVisible: false,
+        modalFormUrl:'',
+        modalTitle:'',
+        modalWidth:'',
+        modalHeight:'',
+      }
+    });
+  };
+
+  const reset = () => {
+    form.resetFields();
+  };
 
   return (
+  <Spin spinning={pageLoading} tip="Loading..." style={{background:'#fff'}}>
   <div className={styles.container}>
     <Card
       size="small"
@@ -218,7 +235,6 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
       bordered={false}
       extra={<a href="javascript:history.go(-1)">返回上一页</a>}
     >
-      <Spin spinning={pageLoading} style={{background:'#fff'}}>
         <Form style={{ marginTop: 15 }}>
           {!!controls &&
             controls.map((control:any) => {
@@ -684,15 +700,32 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                       {!!control.icon && (<Icon type={control.icon} />)}
                       {control.name}
                     </Button>
+                    {!!control.extendButtons && control.extendButtons.map((extendButton:any) => {
+                      if(extendButton == 'cancel') {
+                        return (
+                        <Button style={control.style} onClick={closeModal}>
+                          取消
+                        </Button>
+                        );
+                      }
+
+                      if(extendButton == 'reset') {
+                        return (
+                        <Button style={control.style} onClick={reset}>
+                          重置
+                        </Button>
+                        );
+                      }
+                    })}
                   </Form.Item>
                 );
               }
 
             })}
         </Form>
-      </Spin>
     </Card>
   </div>
+  </Spin>
   );
 };
 
