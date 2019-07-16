@@ -103,32 +103,34 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
 
     form.validateFieldsAndScroll((err, values) => {
       if (!err) {
-        controls.map((control:any,key:any) => {
-          if(control.componentName == 'image' || control.componentName == 'file') {
-            values[control.name] = control.list;
-          }
-
-          if(control.componentName == 'datePicker') {
-            values[control.name] = values[control.name].format('YYYY-MM-DD HH:mm:ss');
-          }
-
-          if(control.componentName == 'rangePicker') {
-            if (values[control.name]) {
-              if (values[control.name][0] && values[control.name][1]) {
-                // 时间标准化
-                let dateStart = values[control.name][0].format('YYYY-MM-DD HH:mm:ss');
-                let dateEnd = values[control.name][1].format('YYYY-MM-DD HH:mm:ss');
-                // 先清空对象
-                values[control.name] = [];
-                // 重新赋值对象
-                values[control.name] = [dateStart, dateEnd];
+        controls.tabPanes.map((tabPane:any,key:any) => {
+          tabPane.controls.map((control:any,key:any) => {
+            if(control.componentName == 'image' || control.componentName == 'file') {
+              values[control.name] = control.list;
+            }
+  
+            if(control.componentName == 'datePicker') {
+              values[control.name] = values[control.name].format('YYYY-MM-DD HH:mm:ss');
+            }
+  
+            if(control.componentName == 'rangePicker') {
+              if (values[control.name]) {
+                if (values[control.name][0] && values[control.name][1]) {
+                  // 时间标准化
+                  let dateStart = values[control.name][0].format('YYYY-MM-DD HH:mm:ss');
+                  let dateEnd = values[control.name][1].format('YYYY-MM-DD HH:mm:ss');
+                  // 先清空对象
+                  values[control.name] = [];
+                  // 重新赋值对象
+                  values[control.name] = [dateStart, dateEnd];
+                }
               }
             }
-          }
-
-          if(control.componentName == 'editor') {
-            values[control.name] = values[control.name].toHTML();
-          }
+  
+            if(control.componentName == 'editor') {
+              values[control.name] = values[control.name].toHTML();
+            }
+          })
         })
 
         console.log(values)
