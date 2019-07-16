@@ -104,15 +104,15 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
     form.validateFieldsAndScroll((err, values) => {
       if (!err) {
         controls.map((control:any,key:any) => {
-          if(control.controlType == 'image' || control.controlType == 'file') {
+          if(control.componentName == 'image' || control.componentName == 'file') {
             values[control.name] = control.list;
           }
 
-          if(control.controlType == 'datePicker') {
+          if(control.componentName == 'datePicker') {
             values[control.name] = values[control.name].format('YYYY-MM-DD HH:mm:ss');
           }
 
-          if(control.controlType == 'rangePicker') {
+          if(control.componentName == 'rangePicker') {
             if (values[control.name]) {
               if (values[control.name][0] && values[control.name][1]) {
                 // 时间标准化
@@ -126,7 +126,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
             }
           }
 
-          if(control.controlType == 'editor') {
+          if(control.componentName == 'editor') {
             values[control.name] = values[control.name].toHTML();
           }
         })
@@ -238,7 +238,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
         <Form style={{ marginTop: 15 }}>
           {!!controls &&
             controls.map((control:any) => {
-              if(control.controlType == "text") {
+              if(control.componentName == "text") {
                 return (
                   <Form.Item 
                     labelCol={control.labelCol?control.labelCol:labelCol} 
@@ -254,7 +254,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                 );
               }
 
-              if(control.controlType == "textArea") {
+              if(control.componentName == "textArea") {
                 return (
                   <Form.Item 
                     labelCol={control.labelCol?control.labelCol:labelCol} 
@@ -270,7 +270,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                 );
               }
 
-              if(control.controlType == "inputNumber") {
+              if(control.componentName == "inputNumber") {
                 return (
                   <Form.Item 
                     labelCol={control.labelCol?control.labelCol:labelCol} 
@@ -286,7 +286,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                 );
               }
 
-              if(control.controlType == "checkbox") {
+              if(control.componentName == "checkbox") {
                 return (
                   <Form.Item 
                     labelCol={control.labelCol?control.labelCol:labelCol} 
@@ -308,7 +308,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                 );
               }
 
-              if(control.controlType == "radio") {
+              if(control.componentName == "radio") {
                 return (
                   <Form.Item 
                     labelCol={control.labelCol?control.labelCol:labelCol} 
@@ -330,7 +330,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                 );
               }
 
-              if(control.controlType == "select") {
+              if(control.componentName == "select") {
                 return (
                   <Form.Item 
                     labelCol={control.labelCol?control.labelCol:labelCol} 
@@ -354,7 +354,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                 );
               }
 
-              if(control.controlType == "switch") {
+              if(control.componentName == "switch") {
                 return (
                   <Form.Item 
                     labelCol={control.labelCol?control.labelCol:labelCol} 
@@ -373,7 +373,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                 );
               }
 
-              if(control.controlType == "datePicker") {
+              if(control.componentName == "datePicker") {
                 return (
                   <Form.Item 
                     labelCol={control.labelCol?control.labelCol:labelCol} 
@@ -398,7 +398,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                 );
               }
 
-              if(control.controlType == "rangePicker") {
+              if(control.componentName == "rangePicker") {
                 return (
                   <Form.Item 
                     labelCol={control.labelCol?control.labelCol:labelCol} 
@@ -425,7 +425,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                 );
               }
 
-              if(control.controlType == "editor") {
+              if(control.componentName == "editor") {
                 return (
                   <Form.Item 
                     labelCol={control.labelCol?control.labelCol:labelCol} 
@@ -448,7 +448,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                 );
               }
 
-              if(control.controlType == "image") {
+              if(control.componentName == "image") {
                 // 多图片上传模式
                 if(control.mode == "multiple") {
                   let uploadButton = (
@@ -611,7 +611,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                 }
               }
 
-              if(control.controlType=='file') {
+              if(control.componentName=='file') {
                 var getFileList = control.list;
                 return (
                   <Form.Item 
@@ -681,7 +681,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                 );
               }
 
-              if(control.controlType == "button") {
+              if(control.componentName == "button") {
                 return (
                   <Form.Item 
                     labelCol={control.labelCol?control.labelCol:labelCol}

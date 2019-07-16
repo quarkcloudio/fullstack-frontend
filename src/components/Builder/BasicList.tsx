@@ -117,7 +117,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
           {
             table.columns[key].actions.map((action:any,key:any) => {
 
-              if(action.controlType == "button") {
+              if(action.componentName == "button") {
                 return (
                   <span>
                     <Button
@@ -135,7 +135,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
                 );
               }
 
-              if(action.controlType == "popconfirm") {
+              if(action.componentName == "popconfirm") {
                 return (
                   <span>
                     <Popconfirm title="确定删除吗？" onConfirm={() => callback(action.onConfirm['name'],[row.id,action.onConfirm['value']],action.onConfirm['url']+'?id='+row.id)}>
@@ -264,10 +264,10 @@ const BasicList: React.SFC<BasicListProps> = props => {
 
     form.validateFields((err, values) => {
       search.map((control:any,key:any) => {
-        if(control.controlType == 'datePicker') {
+        if(control.componentName == 'datePicker') {
           values[control.name] = values[control.name].format('YYYY-MM-DD HH:mm:ss');
         }
-        if(control.controlType == 'rangePicker') {
+        if(control.componentName == 'rangePicker') {
           if (values[control.name]) {
             if (values[control.name][0] && values[control.name][1]) {
               // 时间标准化
@@ -283,10 +283,10 @@ const BasicList: React.SFC<BasicListProps> = props => {
       })
 
       advancedSearch.map((control:any,key:any) => {
-        if(control.controlType == 'datePicker') {
+        if(control.componentName == 'datePicker') {
           values[control.name] = values[control.name].format('YYYY-MM-DD HH:mm:ss');
         }
-        if(control.controlType == 'rangePicker') {
+        if(control.componentName == 'rangePicker') {
           if (values[control.name]) {
             if (values[control.name][0] && values[control.name][1]) {
               // 时间标准化
@@ -442,7 +442,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
               <Form layout="inline">
                 {!!search &&
                   search.map((control:any) => {
-                    if(control.controlType == "text") {
+                    if(control.componentName == "text") {
                       return (
                         <Form.Item 
                           labelCol={control.labelCol} 
@@ -457,7 +457,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
                       );
                     }
 
-                    if(control.controlType == "select") {
+                    if(control.componentName == "select") {
                       return (
                         <Form.Item
                           labelCol={control.labelCol}
@@ -480,7 +480,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
                       );
                     }
 
-                    if(control.controlType == "datePicker") {
+                    if(control.componentName == "datePicker") {
                       return (
                         <Form.Item 
                           labelCol={control.labelCol} 
@@ -504,7 +504,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
                       );
                     }
 
-                    if(control.controlType == "rangePicker") {
+                    if(control.componentName == "rangePicker") {
                       return (
                         <Form.Item 
                           labelCol={control.labelCol} 
@@ -530,7 +530,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
                       );
                     }
 
-                    if(control.controlType == "button") {
+                    if(control.componentName == "button") {
                       return (
                         <Form.Item 
                           labelCol={control.labelCol} 
@@ -575,7 +575,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
             <Form layout="inline">
             {!!advancedSearch &&
               advancedSearch.map((control:any) => {
-                if(control.controlType == "text") {
+                if(control.componentName == "text") {
                   return (
                     <Form.Item 
                       labelCol={control.labelCol} 
@@ -591,7 +591,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
                   );
                 }
 
-                if(control.controlType == "select") {
+                if(control.componentName == "select") {
                   return (
                     <Form.Item 
                       labelCol={control.labelCol} 
@@ -615,7 +615,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
                   );
                 }
 
-                if(control.controlType == "datePicker") {
+                if(control.componentName == "datePicker") {
                   return (
                     <Form.Item 
                       labelCol={control.labelCol} 
@@ -640,7 +640,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
                   );
                 }
 
-                if(control.controlType == "rangePicker") {
+                if(control.componentName == "rangePicker") {
                   return (
                     <Form.Item 
                       labelCol={control.labelCol} 
@@ -667,7 +667,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
                   );
                 }
 
-                if(control.controlType == "button") {
+                if(control.componentName == "button") {
                   return (
                     <Form.Item 
                       labelCol={control.labelCol} 
