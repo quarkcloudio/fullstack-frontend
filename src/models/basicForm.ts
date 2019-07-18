@@ -27,10 +27,12 @@ export interface ModelType {
     getFormInfo: Effect;
     submit: Effect;
     updateFileList: Effect;
+    updateTapFileList: Effect;
   };
   reducers: {
     updateState: Reducer<{}>;
     updateList: Reducer<{}>;
+    updateTapList: Reducer<{}>;
     previewImage: Reducer<{}>;
     pageLoading: Reducer<{}>;
     resetState: Reducer<{}>;
@@ -114,6 +116,12 @@ const BasicForm: ModelType = {
         payload: payload,
       });
     },
+    *updateTapFileList({ payload, callback }, { put, call, select }) {
+      yield put({
+        type: 'updateTapList',
+        payload: payload,
+      });
+    },
   },
 
   reducers: {
@@ -149,6 +157,21 @@ const BasicForm: ModelType = {
         if(control.name == action.payload.controlName) {
           state.controls[key]['list'] = action.payload.fileList;
         }
+      })
+      state.pageRandom = Math.random();
+      return {
+        ...state,
+      };
+    },
+    updateTapList(state, action) {
+      state.controls.tabPanes.map((tabPane:any,key:any) => {
+        tabPane.controls.map((control:any,key1:any) => {
+
+          if(control.name == action.payload.controlName) {
+            state.controls.tabPanes[key].controls[key1]['list'] = action.payload.fileList;
+          }
+
+        })
       })
       state.pageRandom = Math.random();
       return {

@@ -106,7 +106,21 @@ const ModalForm: React.SFC<ModalFormProps> = props => {
       if (!err) {
         controls.map((control:any,key:any) => {
           if(control.componentName == 'image' || control.componentName == 'file') {
-            values[control.name] = control.list;
+            if(control.list) {
+              let list = {};
+              control.list.map((fileInfo:any,fileKey:any) => {
+                let getFileInfo = {};
+                getFileInfo['id'] = fileInfo.id;
+                getFileInfo['uid'] = fileInfo.uid;
+                getFileInfo['name'] = fileInfo.name;
+                getFileInfo['size'] = fileInfo.size;
+                getFileInfo['url'] = fileInfo.url;
+                list[fileKey] = getFileInfo;
+              })
+              values[control.name] = list;
+            } else {
+              values[control.name] = [];
+            }
           }
 
           if(control.componentName == 'datePicker') {
@@ -250,7 +264,7 @@ const ModalForm: React.SFC<ModalFormProps> = props => {
                     {getFieldDecorator(control.name,{
                       initialValue: control.value,
                       rules: control.rules
-                    })(<Input size={control.size} style={control.style} placeholder={control.placeholder} />)}
+                    })(<Input size={control.size}  type={control.type} style={control.style} placeholder={control.placeholder} />)}
                   </Form.Item>
                 );
               }
@@ -507,6 +521,7 @@ const ModalForm: React.SFC<ModalFormProps> = props => {
                             if (file.response) {
                               file.url = file.response.data.url;
                               file.uid = file.response.data.id;
+                              file.id = file.response.data.id;
                             }
                             return file;
                           });
@@ -587,6 +602,7 @@ const ModalForm: React.SFC<ModalFormProps> = props => {
                               if (info.file.response) {
                                 info.file.url = info.file.response.data.url;
                                 info.file.uid = info.file.response.data.id;
+                                info.file.id = info.file.response.data.id;
                               }
 
                               fileList[0] = info.file;
@@ -653,6 +669,7 @@ const ModalForm: React.SFC<ModalFormProps> = props => {
                             if(file.response.status === 'success') {
                               file.url = file.response.data.url;
                               file.uid = file.response.data.id;
+                              file.id = file.response.data.id;
                             }
                           }
                           return file;

@@ -3,17 +3,22 @@ import { connect } from 'dva';
 import router from 'umi/router';
 import TabForm from '@/components/Builder/TabForm';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import styles from './Create.less';
+import { stringify } from 'qs';
 
 import {
   Card,
 } from 'antd';
 
 class BuilderForm extends PureComponent {
+
+  state = {
+    url: 'admin/article/create'+'?'+stringify(this.props.location.query),
+  };
+
   render() {
     return (
       <PageHeaderWrapper title={false}>
-        <TabForm url={'admin/article/create'} />
+        <TabForm url={this.state.url} />
       </PageHeaderWrapper>
     );
   }

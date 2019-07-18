@@ -95,10 +95,24 @@ const BasicList: React.SFC<BasicListProps> = props => {
         )
       }
 
+      if(column.isImage) {
+        column.render = (text:any, row:any) => (
+          <img src={text} width={40} height={40}></img>
+        )
+      }
+
       if(column.a) {
         column.render = (text:any, row:any) => (
           <a href={column.a['href']+'?id='+row.id} target={column.a['target']}>
             {text}
+          </a>
+        )
+      }
+
+      if(column.isImage && column.a) {
+        column.render = (text:any, row:any) => (
+          <a href={column.a['href']+'?id='+row.id} target={column.a['target']}>
+            <img src={text} width={40} height={40}></img>
           </a>
         )
       }

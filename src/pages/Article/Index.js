@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import router from 'umi/router';
-import styles from './Index.less';
 import BasicList from '@/components/Builder/BasicList';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import { routerRedux } from 'dva/router';
