@@ -106,9 +106,9 @@ const ModalForm: React.SFC<ModalFormProps> = props => {
       if (!err) {
         controls.map((control:any,key:any) => {
           if(control.componentName == 'image' || control.componentName == 'file') {
-            if(control.list) {
+            if(control.value) {
               let list = {};
-              control.list.map((fileInfo:any,fileKey:any) => {
+              control.value.map((fileInfo:any,fileKey:any) => {
                 let getFileInfo = {};
                 getFileInfo['id'] = fileInfo.id;
                 getFileInfo['uid'] = fileInfo.uid;
@@ -253,7 +253,38 @@ const ModalForm: React.SFC<ModalFormProps> = props => {
         <Form style={{ marginTop: 15 }}>
           {!!controls &&
             controls.map((control:any) => {
+
+              if(control.componentName == "id") {
+                return (
+                  <Form.Item 
+                    style={{'display':control.display}}
+                    labelCol={control.labelCol?control.labelCol:labelCol} 
+                    wrapperCol={control.wrapperCol?control.wrapperCol:wrapperCol} 
+                    label={control.labelName}
+                    extra={control.extra}
+                  >
+                    {getFieldDecorator(control.name,{
+                      initialValue: control.value,
+                      rules: control.rules
+                    })(<Input size={control.size} style={control.style} placeholder={control.placeholder} />)}
+                  </Form.Item>
+                );
+              }
+
               if(control.componentName == "text") {
+                return (
+                  <Form.Item 
+                    labelCol={control.labelCol?control.labelCol:labelCol} 
+                    wrapperCol={control.wrapperCol?control.wrapperCol:wrapperCol} 
+                    label={control.labelName}
+                    extra={control.extra}
+                  >
+                    <span style={control.style}>{control.value}</span>
+                  </Form.Item>
+                );
+              }
+
+              if(control.componentName == "input") {
                 return (
                   <Form.Item 
                     labelCol={control.labelCol?control.labelCol:labelCol} 
@@ -472,7 +503,7 @@ const ModalForm: React.SFC<ModalFormProps> = props => {
                       <div className="ant-upload-text">{control.button}</div>
                     </div>
                   );
-                  var getFileList = control.list;
+                  var getFileList = control.value;
                   return (
                     <Form.Item 
                       labelCol={control.labelCol?control.labelCol:labelCol} 
@@ -542,7 +573,7 @@ const ModalForm: React.SFC<ModalFormProps> = props => {
                           });
                         }}
                       >
-                        {control.list >= 3 ? null : uploadButton}
+                        {control.value >= 3 ? null : uploadButton}
                       </Upload>
                       <Modal
                         visible={previewVisible}
@@ -619,8 +650,8 @@ const ModalForm: React.SFC<ModalFormProps> = props => {
                           }
                         }}
                       >
-                        {control.list ? (
-                          <img src={control.list[0]['url']} alt="avatar" width={80} />
+                        {control.value ? (
+                          <img src={control.value[0]['url']} alt="avatar" width={80} />
                         ) : (uploadButton)}
                       </Upload>
                     </Form.Item>
@@ -629,7 +660,7 @@ const ModalForm: React.SFC<ModalFormProps> = props => {
               }
 
               if(control.componentName=='file') {
-                var getFileList = control.list;
+                var getFileList = control.value;
                 return (
                   <Form.Item 
                     labelCol={control.labelCol?control.labelCol:labelCol} 

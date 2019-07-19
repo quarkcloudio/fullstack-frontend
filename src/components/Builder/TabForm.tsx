@@ -106,9 +106,9 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
         controls.tabPanes.map((tabPane:any,key:any) => {
           tabPane.controls.map((control:any,key:any) => {
             if(control.componentName == 'image' || control.componentName == 'file') {
-              if(control.list) {
+              if(control.value) {
                 let list = {};
-                control.list.map((fileInfo:any,fileKey:any)=>{
+                control.value.map((fileInfo:any,fileKey:any)=>{
                   let getFileInfo = {};
                   getFileInfo['id'] = fileInfo.id;
                   getFileInfo['uid'] = fileInfo.uid;
@@ -276,6 +276,19 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                     }
 
                     if(control.componentName == "text") {
+                      return (
+                        <Form.Item 
+                          labelCol={control.labelCol?control.labelCol:labelCol} 
+                          wrapperCol={control.wrapperCol?control.wrapperCol:wrapperCol} 
+                          label={control.labelName}
+                          extra={control.extra}
+                        >
+                          <span style={control.style}>{control.value}</span>
+                        </Form.Item>
+                      );
+                    }
+
+                    if(control.componentName == "input") {
                       return (
                         <Form.Item 
                           labelCol={control.labelCol?control.labelCol:labelCol} 
@@ -494,7 +507,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                             <div className="ant-upload-text">{control.button}</div>
                           </div>
                         );
-                        var getFileList = control.list;
+                        var getFileList = control.value;
                         return (
                           <Form.Item 
                             labelCol={control.labelCol?control.labelCol:labelCol} 
@@ -564,7 +577,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                                 });
                               }}
                             >
-                              {control.list >= 3 ? null : uploadButton}
+                              {control.value >= 3 ? null : uploadButton}
                             </Upload>
                             <Modal
                               visible={previewVisible}
@@ -641,8 +654,8 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                                 }
                               }}
                             >
-                              {control.list ? (
-                                <img src={control.list[0]['url']} alt="avatar" width={80} />
+                              {control.value ? (
+                                <img src={control.value[0]['url']} alt="avatar" width={80} />
                               ) : (uploadButton)}
                             </Upload>
                           </Form.Item>
@@ -651,7 +664,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                     }
 
                     if(control.componentName=='file') {
-                      var getFileList = control.list;
+                      var getFileList = control.value;
                       return (
                         <Form.Item 
                           labelCol={control.labelCol?control.labelCol:labelCol} 

@@ -209,12 +209,6 @@ export default {
               component: './User/Edit',
               hideInMenu: true,
             },
-            {
-              path: '/user/recharge',
-              name: 'recharge',
-              component: './User/Recharge',
-              hideInMenu: true,
-            },
           ],
         },
         {

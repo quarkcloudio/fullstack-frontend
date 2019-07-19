@@ -359,14 +359,14 @@ const BasicList: React.SFC<BasicListProps> = props => {
   };
 
   const openModal = (actionUrl,value) => {
+
     dispatch({
       type: 'basicList/modalVisible',
       payload: {
         modalVisible:true,
         modalFormUrl:actionUrl,
-        modalTitle:value.title,
-        modalWidth:value.width,
-        modalHeight:value.height,
+        modalTitle:value.title ? value.title : value['1'].title,
+        modalWidth:value.width ? value.width : value['1'].width,
       }
     });
   };
@@ -379,7 +379,6 @@ const BasicList: React.SFC<BasicListProps> = props => {
         modalFormUrl:'',
         modalTitle:'',
         modalWidth:'',
-        modalHeight:'',
       }
     });
   };
@@ -456,7 +455,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
               <Form layout="inline">
                 {!!search &&
                   search.map((control:any) => {
-                    if(control.componentName == "text") {
+                    if(control.componentName == "input") {
                       return (
                         <Form.Item 
                           labelCol={control.labelCol} 
@@ -567,7 +566,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
                     }
 
                   })}
-                {!!advancedSearch && (
+                {(advancedSearch.length != 0) && (
                   <Form.Item style={{ marginRight: 10 }}>
                     <a style={{ fontSize: 12 }} onClick={toggle}>
                       高级搜索 <Icon type={advancedSearchExpand ? 'up' : 'down'} />
@@ -589,7 +588,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
             <Form layout="inline">
             {!!advancedSearch &&
               advancedSearch.map((control:any) => {
-                if(control.componentName == "text") {
+                if(control.componentName == "input") {
                   return (
                     <Form.Item 
                       labelCol={control.labelCol} 

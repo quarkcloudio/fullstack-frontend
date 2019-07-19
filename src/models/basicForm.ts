@@ -155,7 +155,7 @@ const BasicForm: ModelType = {
     updateList(state, action) {
       state.controls.map((control:any,key:any) => {
         if(control.name == action.payload.controlName) {
-          state.controls[key]['list'] = action.payload.fileList;
+          state.controls[key]['value'] = action.payload.fileList;
         }
       })
       state.pageRandom = Math.random();
@@ -168,7 +168,7 @@ const BasicForm: ModelType = {
         tabPane.controls.map((control:any,key1:any) => {
 
           if(control.name == action.payload.controlName) {
-            state.controls.tabPanes[key].controls[key1]['list'] = action.payload.fileList;
+            state.controls.tabPanes[key].controls[key1]['value'] = action.payload.fileList;
           }
 
         })
