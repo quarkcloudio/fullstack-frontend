@@ -22,3 +22,14 @@ export async function changeStatus(params: any) {
     data: params,
   });
 }
+
+export async function get(params: any) {
+  return request(`../../api/${params.url}?${stringify(params)}`);
+}
+
+export async function post(params: any) {
+  return request(`../../api/${params.url}`, {
+    method: 'post',
+    data: params,
+  });
+}

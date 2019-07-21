@@ -81,7 +81,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
   useEffect(() => {
     if (dispatch) {
       dispatch({
-        type: 'basicForm/getFormInfo',
+        type: 'form/getFormInfo',
         payload: {
           url: url,
         }
@@ -150,7 +150,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
         console.log(values)
 
         dispatch({
-          type: 'basicForm/submit',
+          type: 'form/submit',
           payload: {
             url: getUrl,
             ...values,
@@ -217,7 +217,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
 
   const handleCancel = () => {
     dispatch({
-      type: 'basicForm/previewImage',
+      type: 'form/previewImage',
       payload: {
         previewImage : null,
         previewVisible : false,
@@ -227,7 +227,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
 
   const closeModal = () => {
     dispatch({
-      type: 'basicList/modalVisible',
+      type: 'list/modalVisible',
       payload: {
         modalVisible: false,
         modalFormUrl:'',
@@ -522,7 +522,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                               multiple={true}
                               onPreview={(file:any) => {
                                 dispatch({
-                                  type: 'basicForm/previewImage',
+                                  type: 'form/previewImage',
                                   payload: {
                                     previewImage : file.url || file.thumbUrl,
                                     previewVisible : true,
@@ -569,7 +569,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                                 });
               
                                 dispatch({
-                                  type: 'basicForm/updateTapFileList',
+                                  type: 'form/updateTapFileList',
                                   payload: {
                                     fileList : fileList,
                                     controlName : control.name
@@ -642,7 +642,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
 
                                     fileList[0] = info.file;
                                     dispatch({
-                                      type: 'basicForm/updateTapFileList',
+                                      type: 'form/updateTapFileList',
                                       payload: {
                                         fileList : fileList,
                                         controlName : control.name
@@ -718,7 +718,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                               });
             
                               dispatch({
-                                type: 'basicForm/updateTapFileList',
+                                type: 'form/updateTapFileList',
                                 payload: {
                                   fileList : fileList,
                                   controlName : control.name
@@ -788,16 +788,16 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
 };
 
 export default Form.create<BasicFormProps>()(
-  connect(({ loading ,basicForm}: ConnectState) => ({
-    pageTitle: basicForm.pageTitle,
-    name: basicForm.name,
-    submitting: loading.effects['basicForm/submit'],
-    controls: basicForm.controls,
-    wrapperCol: basicForm.wrapperCol,
-    labelCol: basicForm.labelCol,
-    pageLoading: basicForm.pageLoading,
-    previewVisible:basicForm.previewVisible,
-    previewImage:basicForm.previewImage,
-    pageRandom:basicForm.pageRandom
+  connect(({ loading ,form}: ConnectState) => ({
+    pageTitle: form.pageTitle,
+    name: form.name,
+    submitting: loading.effects['form/submit'],
+    controls: form.controls,
+    wrapperCol: form.wrapperCol,
+    labelCol: form.labelCol,
+    pageLoading: form.pageLoading,
+    previewVisible:form.previewVisible,
+    previewImage:form.previewImage,
+    pageRandom:form.pageRandom
   }))(BasicForm),
 );

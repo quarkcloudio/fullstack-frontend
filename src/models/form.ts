@@ -3,11 +3,11 @@ import { Reducer } from 'redux';
 import { Effect,Subscription } from 'dva';
 import { message } from 'antd';
 import { 
-  getFormInfo,
-  formSubmit,
+  get,
+  post,
 } from '@/services/builder';
 
-export interface BasicFormModelState {
+export interface FormModelState {
   pageTitle:string;
   name:string;
   pageRandom:string;
@@ -24,7 +24,7 @@ export interface ModelType {
   state: {};
   subscriptions:{ setup: Subscription };
   effects: {
-    getFormInfo: Effect;
+    info: Effect;
     submit: Effect;
     updateFileList: Effect;
     updateTapFileList: Effect;
@@ -39,9 +39,9 @@ export interface ModelType {
   };
 }
 
-const BasicForm: ModelType = {
+const form: ModelType = {
 
-  namespace: 'basicForm',
+  namespace: 'form',
 
   state: {
     url:'',
@@ -65,14 +65,14 @@ const BasicForm: ModelType = {
   },
 
   effects: {
-    *getFormInfo({ payload, callback }, { put, call, select }) {
+    *info({ payload, callback }, { put, call, select }) {
 
       yield put({
         type: 'pageLoading',
         payload: { pageLoading:true},
       });
 
-      const response = yield call(getFormInfo, payload);
+      const response = yield call(get, payload);
       if (response.status === 'success') {
 
         const data = { ...response.data, pageLoading:false};
@@ -88,7 +88,7 @@ const BasicForm: ModelType = {
       }
     },
     *submit({ payload, callback }, { put, call, select }) {
-      const response = yield call(formSubmit, payload);
+      const response = yield call(post, payload);
       // 操作成功
       if (response.status === 'success') {
         // 提示信息
@@ -188,4 +188,4 @@ const BasicForm: ModelType = {
   },
 };
 
-export default BasicForm;
+export default form;

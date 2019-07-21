@@ -82,7 +82,7 @@ const ModalForm: React.SFC<ModalFormProps> = props => {
     if (dispatch) {
       sessionStorage.setItem('formUrl', url);
       dispatch({
-        type: 'basicForm/getFormInfo',
+        type: 'form/getFormInfo',
         payload: {
           url: url,
         }
@@ -147,7 +147,7 @@ const ModalForm: React.SFC<ModalFormProps> = props => {
         })
 
         dispatch({
-          type: 'basicForm/submit',
+          type: 'form/submit',
           payload: {
             url: getUrl,
             ...values,
@@ -155,7 +155,7 @@ const ModalForm: React.SFC<ModalFormProps> = props => {
           callback: () => {
             closeModal();
             dispatch({
-              type: 'basicList/getList',
+              type: 'list/data',
               payload: {
                 url:sessionStorage.getItem('listUrl'),
               }
@@ -223,7 +223,7 @@ const ModalForm: React.SFC<ModalFormProps> = props => {
 
   const handleCancel = () => {
     dispatch({
-      type: 'basicForm/previewImage',
+      type: 'form/previewImage',
       payload: {
         previewImage : null,
         previewVisible : false,
@@ -233,7 +233,7 @@ const ModalForm: React.SFC<ModalFormProps> = props => {
 
   const closeModal = () => {
     dispatch({
-      type: 'basicList/modalVisible',
+      type: 'list/modalVisible',
       payload: {
         modalVisible: false,
         modalFormUrl:'',
@@ -518,7 +518,7 @@ const ModalForm: React.SFC<ModalFormProps> = props => {
                         multiple={true}
                         onPreview={(file:any) => {
                           dispatch({
-                            type: 'basicForm/previewImage',
+                            type: 'form/previewImage',
                             payload: {
                               previewImage : file.url || file.thumbUrl,
                               previewVisible : true,
@@ -565,7 +565,7 @@ const ModalForm: React.SFC<ModalFormProps> = props => {
                           });
         
                           dispatch({
-                            type: 'basicForm/updateFileList',
+                            type: 'form/updateFileList',
                             payload: {
                               fileList : fileList,
                               controlName : control.name
@@ -638,7 +638,7 @@ const ModalForm: React.SFC<ModalFormProps> = props => {
 
                               fileList[0] = info.file;
                               dispatch({
-                                type: 'basicForm/updateFileList',
+                                type: 'form/updateFileList',
                                 payload: {
                                   fileList : fileList,
                                   controlName : control.name
@@ -714,7 +714,7 @@ const ModalForm: React.SFC<ModalFormProps> = props => {
                         });
       
                         dispatch({
-                          type: 'basicForm/updateFileList',
+                          type: 'form/updateFileList',
                           payload: {
                             fileList : fileList,
                             controlName : control.name
@@ -779,16 +779,16 @@ const ModalForm: React.SFC<ModalFormProps> = props => {
 };
 
 export default Form.create<ModalFormProps>()(
-  connect(({ loading ,basicForm}: ConnectState) => ({
-    pageTitle: basicForm.pageTitle,
-    name: basicForm.name,
-    submitting: loading.effects['basicForm/submit'],
-    controls: basicForm.controls,
-    wrapperCol: basicForm.wrapperCol,
-    labelCol: basicForm.labelCol,
-    pageLoading: basicForm.pageLoading,
-    previewVisible:basicForm.previewVisible,
-    previewImage:basicForm.previewImage,
-    pageRandom:basicForm.pageRandom
+  connect(({ loading ,form}: ConnectState) => ({
+    pageTitle: form.pageTitle,
+    name: form.name,
+    submitting: loading.effects['form/submit'],
+    controls: form.controls,
+    wrapperCol: form.wrapperCol,
+    labelCol: form.labelCol,
+    pageLoading: form.pageLoading,
+    previewVisible:form.previewVisible,
+    previewImage:form.previewImage,
+    pageRandom:form.pageRandom
   }))(ModalForm),
 );

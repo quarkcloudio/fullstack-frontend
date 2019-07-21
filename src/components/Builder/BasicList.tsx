@@ -40,7 +40,7 @@ export interface BasicListProps extends FormComponentProps {
   pageTitle:string;
   pageRandom:string;
   pageLoading: boolean;
-  formLoading: boolean;
+  tableLoading: boolean;
   headerButtons:[];
   toolbarButtons:[];
   search:[];
@@ -63,7 +63,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
     pageTitle,
     pageRandom,
     pageLoading,
-    formLoading,
+    tableLoading,
     headerButtons,
     toolbarButtons,
     search,
@@ -183,7 +183,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
     if (dispatch) {
       sessionStorage.setItem('listUrl', url);
       dispatch({
-        type: 'basicList/getListInfo',
+        type: 'list/info',
         payload: {
           url: url,
         }
@@ -207,13 +207,16 @@ const BasicList: React.SFC<BasicListProps> = props => {
     if(name == 'openModal') {
       openModal(actionUrl,value);
     }
+    if(name == 'submit') {
+      onSubmit(actionUrl,value);
+    }
   };
 
   // 改变数据状态操作
   const changeStatus = (actionUrl,value) => {
     console.log(value)
     dispatch({
-      type: 'basicList/changeStatus',
+      type: 'list/changeStatus',
       payload: {
         url: actionUrl,
         id:value[0],
@@ -222,7 +225,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
       callback: res => {
         // 调用model
         dispatch({
-          type: 'basicList/getList',
+          type: 'list/data',
           payload: {
             url: url,
             ...table.pagination,
@@ -237,7 +240,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
   const multiChangeStatus = (actionUrl,value) => {
     let ids = selectedRowKeys;
     dispatch({
-      type: 'basicList/changeStatus',
+      type: 'list/changeStatus',
       payload: {
         url: actionUrl,
         id: ids,
@@ -246,7 +249,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
       callback: res => {
         // 调用model
         dispatch({
-          type: 'basicList/getList',
+          type: 'list/data',
           payload: {
             url: url,
             ...table.pagination,
@@ -260,7 +263,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
   // 分页切换
   const changePagination = (pagination, filters, sorter) => {
     dispatch({
-      type: 'basicList/getList',
+      type: 'list/data',
       payload: {
         url: url,
         pageSize: pagination.pageSize, // 分页数量
@@ -317,7 +320,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
 
       if (!err) {
         dispatch({
-          type: 'basicList/getList',
+          type: 'list/data',
           payload: {
             url: actionUrl ? actionUrl : url,
             ...table.pagination,
@@ -328,10 +331,31 @@ const BasicList: React.SFC<BasicListProps> = props => {
     });
   };
 
+  const onSubmit = (actionUrl,values) => {
+    dispatch({
+      type: 'list/submit',
+      payload: {
+        url: actionUrl,
+        ...values,
+      },
+      callback: res => {
+        // 调用model
+        dispatch({
+          type: 'list/data',
+          payload: {
+            url: url,
+            ...table.pagination,
+            search: search,
+          }
+        });
+      },
+    });
+  };
+
   // 展开或收缩高级搜索
   const toggle = () => {
     dispatch({
-      type: 'basicList/advancedSearchExpand',
+      type: 'list/advancedSearchExpand',
       payload: {
         advancedSearchExpand : !advancedSearchExpand
       }
@@ -341,7 +365,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
   // 选择事件
   const onSelectChange = (selectedRowKeys:any) => {
     dispatch({
-      type: 'basicList/selectedRowKeys',
+      type: 'list/selectedRowKeys',
       payload: {
         selectedRowKeys : selectedRowKeys
       }
@@ -361,7 +385,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
   const openModal = (actionUrl,value) => {
 
     dispatch({
-      type: 'basicList/modalVisible',
+      type: 'list/modalVisible',
       payload: {
         modalVisible:true,
         modalFormUrl:actionUrl,
@@ -373,7 +397,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
 
   const closeModal = () => {
     dispatch({
-      type: 'basicList/modalVisible',
+      type: 'list/modalVisible',
       payload: {
         modalVisible: false,
         modalFormUrl:'',
@@ -716,7 +740,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
           columns={table.columns}
           dataSource={table.dataSource}
           pagination={table.pagination}
-          loading={formLoading}
+          loading={tableLoading}
           onChange={changePagination}
         />
       </div>
@@ -738,22 +762,22 @@ const BasicList: React.SFC<BasicListProps> = props => {
 };
 
 export default Form.create<BasicListProps>()(
-  connect(({ loading ,basicList}: ConnectState) => ({
-    submitting: loading.effects['basicList/formSubmit'],
-    pageTitle:basicList.pageTitle,
-    pageRandom:basicList.pageRandom,
-    pageLoading:basicList.pageLoading,
-    formLoading:basicList.formLoading,
-    headerButtons:basicList.headerButtons,
-    toolbarButtons:basicList.toolbarButtons,
-    search:basicList.search,
-    advancedSearch:basicList.advancedSearch,
-    advancedSearchExpand:basicList.advancedSearchExpand,
-    table:basicList.table,
-    selectedRowKeys:basicList.selectedRowKeys,
-    modalTitle:basicList.modalTitle,
-    modalWidth:basicList.modalWidth,
-    modalFormUrl:basicList.modalFormUrl,
-    modalVisible:basicList.modalVisible,
+  connect(({ loading ,list}: ConnectState) => ({
+    submitting: loading.effects['list/submit'],
+    pageTitle:list.pageTitle,
+    pageRandom:list.pageRandom,
+    pageLoading:list.pageLoading,
+    tableLoading:list.tableLoading,
+    headerButtons:list.headerButtons,
+    toolbarButtons:list.toolbarButtons,
+    search:list.search,
+    advancedSearch:list.advancedSearch,
+    advancedSearchExpand:list.advancedSearchExpand,
+    table:list.table,
+    selectedRowKeys:list.selectedRowKeys,
+    modalTitle:list.modalTitle,
+    modalWidth:list.modalWidth,
+    modalFormUrl:list.modalFormUrl,
+    modalVisible:list.modalVisible,
   }))(BasicList),
 );

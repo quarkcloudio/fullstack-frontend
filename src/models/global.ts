@@ -153,10 +153,10 @@ const GlobalModel: GlobalModelType = {
         if(pathname !== historyUrl || !sessionStorage['token']) {
           sessionStorage.setItem('historyUrl', pathname);
           dispatch({
-            type: 'basicForm/resetState',
+            type: 'form/resetState',
           });
           dispatch({
-            type: 'basicList/resetState',
+            type: 'list/resetState',
           });
         }
 

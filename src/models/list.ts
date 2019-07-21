@@ -3,15 +3,15 @@ import { Reducer } from 'redux';
 import { Effect,Subscription } from 'dva';
 import { message } from 'antd';
 import { 
-  getListInfo,
-  changeStatus,
+  get,
+  post,
 } from '@/services/builder';
 
-export interface BasicListModelState {
+export interface ListModelState {
   pageTitle:string;
   pageRandom:string;
   pageLoading:boolean;
-  formLoading:boolean;
+  tableLoading:boolean;
   headerButtons: [];
   toolbarButtons: [];
   search: [];
@@ -30,14 +30,15 @@ export interface ModelType {
   state: {};
   subscriptions:{ setup: Subscription };
   effects: {
-    getListInfo: Effect;
-    getList: Effect;
+    info: Effect;
+    data: Effect;
+    submit: Effect;
     changeStatus: Effect;
   };
   reducers: {
     updateState: Reducer<{}>;
     pageLoading: Reducer<{}>;
-    formLoading: Reducer<{}>;
+    tableLoading: Reducer<{}>;
     selectedRowKeys: Reducer<{}>;
     advancedSearchExpand: Reducer<{}>;
     modalVisible: Reducer<{}>;
@@ -45,15 +46,15 @@ export interface ModelType {
   };
 }
 
-const BasicList: ModelType = {
+const List: ModelType = {
 
-  namespace: 'basicList',
+  namespace: 'list',
 
   state: {
     pageTitle:'',
     pageRandom:null,
     pageLoading:true,
-    formLoading:true,
+    tableLoading:true,
     headerButtons: [],
     toolbarButtons: [],
     search: [],
@@ -74,14 +75,14 @@ const BasicList: ModelType = {
   },
 
   effects: {
-    *getListInfo({ payload, callback }, { put, call, select }) {
+    *info({ payload, callback }, { put, call, select }) {
       const data = { pageLoading:true};
       yield put({
         type: 'pageLoading',
         payload: data,
       });
 
-      const response = yield call(getListInfo, payload);
+      const response = yield call(get, payload);
       if (response.status === 'success') {
         const data = { ...response.data, pageLoading:false};
         yield put({
@@ -93,16 +94,16 @@ const BasicList: ModelType = {
         }
       }
     },
-    *getList({ payload, callback }, { put, call, select }) {
-      const data = { formLoading:true};
+    *data({ payload, callback }, { put, call, select }) {
+      const data = { tableLoading:true};
       yield put({
-        type: 'formLoading',
+        type: 'tableLoading',
         payload: data,
       });
 
-      const response = yield call(getListInfo, payload);
+      const response = yield call(get, payload);
       if (response.status === 'success') {
-        const data = { ...response.data, formLoading:false,pageLoading:false};
+        const data = { ...response.data, tableLoading:false,pageLoading:false};
         yield put({
           type: 'updateState',
           payload: data,
@@ -112,12 +113,35 @@ const BasicList: ModelType = {
         }
       }
     },
-    *changeStatus({ payload, callback }, { put, call, select }) {
-      const response = yield call(changeStatus, payload);
+    *submit({ payload, callback }, { put, call, select }) {
+      const response = yield call(post, payload);
+      // 操作成功
+      if (response.status === 'success') {
+        // 提示信息
+        message.success(response.msg, 3);
 
-      const data = { formLoading:true};
+        // 页面跳转
+        if(response.url) {
+          yield put(
+            routerRedux.push({
+              pathname: response.url,
+            }),
+          );
+        }
+
+        if (callback && typeof callback === 'function') {
+          callback(response); // 返回结果
+        }
+      } else {
+        message.error(response.msg, 3);
+      }
+    },
+    *changeStatus({ payload, callback }, { put, call, select }) {
+      const response = yield call(post, payload);
+
+      const data = { tableLoading:true};
       yield put({
-        type: 'formLoading',
+        type: 'tableLoading',
         payload: data,
       });
 
@@ -147,7 +171,7 @@ const BasicList: ModelType = {
         pageTitle:'',
         pageRandom:null,
         pageLoading:true,
-        formLoading:true,
+        tableLoading:true,
         headerButtons: [],
         toolbarButtons: [],
         search: [],
@@ -171,8 +195,8 @@ const BasicList: ModelType = {
         ...state,
       };
     },
-    formLoading(state, action) {
-      state.formLoading = action.payload.formLoading;
+    tableLoading(state, action) {
+      state.tableLoading = action.payload.tableLoading;
       return {
         ...state,
       };
@@ -201,4 +225,4 @@ const BasicList: ModelType = {
   },
 };
 
-export default BasicList;
+export default List;
