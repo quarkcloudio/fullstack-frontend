@@ -29,6 +29,7 @@ import {
   Upload,
   message,
   Modal,
+  Tree
 } from 'antd';
 
 const { TextArea } = Input;
@@ -36,6 +37,7 @@ const TabPane = Tabs.TabPane;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
 const { RangePicker } = DatePicker;
+const { TreeNode } = Tree;
 
 export interface ModalFormProps extends FormComponentProps {
   pageTitle:string;
@@ -247,6 +249,18 @@ const ModalForm: React.SFC<ModalFormProps> = props => {
   const reset = () => {
     form.resetFields();
   };
+
+  const renderTreeNodes = data =>
+    data.map(item => {
+      if (item.children) {
+        return (
+          <TreeNode title={item.title} key={item.key} dataRef={item}>
+            {renderTreeNodes(item.children)}
+          </TreeNode>
+        );
+      }
+      return <TreeNode {...item} />;
+    });
 
   return (
       <Spin spinning={pageLoading} tip="Loading...">
@@ -466,6 +480,30 @@ const ModalForm: React.SFC<ModalFormProps> = props => {
                         locale={locale}
                         format={control.format}
                       />
+                    )}
+                  </Form.Item>
+                );
+              }
+
+              if(control.componentName == "tree") {
+                return (
+                  <Form.Item 
+                    labelCol={control.labelCol?control.labelCol:labelCol} 
+                    wrapperCol={control.wrapperCol?control.wrapperCol:wrapperCol} 
+                    label={control.labelName}
+                    extra={control.extra}
+                  >
+                    {getFieldDecorator(control.name,{
+                      initialValue: control.value,
+                      rules: control.rules,
+                      valuePropName: "defaultCheckedKeys",
+                      trigger: "onCheck"
+                    })(
+                      <Tree
+                        checkable
+                      >
+                        {renderTreeNodes(control.list)}
+                      </Tree>
                     )}
                   </Form.Item>
                 );
