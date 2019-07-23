@@ -84,9 +84,9 @@ const ModalForm: React.SFC<ModalFormProps> = props => {
     if (dispatch) {
       sessionStorage.setItem('formUrl', url);
       dispatch({
-        type: 'form/getFormInfo',
+        type: 'form/info',
         payload: {
-          url: url,
+          actionUrl: url,
         }
       });
     }
@@ -151,7 +151,7 @@ const ModalForm: React.SFC<ModalFormProps> = props => {
         dispatch({
           type: 'form/submit',
           payload: {
-            url: getUrl,
+            actionUrl: getUrl,
             ...values,
           },
           callback: () => {
@@ -159,7 +159,7 @@ const ModalForm: React.SFC<ModalFormProps> = props => {
             dispatch({
               type: 'list/data',
               payload: {
-                url:sessionStorage.getItem('listUrl'),
+                actionUrl:sessionStorage.getItem('listUrl'),
               }
             });
           },
@@ -442,7 +442,7 @@ const ModalForm: React.SFC<ModalFormProps> = props => {
                     extra={control.extra}
                   >
                     {getFieldDecorator(control.name,{
-                      initialValue: moment(control.value, control.format),
+                      initialValue: !!control.value&&moment(control.value, control.format),
                       rules: control.rules
                     })(
                       <DatePicker

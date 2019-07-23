@@ -185,7 +185,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
       dispatch({
         type: 'list/info',
         payload: {
-          url: url,
+          actionUrl: url,
         }
       });
     }
@@ -218,7 +218,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
     dispatch({
       type: 'list/changeStatus',
       payload: {
-        url: actionUrl,
+        actionUrl: actionUrl,
         id:value[0],
         status:value[1],
       },
@@ -227,7 +227,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
         dispatch({
           type: 'list/data',
           payload: {
-            url: url,
+            actionUrl: url,
             ...table.pagination,
             search: search,
           }
@@ -242,7 +242,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
     dispatch({
       type: 'list/changeStatus',
       payload: {
-        url: actionUrl,
+        actionUrl: actionUrl,
         id: ids,
         status: value,
       },
@@ -251,7 +251,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
         dispatch({
           type: 'list/data',
           payload: {
-            url: url,
+            actionUrl: url,
             ...table.pagination,
             search: search,
           }
@@ -265,7 +265,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
     dispatch({
       type: 'list/data',
       payload: {
-        url: url,
+        actionUrl: url,
         pageSize: pagination.pageSize, // 分页数量
         current: pagination.current, // 当前页码
         sortField: sorter.field, // 排序字段
@@ -322,7 +322,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
         dispatch({
           type: 'list/data',
           payload: {
-            url: actionUrl ? actionUrl : url,
+            actionUrl: actionUrl ? actionUrl : url,
             ...table.pagination,
             search: values,
           }
@@ -335,7 +335,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
     dispatch({
       type: 'list/submit',
       payload: {
-        url: actionUrl,
+        actionUrl: actionUrl,
         ...values,
       },
       callback: res => {
@@ -343,7 +343,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
         dispatch({
           type: 'list/data',
           payload: {
-            url: url,
+            actionUrl: url,
             ...table.pagination,
             search: search,
           }
@@ -525,7 +525,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
                           extra={control.extra}
                         >
                           {getFieldDecorator(control.name,{
-                            initialValue: moment(control.value, 'YYYY-MM-DD HH:mm:ss'),
+                            initialValue: !!control.value&&moment(control.value, control.format),
                             rules: control.rules
                           })(
                             <DatePicker
@@ -661,7 +661,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
                       label={control.labelName}
                     >
                       {getFieldDecorator(control.name,{
-                        initialValue: moment(control.value, 'YYYY-MM-DD HH:mm:ss'),
+                        initialValue: !!control.value&&moment(control.value, control.format),
                         rules: control.rules
                       })(
                         <DatePicker

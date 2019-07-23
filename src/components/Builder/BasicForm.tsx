@@ -85,7 +85,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
       dispatch({
         type: 'form/info',
         payload: {
-          url: url,
+          actionUrl: url,
         }
       });
     }
@@ -152,7 +152,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
         dispatch({
           type: 'form/submit',
           payload: {
-            url: getUrl,
+            actionUrl: getUrl,
             ...values,
           },
         });
@@ -440,7 +440,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                     extra={control.extra}
                   >
                     {getFieldDecorator(control.name,{
-                      initialValue: moment(control.value, control.format),
+                      initialValue: !!control.value&&moment(control.value, control.format),
                       rules: control.rules
                     })(
                       <DatePicker
