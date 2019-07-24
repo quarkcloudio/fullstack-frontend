@@ -101,6 +101,12 @@ const BasicList: React.SFC<BasicListProps> = props => {
         )
       }
 
+      if(column.isIcon) {
+        column.render = (text:any, row:any) => (
+          <Icon type={text} />
+        )
+      }
+
       if(column.a) {
         column.render = (text:any, row:any) => (
           <a href={column.a['href']+'?id='+row.id} target={column.a['target']}>

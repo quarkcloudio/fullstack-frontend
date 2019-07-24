@@ -12,7 +12,7 @@ import {
 class BuilderForm extends PureComponent {
 
   state = {
-    url: 'admin/config/create'+'?'+stringify(this.props.location.query),
+    url: 'admin/printer/create'+'?'+stringify(this.props.location.query),
   };
 
   render() {

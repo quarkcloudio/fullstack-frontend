@@ -395,6 +395,54 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                     }
 
                     if(control.componentName == "select") {
+                      if(control.mode) {
+                        return (
+                          <Form.Item 
+                            labelCol={control.labelCol?control.labelCol:labelCol} 
+                            wrapperCol={control.wrapperCol?control.wrapperCol:wrapperCol} 
+                            label={control.labelName}
+                            extra={control.extra}
+                          >
+                            {getFieldDecorator(control.name,{
+                              initialValue: control.value
+                              ? control.value
+                              : undefined,
+                              rules: control.rules
+                            })(
+                              <Select mode={control.mode} size={control.size} style={control.style} placeholder={control.placeholder}>
+                                {!!control.options && control.options.map((option:any) => {
+                                  return (<Option key={option.value}>{option.name}</Option>)
+                                })}
+                              </Select>
+                            )}
+                          </Form.Item>
+                        );
+                      } else {
+                        return (
+                          <Form.Item 
+                            labelCol={control.labelCol?control.labelCol:labelCol} 
+                            wrapperCol={control.wrapperCol?control.wrapperCol:wrapperCol} 
+                            label={control.labelName}
+                            extra={control.extra}
+                          >
+                            {getFieldDecorator(control.name,{
+                              initialValue: control.value
+                              ? control.value.toString()
+                              : undefined,
+                              rules: control.rules
+                            })(
+                              <Select mode={control.mode} size={control.size} style={control.style} placeholder={control.placeholder}>
+                                {!!control.options && control.options.map((option:any) => {
+                                  return (<Option key={option.value}>{option.name}</Option>)
+                                })}
+                              </Select>
+                            )}
+                          </Form.Item>
+                        );
+                      }
+                    }
+
+                    if(control.componentName == "icon") {
                       return (
                         <Form.Item 
                           labelCol={control.labelCol?control.labelCol:labelCol} 
@@ -410,7 +458,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                           })(
                             <Select size={control.size} style={control.style} placeholder={control.placeholder}>
                               {!!control.options && control.options.map((option:any) => {
-                              return (<Option key={option.value}>{option.name}</Option>)
+                              return (<Option key={option}><Icon type={option} /> {option}</Option>)
                               })}
                             </Select>
                           )}
@@ -675,7 +723,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                                     if (info.file.response) {
                                       info.file.url = info.file.response.data.url;
                                       info.file.uid = info.file.response.data.id;
-                                      file.id = info.file.response.data.id;
+                                      info.file.id = info.file.response.data.id;
                                     }
 
                                     fileList[0] = info.file;

@@ -378,11 +378,15 @@ export default {
               routes: [
                 {
                   path: '/plugin/printer',
-                  redirect: '/plugin/Printer/index',
+                  redirect: '/plugin/printer/index',
                 },
                 {
                   path: '/plugin/printer/index',
                   component: './Plugin/Printer/Index',
+                },
+                {
+                  path: '/plugin/printer/create',
+                  component: './Plugin/Printer/Create',
                 },
                 {
                   path: '/plugin/printer/edit',
