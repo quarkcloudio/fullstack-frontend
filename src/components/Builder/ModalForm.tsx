@@ -825,7 +825,7 @@ const ModalForm: React.SFC<ModalFormProps> = props => {
                     extra={control.extra}
                   >
                     <Button
-                      href={control.href ? control.href : false}
+                      href={control.href ? control.href : undefined}
                       size={control.size}
                       type={control.type}
                       target={control.target ? control.target : false}

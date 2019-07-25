@@ -44,6 +44,7 @@ export default {
   'menu.system.config.website': '网站设置',
   'menu.system.config.index': '配置管理',
   // 菜单管理
+  'menu.system.menu': '菜单列表',
   'menu.system.menu.index': '菜单列表',
   //导航管理
   'menu.system.navigation': '所有导航',
@@ -56,8 +57,10 @@ export default {
   'menu.system.category.create': '添加分类',
   'menu.system.category.edit': '编辑分类',
   //短信列表
+  'menu.system.sms': '短信列表',
   'menu.system.sms.index': '短信列表',
   //日志列表
+  'menu.system.actionLog': '操作日志',
   'menu.system.actionLog.index': '操作日志',
 
   // 附件管理

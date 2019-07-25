@@ -442,6 +442,7 @@ export default {
                 {
                   path: '/system/menu/index',
                   component: './System/Menu/Index',
+                  hideInMenu: true,
                 },
               ],
             },
@@ -455,7 +456,6 @@ export default {
                 },
                 {
                   path: '/system/navigation/index',
-                  name: 'index',
                   component: './System/Navigation/Index',
                   hideInMenu: true,
                 },
@@ -487,14 +487,34 @@ export default {
               ],
             },
             {
-              path: '/system/sms/index',
+              path: '/system/sms',
               name: 'sms',
-              component: './System/Sms/Index',
+              routes: [
+                {
+                  path: '/system/sms',
+                  redirect: '/system/sms/index',
+                },
+                {
+                  path: '/system/sms/index',
+                  component: './System/Sms/Index',
+                  hideInMenu: true,
+                },
+              ],
             },
             {
-              path: '/system/actionLog/index',
+              path: '/system/actionLog',
               name: 'actionLog',
-              component: './System/ActionLog/Index',
+              routes: [
+                {
+                  path: '/system/actionLog',
+                  redirect: '/system/actionLog/index',
+                },
+                {
+                  path: '/system/actionLog/index',
+                  component: './System/actionLog/Index',
+                  hideInMenu: true,
+                },
+              ],
             },
           ],
         },
@@ -528,10 +548,6 @@ export default {
                 {
                   path: '/attachment/picture/index',
                   component: './Attachment/Picture/Index',
-                },
-                {
-                  path: '/attachment/picture/edit',
-                  component: './Attachment/Picture/Edit',
                 },
               ],
             },

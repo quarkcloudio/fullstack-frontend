@@ -108,19 +108,36 @@ const BasicList: React.SFC<BasicListProps> = props => {
       }
 
       if(column.a) {
-        column.render = (text:any, row:any) => (
-          <a href={column.a['href']+'?id='+row.id} target={column.a['target']}>
-            {text}
-          </a>
-        )
+        if(column.a['href'].indexOf("?") != -1) {
+          column.render = (text:any, row:any) => (
+            <a href={column.a['href']+'&id='+row.id} target={column.a['target']}>
+              {text}
+            </a>
+          )
+        } else {
+          column.render = (text:any, row:any) => (
+            <a href={column.a['href']+'?id='+row.id} target={column.a['target']}>
+              {text}
+            </a>
+          )
+        }
       }
 
       if(column.isImage && column.a) {
-        column.render = (text:any, row:any) => (
-          <a href={column.a['href']+'?id='+row.id} target={column.a['target']}>
-            <img src={text} width={40} height={40}></img>
-          </a>
-        )
+
+        if(column.a['href'].indexOf("?") != -1) {
+          column.render = (text:any, row:any) => (
+            <a href={column.a['href']+'&id='+row.id} target={column.a['target']}>
+              <img src={text} width={40} height={40}></img>
+            </a>
+          )
+        } else {
+          column.render = (text:any, row:any) => (
+            <a href={column.a['href']+'?id='+row.id} target={column.a['target']}>
+              <img src={text} width={40} height={40}></img>
+            </a>
+          )
+        }
       }
 
       if(column.tag) {
@@ -138,10 +155,21 @@ const BasicList: React.SFC<BasicListProps> = props => {
             table.columns[key].actions.map((action:any,key:any) => {
 
               if(action.componentName == "button") {
+
+                let actionHref = '';
+
+                if(action.href) {
+                  if(action.href.indexOf("?") != -1) {
+                    actionHref = action.href+'&id='+row.id;
+                  } else {
+                    actionHref = action.href+'?id='+row.id;
+                  }
+                }
+
                 return (
                   <span>
                     <Button
-                      href={action.href ? action.href+'?id='+row.id : false}
+                      href={actionHref ? actionHref : undefined}
                       size={action.size}
                       type={action.type}
                       target={action.target ? action.target : false}

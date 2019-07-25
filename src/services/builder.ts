@@ -13,7 +13,14 @@ export async function formSubmit(params: any) {
 }
 
 export async function getListInfo(params: any) {
-  return request(`../../api/${params.actionUrl}?${stringify(params)}`);
+  let actionUrl = '';
+  if(params.actionUrl.indexOf("?") != -1) {
+    actionUrl = `../../api/${params.actionUrl}&${stringify(params)}`;
+  } else {
+    actionUrl = `../../api/${params.actionUrl}?${stringify(params)}`;
+  }
+
+  return request(actionUrl);
 }
 
 export async function changeStatus(params: any) {
@@ -24,7 +31,14 @@ export async function changeStatus(params: any) {
 }
 
 export async function get(params: any) {
-  return request(`../../api/${params.actionUrl}?${stringify(params)}`);
+  let actionUrl = '';
+  if(params.actionUrl.indexOf("?") != -1) {
+    actionUrl = `../../api/${params.actionUrl}&${stringify(params)}`;
+  } else {
+    actionUrl = `../../api/${params.actionUrl}?${stringify(params)}`;
+  }
+  
+  return request(actionUrl);
 }
 
 export async function post(params: any) {
