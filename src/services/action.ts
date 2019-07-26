@@ -5,17 +5,6 @@ export async function index(params: any) {
   return request(`../../api/admin/${params.modelName}/index?${stringify(params)}`);
 }
 
-export async function myPublished(params: any) {
-  return request(`../../api/admin/${params.modelName}/myPublished?${stringify(params)}`);
-}
-
-export async function destroy(params: any) {
-  return request(`../../api/admin/${params.modelName}/destroy`, {
-    method: 'post',
-    data: params,
-  });
-}
-
 export async function changeStatus(params: any) {
   return request(`../../api/admin/${params.modelName}/changeStatus`, {
     method: 'post',

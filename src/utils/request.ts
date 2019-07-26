@@ -36,6 +36,12 @@ const errorHandler = (error: { response: Response }): void => {
     if(status == 401) {
       sessionStorage.removeItem('token');
       router.push('/login');
+    } else if(status == 403){
+      notification.error({
+        message: `请求错误 ${status}: ${url}`,
+        description: errorText,
+      });
+      router.push('/exception/403');
     } else {
       notification.error({
         message: `请求错误 ${status}: ${url}`,

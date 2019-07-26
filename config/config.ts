@@ -579,6 +579,23 @@ export default {
           ],
         },
         {
+          path: '/exception',
+          name: 'exception',
+          hideInMenu: true,
+          routes: [
+            {
+              path: '/exception/404',
+              name: '404',
+              component: './404',
+            },
+            {
+              path: '/exception/403',
+              name: '403',
+              component: './403',
+            },
+          ],
+        },
+        {
           component: './404',
         },
       ],

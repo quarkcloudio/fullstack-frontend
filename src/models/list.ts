@@ -83,6 +83,11 @@ const List: ModelType = {
       });
 
       const response = yield call(get, payload);
+
+      if(!response) {
+        return false;
+      }
+
       if (response.status === 'success') {
         const data = { ...response.data, pageLoading:false};
         yield put({
@@ -102,6 +107,11 @@ const List: ModelType = {
       });
 
       const response = yield call(get, payload);
+
+      if(!response) {
+        return false;
+      }
+
       if (response.status === 'success') {
         const data = { ...response.data, tableLoading:false,pageLoading:false};
         yield put({
@@ -115,6 +125,11 @@ const List: ModelType = {
     },
     *submit({ payload, callback }, { put, call, select }) {
       const response = yield call(post, payload);
+
+      if(!response) {
+        return false;
+      }
+
       // 操作成功
       if (response.status === 'success') {
         // 提示信息
@@ -138,6 +153,10 @@ const List: ModelType = {
     },
     *changeStatus({ payload, callback }, { put, call, select }) {
       const response = yield call(post, payload);
+
+      if(!response) {
+        return false;
+      }
 
       const data = { tableLoading:true};
       yield put({

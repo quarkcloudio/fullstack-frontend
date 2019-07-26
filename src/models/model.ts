@@ -4,8 +4,6 @@ import { Effect,Subscription } from 'dva';
 import { message } from 'antd';
 import {
   index,
-  myPublished,
-  destroy,
   changeStatus,
   create,
   store,
@@ -19,7 +17,6 @@ export interface ModelType {
   subscriptions:{ setup: Subscription };
   effects: {
     index: Effect;
-    destroy: Effect;
     changeStatus: Effect;
     create: Effect;
     store: Effect;
@@ -29,7 +26,6 @@ export interface ModelType {
     modalStore: Effect;
     modalEdit: Effect;
     modalSave: Effect;
-    myPublished: Effect;
   };
   reducers: {
     updateState: Reducer<{}>;
@@ -68,16 +64,6 @@ const Model: ModelType = {
         if (callback && typeof callback === 'function') {
           callback(response); // 返回结果
         }
-      }
-    },
-    *destroy({ type, payload }, { put, call, select }) {
-      const response = yield call(destroy, payload);
-      // 操作成功
-      if (response.status === 'success') {
-        // 提示信息
-        message.success(response.msg, 3);
-      } else {
-        message.error(response.msg, 3);
       }
     },
     *changeStatus({ payload, callback }, { put, call, select }) {
@@ -205,20 +191,6 @@ const Model: ModelType = {
         message.success(response.msg, 3);
       } else {
         message.error(response.msg, 3);
-      }
-    },
-
-    *myPublished({ payload, callback }, { put, call }) {
-      const response = yield call(myPublished, payload);
-      if (response.status === 'success') {
-        yield put({
-          type: 'updateState',
-          payload: response,
-        });
-
-        if (callback && typeof callback === 'function') {
-          callback(response); // 返回结果
-        }
       }
     },
   },

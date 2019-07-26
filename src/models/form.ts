@@ -73,6 +73,11 @@ const form: ModelType = {
       });
 
       const response = yield call(get, payload);
+
+      if(!response) {
+        return false;
+      }
+
       if (response.status === 'success') {
 
         const data = { ...response.data, pageLoading:false};
@@ -89,6 +94,11 @@ const form: ModelType = {
     },
     *submit({ payload, callback }, { put, call, select }) {
       const response = yield call(post, payload);
+
+      if(!response) {
+        return false;
+      }
+
       // 操作成功
       if (response.status === 'success') {
         // 提示信息
