@@ -39,7 +39,9 @@ const RadioGroup = Radio.Group;
 @connect(({ model }) => ({
   model,
 }))
+
 @Form.create()
+
 class CreatePage extends PureComponent {
   // 定义要操作的模型名称
   modelName = 'user';

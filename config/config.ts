@@ -124,20 +124,6 @@ export default {
           ],
         },
         {
-          path: '/demo',
-          name: 'demo',
-          routes: [
-            {
-              path: '/demo/builderIndex',
-              component: './Demo/BuilderIndex',
-            },
-            {
-              path: '/demo/builderForm',
-              component: './Demo/BuilderForm',
-            },
-          ],
-        },
-        {
           path: '/article',
           name: 'article',
           icon: 'file-word',
