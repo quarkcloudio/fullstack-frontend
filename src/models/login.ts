@@ -37,13 +37,14 @@ const Model: ModelType = {
   },
 
   effects: {
-    *login({ payload }, { call, put }) {
+    *login({ payload,callback }, { call, put }) {
       const response = yield call(accountLogin, payload);
 
       yield put({
         type: 'changeLoginStatus',
         payload: response,
       });
+
       // Login successfully
       if (response.status === 'success') {
         // 记录登录凭据
@@ -67,6 +68,10 @@ const Model: ModelType = {
         yield put(routerRedux.replace(redirect || '/'));
       } else {
         message.error(response.msg, 3);
+      }
+
+      if (callback && typeof callback === 'function') {
+        callback(response); // 返回结果
       }
     },
 

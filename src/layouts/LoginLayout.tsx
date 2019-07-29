@@ -28,6 +28,25 @@ const LoginLayout: React.SFC<UserLayoutProps> = props => {
   } = props;
   const { breadcrumb } = getMenuData(routes, props);
 
+  const links = [{
+    key: 'FullStack',
+    title: 'FullStack',
+    href: 'http://fullstack.qasl.cn',
+    blankTarget: true
+  }, {
+    key: 'Document',
+    title: '帮助文档',
+    href: 'https://www.kancloud.cn/tangtanglove/fullstack',
+    blankTarget: true
+  }, {
+    key: 'Github',
+    title: '问题反馈',
+    href: 'https://github.com/tangtanglove/fullstack-backend/issues',
+    blankTarget: true
+  }];
+  
+  const copyright = '2019 qasl.cn';
+
   return (
     <DocumentTitle
       title={getPageTitle({
@@ -46,14 +65,14 @@ const LoginLayout: React.SFC<UserLayoutProps> = props => {
             <div className={styles.header}>
               <Link to="/">
                 <img alt="logo" className={styles.logo} src={logo} />
-                <span className={styles.title}>Ant Design</span>
+                <span className={styles.title}>FullStack</span>
               </Link>
             </div>
-            <div className={styles.desc}>Ant Design 是西湖区最具影响力的 Web 设计规范</div>
+            <div className={styles.desc}><p>在信息丰富的世界里，唯一稀缺的资源就是人类的注意力。</p></div>
           </div>
           {children}
         </div>
-        <DefaultFooter />
+        <DefaultFooter links={links} copyright={copyright} />
       </div>
     </DocumentTitle>
   );

@@ -8,6 +8,7 @@ import ProLayout, {
   MenuDataItem,
   BasicLayoutProps as ProLayoutProps,
   Settings,
+  DefaultFooter
 } from '@ant-design/pro-layout';
 import React, { useEffect } from 'react';
 import Link from 'umi/link';
@@ -44,28 +45,28 @@ const menuDataRender = (menuList: MenuDataItem[]): MenuDataItem[] =>
     return Authorized.check(item.authority, localItem, null) as MenuDataItem;
   });
 
+const links = [{
+  key: 'FullStack',
+  title: 'FullStack',
+  href: 'http://fullstack.qasl.cn',
+  blankTarget: true
+}, {
+  key: 'Document',
+  title: '帮助文档',
+  href: 'https://www.kancloud.cn/tangtanglove/fullstack',
+  blankTarget: true
+}, {
+  key: 'Github',
+  title: '问题反馈',
+  href: 'https://github.com/tangtanglove/fullstack-backend/issues',
+  blankTarget: true
+}];
+
+const copyright = '2019 qasl.cn';
+
 const footerRender: BasicLayoutProps['footerRender'] = (_, defaultDom) => {
-  if (!isAntDesignPro()) {
-    return defaultDom;
-  }
   return (
-    <>
-      {defaultDom}
-      <div
-        style={{
-          padding: '0px 24px 24px',
-          textAlign: 'center',
-        }}
-      >
-        <a href="https://www.netlify.com" target="_blank" rel="noopener noreferrer">
-          <img
-            src="https://www.netlify.com/img/global/badges/netlify-color-bg.svg"
-            width="82px"
-            alt="netlify logo"
-          />
-        </a>
-      </div>
-    </>
+      <DefaultFooter links={links} copyright={copyright} />
   );
 };
 
