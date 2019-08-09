@@ -15,7 +15,6 @@ export interface NoticeItem extends NoticeIconData {
 export interface GlobalModelState {
   collapsed: boolean;
   notices: NoticeItem[];
-  menuData: [];
 }
 
 export interface GlobalModelType {
@@ -103,7 +102,7 @@ const GlobalModel: GlobalModelType = {
         },
       });
     },
-    *getMenuData({ payload }, { put, call }) {
+    *getMenuData({ payload, callback }, { put, call }) {
       const response = yield call(getAccountMenus);
       if (response.status === 'success') {
         const menuData = response.data;
@@ -111,6 +110,10 @@ const GlobalModel: GlobalModelType = {
           type: 'save',
           payload: { menuData: menuData },
         });
+      }
+
+      if (callback && typeof callback === 'function') {
+        callback(response); // 返回结果
       }
     },
   },

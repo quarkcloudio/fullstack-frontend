@@ -10,7 +10,7 @@ import ProLayout, {
   Settings,
   DefaultFooter
 } from '@ant-design/pro-layout';
-import React, { useEffect } from 'react';
+import React, { useEffect,useState } from 'react';
 import Link from 'umi/link';
 import { connect } from 'dva';
 import { formatMessage } from 'umi-plugin-react/locale';
@@ -32,18 +32,6 @@ export type BasicLayoutContext = { [K in 'location']: BasicLayoutProps[K] } & {
     [path: string]: MenuDataItem;
   };
 };
-
-/**
- * use Authorized check all menu item
- */
-const menuDataRender = (menuList: MenuDataItem[]): MenuDataItem[] =>
-  menuList.map(item => {
-    const localItem = {
-      ...item,
-      children: item.children ? menuDataRender(item.children) : [],
-    };
-    return Authorized.check(item.authority, localItem, null) as MenuDataItem;
-  });
 
 const links = [{
   key: 'FullStack',
@@ -72,10 +60,12 @@ const footerRender: BasicLayoutProps['footerRender'] = (_, defaultDom) => {
 
 const BasicLayout: React.FC<BasicLayoutProps> = props => {
   const { dispatch, children, settings } = props;
+
+  const [menuData, setMenuData] = useState([]);
+
   /**
    * constructor
    */
-
   useEffect(() => {
     if (dispatch) {
       dispatch({
@@ -86,10 +76,14 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
       });
       dispatch({
         type: 'global/getMenuData', // 获取菜单
+        callback: (res:any) => {
+          setMenuData(res.data);
+        },
       });
     }
   }, []);
 
+  
   /**
    * init variables
    */
@@ -118,7 +112,7 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
         ...routers,
       ]}
       footerRender={footerRender}
-      menuDataRender={menuDataRender}
+      menuDataRender={() => menuData}
       formatMessage={formatMessage}
       rightContentRender={rightProps => <RightContent {...rightProps} />}
       {...props}
@@ -132,5 +126,4 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
 export default connect(({ global, settings }: ConnectState) => ({
   collapsed: global.collapsed,
   settings,
-  menuData: global.menuData,
 }))(BasicLayout);
