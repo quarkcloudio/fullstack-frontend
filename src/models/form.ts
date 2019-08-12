@@ -36,6 +36,7 @@ export interface ModelType {
     previewImage: Reducer<{}>;
     pageLoading: Reducer<{}>;
     resetState: Reducer<{}>;
+    updateMapCenter: Reducer<{}>;
   };
 }
 
@@ -151,6 +152,7 @@ const form: ModelType = {
           controls: [],
           labelCol: [],
           wrapperCol: [],
+          mapCenter:[],
         }
         return {
           ...resetState,
@@ -184,6 +186,20 @@ const form: ModelType = {
         })
       })
       state.pageRandom = Math.random();
+      return {
+        ...state,
+      };
+    },
+    updateMapCenter(state, action) {
+      state.controls.map((control:any,key:any) => {
+        if(control.name == action.payload.controlName) {
+          state.controls[key]['value']['longitude'] = action.payload.longitude;
+          state.controls[key]['value']['latitude'] = action.payload.latitude;
+        }
+      })
+
+      state.pageRandom = Math.random();
+
       return {
         ...state,
       };

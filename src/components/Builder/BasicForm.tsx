@@ -10,6 +10,8 @@ import { Dispatch } from 'redux';
 import { FormComponentProps } from 'antd/es/form';
 import { connect } from 'dva';
 import { ConnectState } from '@/models/connect';
+import { Map, Marker } from 'react-amap';
+import Autocomplete from 'react-amap-plugin-autocomplete';
 
 import {
   Card,
@@ -29,7 +31,8 @@ import {
   Upload,
   message,
   Modal,
-  Tree
+  Tree,
+  Cascader
 } from 'antd';
 
 const { TextArea } = Input;
@@ -72,7 +75,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
     url,
     submitting,
     dispatch,
-    form,
+    form
   } = props;
 
   const { getFieldDecorator } = form;
@@ -810,6 +813,108 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                         <Icon type="upload" /> {control.button}
                       </Button>
                     </Upload>
+                  </Form.Item>
+                );
+              }
+
+              if(control.componentName == "map") {
+                const markerEvents = {
+                  dragend: (instance:any) => {
+                    dispatch({
+                      type: 'form/updateMapCenter',
+                      payload: {
+                        longitude : instance.lnglat.lng,
+                        latitude : instance.lnglat.lat,
+                        controlName : control.name
+                      }
+                    });
+                  }
+                }
+
+                const plugins = [
+                  'ToolBar',
+                ]
+
+                const style = {
+                  'position':'absolute',
+                  'top':20,
+                  'right':10,
+                  'border-radius':4,
+                  'border':'1px solid #1890FF',
+                  'height':34,
+                  'width':200,
+                  'color':'rgba(0, 0, 0, 0.65)',
+                  'padding':'4px 11px'
+                };
+
+                // on select item
+                const onMapSelect = (e) => {
+                  if(e.poi.location) {
+                    dispatch({
+                      type: 'form/updateMapCenter',
+                      payload: {
+                        longitude : e.poi.location.lng,
+                        latitude : e.poi.location.lat,
+                        controlName : control.name
+                      }
+                    });
+                  }
+                }
+
+                return (
+                  <Form.Item 
+                    style={{'display':control.display}}
+                    labelCol={control.labelCol?control.labelCol:labelCol} 
+                    wrapperCol={control.wrapperCol?control.wrapperCol:wrapperCol} 
+                    label={control.labelName}
+                    extra={control.extra}
+                  >
+                    {getFieldDecorator(control.name,{
+                      initialValue: control.value.longitude+','+control.value.latitude,
+                      rules: control.rules
+                    })(<Input size={control.size} style={{width: '200px',marginBottom:'10px'}} placeholder={control.placeholder} />)}
+                    <div style={control.style}>
+                      <Map 
+                        center={{longitude: control.value.longitude, latitude: control.value.latitude }}
+                        plugins={plugins}
+                        amapkey={control.key}
+                        zoom={control.zoom}
+                      >
+                        <Autocomplete 
+                          options={[]}
+                          onSelect={(e:any)=>onMapSelect(e)}
+                          style={style}
+                          placeholder='请输入关键字'
+                        />
+                        <Marker
+                          events={markerEvents}
+                          position= {{longitude: control.value.longitude, latitude: control.value.latitude }}
+                          visible={true}
+                          clickable={true}
+                          draggable={true}
+                        />
+                      </Map>
+                    </div>
+                  </Form.Item>
+                );
+              }
+
+              if(control.componentName == "cascader") {
+                return (
+                  <Form.Item
+                    labelCol={control.labelCol?control.labelCol:labelCol}
+                    wrapperCol={control.wrapperCol?control.wrapperCol:wrapperCol}
+                    label={control.labelName}
+                    extra={control.extra}
+                  >
+                    {getFieldDecorator(control.name,{
+                      initialValue: control.value
+                      ? control.value
+                      : undefined,
+                      rules: control.rules
+                    })(
+                      <Cascader size={control.size} options={control.options} style={control.style} placeholder={control.placeholder} />
+                    )}
                   </Form.Item>
                 );
               }
