@@ -765,7 +765,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                             name={'file'}
                             fileList={getFileList}
                             multiple={true}
-                            action={'/api/admin/picture/upload'}
+                            action={'/api/admin/file/upload'}
                             headers={{authorization: 'Bearer ' + sessionStorage['token']}}
                             beforeUpload = {(file:any) => {
                               let canUpload = false;
