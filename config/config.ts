@@ -260,6 +260,21 @@ export default {
                 },
               ],
             },
+            {
+              path: '/admin/menu',
+              name: 'menu',
+              routes: [
+                {
+                  path: '/admin/menu',
+                  redirect: '/admin/menu/index',
+                },
+                {
+                  path: '/admin/menu/index',
+                  component: './admin/Menu/Index',
+                  hideInMenu: true,
+                },
+              ],
+            },
           ],
         },
         {
@@ -413,21 +428,6 @@ export default {
                 {
                   path: '/system/config/edit',
                   component: './System/Config/Edit',
-                  hideInMenu: true,
-                },
-              ],
-            },
-            {
-              path: '/system/menu',
-              name: 'menu',
-              routes: [
-                {
-                  path: '/system/menu',
-                  redirect: '/system/menu/index',
-                },
-                {
-                  path: '/system/menu/index',
-                  component: './System/Menu/Index',
                   hideInMenu: true,
                 },
               ],
