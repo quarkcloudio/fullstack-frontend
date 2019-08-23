@@ -857,7 +857,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                       const onMapSelect = (e) => {
                         if(e.poi.location) {
                           dispatch({
-                            type: 'form/updateMapCenter',
+                            type: 'form/updateTapMapCenter',
                             payload: {
                               longitude : e.poi.location.lng,
                               latitude : e.poi.location.lat,
