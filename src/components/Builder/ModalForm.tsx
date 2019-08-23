@@ -921,6 +921,96 @@ const ModalForm: React.SFC<ModalFormProps> = props => {
                 );
               }
 
+              if(control.componentName == "searchInput") {
+
+                let timeout;
+
+                // on select item
+                const onInputSearch = (value) => {
+                  if(value) {
+                    if (timeout) {
+                      clearTimeout(timeout);
+                      timeout = null;
+                    }
+
+                    timeout = setTimeout(function(){
+                      dispatch({
+                        type: 'form/updateInputSearch',
+                        payload: {
+                          actionUrl : control.dataSource,
+                          controlName : control.name,
+                          search:value
+                        }
+                      });
+                    }, 100);
+                  }
+                }
+
+                if(control.mode) {
+                  return (
+                    <Form.Item 
+                      labelCol={control.labelCol?control.labelCol:labelCol} 
+                      wrapperCol={control.wrapperCol?control.wrapperCol:wrapperCol} 
+                      label={control.labelName}
+                      extra={control.extra}
+                    >
+                      {getFieldDecorator(control.name,{
+                        initialValue: control.value
+                        ? control.value
+                        : undefined,
+                        rules: control.rules
+                      })(
+                        <Select
+                          showSearch
+                          defaultActiveFirstOption={false}
+                          mode={control.mode} 
+                          size={control.size} 
+                          style={control.style} 
+                          filterOption={false}
+                          onSearch={(value:any)=>onInputSearch(value)}
+                          placeholder={control.placeholder}
+                        >
+                          {!!control.options && control.options.map((option:any) => {
+                            return (<Option key={option.value}>{option.name}</Option>)
+                          })}
+                        </Select>
+                      )}
+                    </Form.Item>
+                  );
+                } else {
+                  return (
+                    <Form.Item 
+                      labelCol={control.labelCol?control.labelCol:labelCol} 
+                      wrapperCol={control.wrapperCol?control.wrapperCol:wrapperCol} 
+                      label={control.labelName}
+                      extra={control.extra}
+                    >
+                      {getFieldDecorator(control.name,{
+                        initialValue: control.value
+                        ? control.value.toString()
+                        : undefined,
+                        rules: control.rules
+                      })(
+                        <Select
+                          showSearch
+                          defaultActiveFirstOption={false}
+                          mode={control.mode}
+                          size={control.size}
+                          style={control.style}
+                          filterOption={false}
+                          onSearch={(value:any)=>onInputSearch(value)}
+                          placeholder={control.placeholder}
+                        >
+                          {!!control.options && control.options.map((option:any) => {
+                            return (<Option key={option.value}>{option.name}</Option>)
+                          })}
+                        </Select>
+                      )}
+                    </Form.Item>
+                  );
+                }
+              }
+
               if(control.componentName == "button") {
                 return (
                   <Form.Item 

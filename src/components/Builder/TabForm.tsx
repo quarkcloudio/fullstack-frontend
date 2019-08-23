@@ -827,7 +827,7 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                       const markerEvents = {
                         dragend: (instance:any) => {
                           dispatch({
-                            type: 'form/updateMapCenter',
+                            type: 'form/updateTapMapCenter',
                             payload: {
                               longitude : instance.lnglat.lng,
                               latitude : instance.lnglat.lat,
@@ -923,6 +923,96 @@ const BasicForm: React.SFC<BasicFormProps> = props => {
                           )}
                         </Form.Item>
                       );
+                    }
+
+                    if(control.componentName == "searchInput") {
+
+                      let timeout;
+
+                      // on select item
+                      const onInputSearch = (value) => {
+                        if(value) {
+                          if (timeout) {
+                            clearTimeout(timeout);
+                            timeout = null;
+                          }
+
+                          timeout = setTimeout(function(){
+                            dispatch({
+                              type: 'form/updateTapInputSearch',
+                              payload: {
+                                actionUrl : control.dataSource,
+                                controlName : control.name,
+                                search:value
+                              }
+                            });
+                          }, 100);
+                        }
+                      }
+
+                      if(control.mode) {
+                        return (
+                          <Form.Item 
+                            labelCol={control.labelCol?control.labelCol:labelCol} 
+                            wrapperCol={control.wrapperCol?control.wrapperCol:wrapperCol} 
+                            label={control.labelName}
+                            extra={control.extra}
+                          >
+                            {getFieldDecorator(control.name,{
+                              initialValue: control.value
+                              ? control.value
+                              : undefined,
+                              rules: control.rules
+                            })(
+                              <Select
+                                showSearch
+                                defaultActiveFirstOption={false}
+                                mode={control.mode} 
+                                size={control.size} 
+                                style={control.style} 
+                                filterOption={false}
+                                onSearch={(value:any)=>onInputSearch(value)}
+                                placeholder={control.placeholder}
+                              >
+                                {!!control.options && control.options.map((option:any) => {
+                                  return (<Option key={option.value}>{option.name}</Option>)
+                                })}
+                              </Select>
+                            )}
+                          </Form.Item>
+                        );
+                      } else {
+                        return (
+                          <Form.Item 
+                            labelCol={control.labelCol?control.labelCol:labelCol} 
+                            wrapperCol={control.wrapperCol?control.wrapperCol:wrapperCol} 
+                            label={control.labelName}
+                            extra={control.extra}
+                          >
+                            {getFieldDecorator(control.name,{
+                              initialValue: control.value
+                              ? control.value.toString()
+                              : undefined,
+                              rules: control.rules
+                            })(
+                              <Select
+                                showSearch
+                                defaultActiveFirstOption={false}
+                                mode={control.mode}
+                                size={control.size}
+                                style={control.style}
+                                filterOption={false}
+                                onSearch={(value:any)=>onInputSearch(value)}
+                                placeholder={control.placeholder}
+                              >
+                                {!!control.options && control.options.map((option:any) => {
+                                  return (<Option key={option.value}>{option.name}</Option>)
+                                })}
+                              </Select>
+                            )}
+                          </Form.Item>
+                        );
+                      }
                     }
 
                     if(control.componentName == "button") {

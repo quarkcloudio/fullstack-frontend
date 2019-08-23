@@ -28,6 +28,8 @@ export interface ModelType {
     submit: Effect;
     updateFileList: Effect;
     updateTapFileList: Effect;
+    updateInputSearch: Effect;
+    updateTapInputSearch: Effect;
   };
   reducers: {
     updateState: Reducer<{}>;
@@ -37,6 +39,9 @@ export interface ModelType {
     pageLoading: Reducer<{}>;
     resetState: Reducer<{}>;
     updateMapCenter: Reducer<{}>;
+    updateTapMapCenter: Reducer<{}>;
+    updateInputSearchOption: Reducer<{}>;
+    updateTapInputSearchOption: Reducer<{}>;
   };
 }
 
@@ -133,6 +138,22 @@ const form: ModelType = {
         payload: payload,
       });
     },
+    *updateInputSearch({ payload, callback }, { put, call, select }) {
+      const response = yield call(get, payload);
+      const data = { data:response.data,controlName:payload.controlName};
+      yield put({
+        type: 'updateInputSearchOption',
+        payload: data,
+      });
+    },
+    *updateTapInputSearch({ payload, callback }, { put, call, select }) {
+      const response = yield call(get, payload);
+      const data = { data:response.data,controlName:payload.controlName};
+      yield put({
+        type: 'updateTapInputSearchOption',
+        payload: data,
+      });
+    },
   },
 
   reducers: {
@@ -204,9 +225,49 @@ const form: ModelType = {
         ...state,
       };
     },
+    updateTapMapCenter(state, action) {
+      state.controls.tabPanes.map((tabPane:any,key:any) => {
+        tabPane.controls.map((control:any,key1:any) => {
+
+          if(control.name == action.payload.controlName) {
+            state.controls.tabPanes[key].controls[key1]['value']['longitude'] = action.payload.longitude;
+            state.controls.tabPanes[key].controls[key1]['value']['latitude'] = action.payload.latitude;
+          }
+
+        })
+      })
+      state.pageRandom = Math.random();
+      return {
+        ...state,
+      };
+    },
     previewImage(state, action) {
       state.previewVisible = action.payload.previewVisible;
       state.previewImage = action.payload.previewImage;
+      return {
+        ...state,
+      };
+    },
+    updateInputSearchOption(state, action) {
+      state.controls.map((control:any,key:any) => {
+        if(control.name == action.payload.controlName) {
+          state.controls[key]['options']['longitude'] = action.payload.data;
+        }
+      })
+      state.pageRandom = Math.random();
+      return {
+        ...state,
+      };
+    },
+    updateTapInputSearchOption(state, action) {
+      state.controls.tabPanes.map((tabPane:any,key:any) => {
+        tabPane.controls.map((control:any,key1:any) => {
+          if(control.name == action.payload.controlName) {
+            state.controls.tabPanes[key].controls[key1]['options'] = action.payload.data;
+          }
+        })
+      })
+      state.pageRandom = Math.random();
       return {
         ...state,
       };
