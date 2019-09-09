@@ -98,4 +98,34 @@ export default {
   'menu.builder': '创建器',
   'menu.builder.index': '列表页',
   'menu.builder.form': '表单',
+
+  // 商城
+  'menu.mall.shop': '商家管理',
+  'menu.mall.shop.index': '商家列表',
+  'menu.mall.shop.create': '添加商家',
+  'menu.mall.shop.edit': '编辑商家',
+
+  'menu.mall.shop.categoryIndex': '分类列表',
+  'menu.mall.shop.categoryCreate': '添加分类',
+  'menu.mall.shop.categoryEdit': '编辑分类',
+
+  'menu.mall.goods': '商品管理',
+  'menu.mall.goods.index': '商品列表',
+  'menu.mall.goods.create': '添加商品',
+  'menu.mall.goods.edit': '编辑商品',
+
+  'menu.mall.goods.categoryIndex': '分类列表',
+  'menu.mall.goods.categoryCreate': '添加分类',
+  'menu.mall.goods.categoryEdit': '编辑分类',
+
+  'menu.mall.goodsOrder': '订单管理',
+  'menu.mall.goodsOrder.index': '订单列表',
+  'menu.mall.goodsOrder.edit': '编辑订单',
+
+  'menu.mall.goodsOrder.afterSaleIndex': '售后订单',
+  'menu.mall.goodsOrder.afterSaleCreate': '添加售后订单',
+  'menu.mall.goodsOrder.afterSaleEdit': '编辑售后订单',
+
+  'menu.mall.goodsOrder.commentIndex': '订单评论',
+  'menu.mall.goodsOrder.commentEdit': '查看评论',
 };

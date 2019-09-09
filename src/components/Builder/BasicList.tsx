@@ -46,6 +46,7 @@ export interface BasicListProps extends FormComponentProps {
   search:[];
   advancedSearch:[];
   advancedSearchExpand:boolean;
+  searchValues:[];
   table: [];
   selectedRowKeys:[];
   modalTitle:string;
@@ -69,6 +70,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
     search,
     advancedSearch,
     advancedSearchExpand,
+    searchValues,
     table,
     selectedRowKeys,
     modalTitle,
@@ -263,7 +265,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
           payload: {
             actionUrl: url,
             ...table.pagination,
-            search: search,
+            search: searchValues,
           }
         });
       },
@@ -287,7 +289,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
           payload: {
             actionUrl: url,
             ...table.pagination,
-            search: search,
+            search: searchValues,
           }
         });
       },
@@ -305,7 +307,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
         sortField: sorter.field, // 排序字段
         sortOrder: sorter.order, // 排序规则
         ...filters, // 筛选
-        search: search,
+        search: searchValues,
       }
     });
   };
@@ -379,7 +381,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
           payload: {
             actionUrl: url,
             ...table.pagination,
-            search: search,
+            search: searchValues,
           }
         });
       },
@@ -807,6 +809,7 @@ export default Form.create<BasicListProps>()(
     search:list.search,
     advancedSearch:list.advancedSearch,
     advancedSearchExpand:list.advancedSearchExpand,
+    searchValues:list.searchValues,
     table:list.table,
     selectedRowKeys:list.selectedRowKeys,
     modalTitle:list.modalTitle,

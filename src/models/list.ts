@@ -17,6 +17,7 @@ export interface ListModelState {
   search: [];
   advancedSearch: [];
   advancedSearchExpand:boolean;
+  searchValues:[];
   table: [];
   selectedRowKeys:[]
   modalTitle:string;
@@ -60,6 +61,7 @@ const List: ModelType = {
     search: [],
     advancedSearch: false,
     advancedSearchExpand:false,
+    searchValues:[],
     table: [],
     selectedRowKeys:[],
     modalTitle:'',
@@ -113,7 +115,7 @@ const List: ModelType = {
       }
 
       if (response.status === 'success') {
-        const data = { ...response.data, tableLoading:false,pageLoading:false};
+        const data = { ...response.data, tableLoading:false,pageLoading:false,searchValues:payload.search};
         yield put({
           type: 'updateState',
           payload: data,
@@ -196,6 +198,7 @@ const List: ModelType = {
         search: [],
         advancedSearch: false,
         advancedSearchExpand:false,
+        searchValues:[],
         table: [],
         selectedRowKeys:[],
         modalTitle:'',
