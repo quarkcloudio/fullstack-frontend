@@ -175,6 +175,203 @@ export default {
           ],
         },
         {
+          path: '/mall',
+          name: 'mall',
+          icon: 'usergroup-add',
+          routes: [
+            {
+              path: '/mall/shop',
+              name: 'shop',
+              routes: [
+                {
+                  path: '/mall/shop',
+                  redirect: '/mall/shop/index',
+                },
+                {
+                  path: '/mall/shop/index',
+                  name: 'index',
+                  component: './Mall/Shop/Index',
+                },
+                {
+                  path: '/mall/shop/create',
+                  name: 'create',
+                  component: './Mall/Shop/Create',
+                },
+                {
+                  path: '/mall/shop/edit',
+                  name: 'edit',
+                  component: './Mall/Shop/Edit',
+                },
+                {
+                  path: '/mall/shop/categoryIndex',
+                  name: 'categoryIndex',
+                  component: './Mall/Shop/CategoryIndex',
+                },
+                {
+                  path: '/mall/shop/categoryCreate',
+                  name: 'categoryCreate',
+                  component: './Mall/Shop/CategoryCreate',
+                },
+                {
+                  path: '/mall/shop/categoryEdit',
+                  name: 'categoryEdit',
+                  component: './Mall/Shop/CategoryEdit',
+                },
+              ],
+            },
+            {
+              path: '/mall/goods',
+              name: 'goods',
+              routes: [
+                {
+                  path: '/mall/goods',
+                  redirect: '/mall/goods/index',
+                },
+                {
+                  path: '/mall/goods/index',
+                  name: 'index',
+                  component: './Mall/Goods/Index',
+                },
+                {
+                  path: '/mall/goods/create',
+                  name: 'create',
+                  component: './Mall/Goods/Create',
+                },
+                {
+                  path: '/mall/goods/edit',
+                  name: 'edit',
+                  component: './Mall/Goods/Edit',
+                },
+                {
+                  path: '/mall/goods/categoryIndex',
+                  name: 'categoryIndex',
+                  component: './Mall/Goods/CategoryIndex',
+                },
+                {
+                  path: '/mall/goods/categoryCreate',
+                  name: 'categoryCreate',
+                  component: './Mall/Goods/CategoryCreate',
+                },
+                {
+                  path: '/mall/goods/categoryEdit',
+                  name: 'categoryEdit',
+                  component: './Mall/Goods/CategoryEdit',
+                },
+                {
+                  path: '/mall/goods/typeIndex',
+                  name: 'typeIndex',
+                  component: './Mall/Goods/TypeIndex',
+                },
+                {
+                  path: '/mall/goods/typeCreate',
+                  name: 'typeCreate',
+                  component: './Mall/Goods/TypeCreate',
+                },
+                {
+                  path: '/mall/goods/typeEdit',
+                  name: 'typeEdit',
+                  component: './Mall/Goods/TypeEdit',
+                },
+                {
+                  path: '/mall/goods/spuIndex',
+                  name: 'spuIndex',
+                  component: './Mall/Goods/SpuIndex',
+                },
+                {
+                  path: '/mall/goods/spuCreate',
+                  name: 'spuCreate',
+                  component: './Mall/Goods/SpuCreate',
+                },
+                {
+                  path: '/mall/goods/spuEdit',
+                  name: 'spuEdit',
+                  component: './Mall/Goods/SpuEdit',
+                },
+                {
+                  path: '/mall/goods/skuIndex',
+                  name: 'skuIndex',
+                  component: './Mall/Goods/SkuIndex',
+                },
+                {
+                  path: '/mall/goods/skuCreate',
+                  name: 'skuCreate',
+                  component: './Mall/Goods/SkuCreate',
+                },
+                {
+                  path: '/mall/goods/skuEdit',
+                  name: 'skuEdit',
+                  component: './Mall/Goods/SkuEdit',
+                },
+              ],
+            },
+            {
+              path: '/mall/goodsBrand',
+              name: 'goodsBrand',
+              routes: [
+                {
+                  path: '/mall/goodsBrand',
+                  redirect: '/mall/goodsBrand/index',
+                },
+                {
+                  path: '/mall/goodsBrand/index',
+                  name: 'index',
+                  component: './Mall/GoodsBrand/Index',
+                },
+                {
+                  path: '/mall/goodsBrand/create',
+                  name: 'create',
+                  component: './Mall/GoodsBrand/Create',
+                },
+                {
+                  path: '/mall/goodsBrand/edit',
+                  name: 'edit',
+                  component: './Mall/GoodsBrand/Edit',
+                }
+              ],
+            },
+            {
+              path: '/mall/goodsOrder',
+              name: 'goodsOrder',
+              routes: [
+                {
+                  path: '/mall/goodsOrder',
+                  redirect: '/mall/goodsOrder/index',
+                },
+                {
+                  path: '/mall/goodsOrder/index',
+                  name: 'index',
+                  component: './Mall/GoodsOrder/Index',
+                },
+                {
+                  path: '/mall/goodsOrder/edit',
+                  name: 'edit',
+                  component: './Mall/GoodsOrder/Edit',
+                },
+                {
+                  path: '/mall/goodsOrder/afterSaleIndex',
+                  name: 'afterSaleIndex',
+                  component: './Mall/GoodsOrder/AfterSaleIndex',
+                },
+                {
+                  path: '/mall/goodsOrder/afterSaleEdit',
+                  name: 'afterSaleEdit',
+                  component: './Mall/GoodsOrder/AfterSaleEdit',
+                },
+                {
+                  path: '/mall/goodsOrder/commentIndex',
+                  name: 'commentIndex',
+                  component: './Mall/GoodsOrder/CommentIndex',
+                },
+                {
+                  path: '/mall/goodsOrder/commentEdit',
+                  name: 'commentEdit',
+                  component: './Mall/GoodsOrder/CommentEdit',
+                },
+              ],
+            },
+          ],
+        },
+        {
           path: '/user',
           name: 'user',
           icon: 'user-add',

@@ -38,7 +38,8 @@ const { TextArea } = Input;
 const TabPane = Tabs.TabPane;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
-var id = 0;
+var spuId = 0;
+var skuId = 0;
 
 @connect(({ model }) => ({
   model,
@@ -56,14 +57,16 @@ class CreatePage extends PureComponent {
     loading: false,
     categorySelected:'0',
     fileList: false,
-    showSpu:'none',
-    showSku:'none',
     spuTable:[],
     spuSearch:[],
     spuSelectedIds:[],
     spuSelectedData:[],
-    pagination:[],
-    drawerVisible:false
+    spuDrawerVisible:false,
+    skuTable:[],
+    skuSearch:[],
+    skuSelectedIds:[],
+    skuSelectedData:[],
+    skuDrawerVisible:false,
   };
 
   // 当挂在模板时，初始化数据
@@ -79,15 +82,6 @@ class CreatePage extends PureComponent {
       type: 'form/info',
       payload: {
         actionUrl: 'admin/goods/categoryCreate',
-      },
-      callback: (res) => {
-        if (res) {
-          if(params.id) {
-            this.setState({ data: res.data,categorySelected:params.id });
-          } else {
-            this.setState({ data: res.data,categorySelected:'0' });
-          }
-        }
       }
     });
 
@@ -103,22 +97,35 @@ class CreatePage extends PureComponent {
         }
       }
     });
+
+    this.props.dispatch({
+      type: 'list/info',
+      payload: {
+        actionUrl: 'admin/goods/skuIndex',
+        skuSelectedIds:this.state.skuSelectedIds
+      },
+      callback: (res) => {
+        if (res) {
+          this.setState({ skuTable: res.data.table});
+        }
+      }
+    });
   }
 
-  showDrawer = () => {
+  spuShowDrawer = () => {
     this.setState({
-      drawerVisible: true,
+      spuDrawerVisible: true,
     });
   };
 
-  closeDrawer = () => {
+  spuCloseDrawer = () => {
     this.setState({
-      drawerVisible: false,
+      spuDrawerVisible: false,
     });
   };
   
   // 分页切换
-  changePagination = (pagination, filters, sorter) => {
+  spuChangePagination = (pagination, filters, sorter) => {
     this.props.dispatch({
       type: 'list/data',
       payload: {
@@ -140,7 +147,7 @@ class CreatePage extends PureComponent {
   };
 
   // 搜索
-  onSearch = () => {
+  spuOnSearch = () => {
     this.props.form.validateFields((err, values) => {
       if (!err) {
         this.props.dispatch({
@@ -161,36 +168,54 @@ class CreatePage extends PureComponent {
     });
   };
 
-  remove = k => {
+  spuRemove = k => {
     const { form } = this.props;
+
     // can use data-binding to get
-    const keys = form.getFieldValue('keys');
+    const keys = form.getFieldValue('spuKeys');
+
+    // 移除已经选中spu的id
+    let removeSpuSelectedId = this.state.spuSelectedData[k]['id'];
+    let spuSelectedIds = this.state.spuSelectedIds;
+    let newSpuSelectedIds = spuSelectedIds.filter(function(item) {
+      return item != removeSpuSelectedId
+    });
+    this.setState({ spuSelectedIds: newSpuSelectedIds});
+
     // can use data-binding to set
     form.setFieldsValue({
-      keys: keys.filter(key => key !== k),
+      spuKeys: keys.filter(key => key !== k),
+    });
+
+    this.props.dispatch({
+      type: 'list/data',
+      payload: {
+        actionUrl: 'admin/goods/spuIndex',
+        ...this.state.spuTable.pagination,
+        search: this.state.spuSearch,
+        spuSelectedIds:newSpuSelectedIds
+      },
+      callback: (res) => {
+        if (res) {
+          this.setState({ spuTable: res.data.table});
+        }
+      }
     });
   };
 
-  add = (spuKey) => {
+  spuAdd = (index) => {
     const { form } = this.props;
+
     // can use data-binding to get
-    const keys = form.getFieldValue('keys');
-    const nextKeys = keys.concat(id++);
+    const keys = form.getFieldValue('spuKeys');
+    const nextKeys = keys.concat(spuId++);
 
+    // 已经选中spu的id
     let spuSelectedIds = this.state.spuSelectedIds;
-
-    spuSelectedIds.push(this.state.spuTable.dataSource[spuKey]['id']);
-
-    this.setState({ spuSelectedIds: spuSelectedIds});
-
-    let spuSelectedData = this.state.spuSelectedData;
-    let getSpuSelectedData = [];
-    getSpuSelectedData[nextKeys] = this.state.spuTable.dataSource[spuKey];
-
-    console.log(getSpuSelectedData);
-    this.setState({ spuSelectedData: getSpuSelectedData});
-
-    console.log(this.state.spuSelectedData);
+    spuSelectedIds.push(this.state.spuTable.dataSource[index]['id']);
+    // 已经选中spu的值
+    this.state.spuSelectedData[spuId-1] = this.state.spuTable.dataSource[index];
+    this.setState({ spuSelectedIds:spuSelectedIds,spuSelectedData: this.state.spuSelectedData});
 
     this.props.dispatch({
       type: 'list/data',
@@ -210,10 +235,137 @@ class CreatePage extends PureComponent {
     // can use data-binding to set
     // important! notify form to detect changes
     form.setFieldsValue({
-      keys: nextKeys,
+      spuKeys: nextKeys,
     });
   };
 
+  skuShowDrawer = () => {
+    this.setState({
+      skuDrawerVisible: true,
+    });
+  };
+
+  skuCloseDrawer = () => {
+    this.setState({
+      skuDrawerVisible: false,
+    });
+  };
+
+  // 分页切换
+  skuChangePagination = (pagination, filters, sorter) => {
+    this.props.dispatch({
+      type: 'list/data',
+      payload: {
+        actionUrl: 'admin/goods/skuIndex',
+        pageSize: pagination.pageSize, // 分页数量
+        current: pagination.current, // 当前页码
+        sortField: sorter.field, // 排序字段
+        sortOrder: sorter.order, // 排序规则
+        ...filters, // 筛选
+        search: this.state.skuSearch,
+        skuSelectedIds:this.state.skuSelectedIds
+      },
+      callback: (res) => {
+        if (res) {
+          this.setState({ skuTable: res.data.table});
+        }
+      }
+    });
+  };
+
+  // 搜索
+  skuOnSearch = () => {
+    this.props.form.validateFields((err, values) => {
+      if (!err) {
+        this.props.dispatch({
+          type: 'list/data',
+          payload: {
+            actionUrl: 'admin/goods/skuIndex',
+            ...this.state.skuTable.pagination,
+            search: values,
+            skuSelectedIds:this.state.skuSelectedIds
+          },
+          callback: (res) => {
+            if (res) {
+              this.setState({ skuTable: res.data.table,skuSearch:values});
+            }
+          }
+        });
+      }
+    });
+  };
+
+  skuRemove = k => {
+    const { form } = this.props;
+
+    // can use data-binding to get
+    const keys = form.getFieldValue('skuKeys');
+
+    // 移除已经选中sku的id
+    let removeskuSelectedId = this.state.skuSelectedData[k]['id'];
+    let skuSelectedIds = this.state.skuSelectedIds;
+    let newskuSelectedIds = skuSelectedIds.filter(function(item) {
+      return item != removeskuSelectedId
+    });
+    this.setState({ skuSelectedIds: newskuSelectedIds});
+
+    // can use data-binding to set
+    form.setFieldsValue({
+      skuKeys: keys.filter(key => key !== k),
+    });
+
+    this.props.dispatch({
+      type: 'list/data',
+      payload: {
+        actionUrl: 'admin/goods/skuIndex',
+        ...this.state.skuTable.pagination,
+        search: this.state.skuSearch,
+        skuSelectedIds:newskuSelectedIds
+      },
+      callback: (res) => {
+        if (res) {
+          this.setState({ skuTable: res.data.table});
+        }
+      }
+    });
+  };
+
+  skuAdd = (index) => {
+    const { form } = this.props;
+
+    // can use data-binding to get
+    const keys = form.getFieldValue('skuKeys');
+    const nextKeys = keys.concat(skuId++);
+
+    // 已经选中sku的id
+    let skuSelectedIds = this.state.skuSelectedIds;
+    skuSelectedIds.push(this.state.skuTable.dataSource[index]['id']);
+    // 已经选中sku的值
+    this.state.skuSelectedData[skuId-1] = this.state.skuTable.dataSource[index];
+    this.setState({ skuSelectedIds:skuSelectedIds,skuSelectedData: this.state.skuSelectedData});
+
+    this.props.dispatch({
+      type: 'list/data',
+      payload: {
+        actionUrl: 'admin/goods/skuIndex',
+        ...this.state.skuTable.pagination,
+        search: this.state.skuSearch,
+        skuSelectedIds:this.state.skuSelectedIds
+      },
+      callback: (res) => {
+        if (res) {
+          this.setState({ skuTable: res.data.table});
+        }
+      }
+    });
+
+    // can use data-binding to set
+    // important! notify form to detect changes
+    form.setFieldsValue({
+      skuKeys: nextKeys,
+    });
+  };
+  
   handleSubmit = e => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
@@ -259,38 +411,36 @@ class CreatePage extends PureComponent {
       },
     };
 
-    getFieldDecorator('keys', { initialValue: [] });
-
-    const keys = getFieldValue('keys');
-
-    const formItems = keys.map((k, index) => (
+    getFieldDecorator('spuKeys', { initialValue: [] });
+    const spuKeys = getFieldValue('spuKeys');
+    const spuFormItems = spuKeys.map((k, index) => (
       <Form.Item
         {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
         label={index === 0 ? '关联属性' : ''}
         required={false}
         key={k}
       >
-        {getFieldDecorator(`attribute_ids[${k}]`,{
+        {getFieldDecorator(`attribute_spu_ids[${k}]`,{
             initialValue: this.state.spuSelectedData[k]['id'],
           })(
           <Input type={'hidden'}/>
         )}
-        {getFieldDecorator(`attribute_names[${k}]`,{
+        {getFieldDecorator(`attribute_spu_names[${k}]`,{
             initialValue: this.state.spuSelectedData[k]['name'],
           })(
           <Input placeholder="属性名称" disabled={true} style={{ width: '100px', marginRight: 8 }} />
         )}
-        {getFieldDecorator(`attribute_values[${k}]`,{
+        {getFieldDecorator(`attribute_spu_values[${k}]`,{
             initialValue: this.state.spuSelectedData[k]['goods_attribute_values'],
           })(
           <Input placeholder="属性值" disabled={true} style={{ width: '250px', marginRight: 8 }} />
         )}
-        {getFieldDecorator(`attribute_groups[${k}]`,{
+        {getFieldDecorator(`attribute_spu_groups[${k}]`,{
             initialValue: '',
           })(
           <Input placeholder="分组名称" style={{ width: '100px', marginRight: 8 }} />
         )}
-        {getFieldDecorator(`attribute_sorts[${k}]`,{
+        {getFieldDecorator(`attribute_spu_sorts[${k}]`,{
             initialValue: 0,
           })(
           <Input placeholder="排序" style={{ width: '60px', marginRight: 8 }} />
@@ -298,7 +448,49 @@ class CreatePage extends PureComponent {
         <Icon
           className="dynamic-delete-button"
           type="minus-circle-o"
-          onClick={() => this.remove(k)}
+          onClick={() => this.spuRemove(k)}
+        />
+      </Form.Item>
+    ));
+
+    getFieldDecorator('skuKeys', { initialValue: [] });
+    const skuKeys = getFieldValue('skuKeys');
+    const skuFormItems = skuKeys.map((k, index) => (
+      <Form.Item
+        {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
+        label={index === 0 ? '关联规格' : ''}
+        required={false}
+        key={k}
+      >
+        {getFieldDecorator(`attribute_sku_ids[${k}]`,{
+            initialValue: this.state.skuSelectedData[k]['id'],
+          })(
+          <Input type={'hidden'}/>
+        )}
+        {getFieldDecorator(`attribute_sku_names[${k}]`,{
+            initialValue: this.state.skuSelectedData[k]['name'],
+          })(
+          <Input placeholder="属性名称" disabled={true} style={{ width: '100px', marginRight: 8 }} />
+        )}
+        {getFieldDecorator(`attribute_sku_values[${k}]`,{
+            initialValue: this.state.skuSelectedData[k]['goods_attribute_values'],
+          })(
+          <Input placeholder="属性值" disabled={true} style={{ width: '250px', marginRight: 8 }} />
+        )}
+        {getFieldDecorator(`attribute_sku_groups[${k}]`,{
+            initialValue: '',
+          })(
+          <Input placeholder="分组名称" style={{ width: '100px', marginRight: 8 }} />
+        )}
+        {getFieldDecorator(`attribute_sku_sorts[${k}]`,{
+            initialValue: 0,
+          })(
+          <Input placeholder="排序" style={{ width: '60px', marginRight: 8 }} />
+        )}
+        <Icon
+          className="dynamic-delete-button"
+          type="minus-circle-o"
+          onClick={() => this.skuRemove(k)}
         />
       </Form.Item>
     ));
@@ -311,7 +503,7 @@ class CreatePage extends PureComponent {
       </div>
     );
 
-    const columns = [
+    const spuColumns = [
       {
         title: '属性名称',
         dataIndex: 'name',
@@ -326,7 +518,27 @@ class CreatePage extends PureComponent {
         title: '操作',
         key: 'action',
         render: (text, record,index) => (
-          <a onClick={() => this.add(index)}>选择</a>
+          <a onClick={() => this.spuAdd(index)}>选择</a>
+        ),
+      },
+    ];
+
+    const skuColumns = [
+      {
+        title: '属性名称',
+        dataIndex: 'name',
+        key: 'name',
+      },
+      {
+        title: '属性值',
+        dataIndex: 'goods_attribute_values',
+        key: 'goods_attribute_values',
+      },
+      {
+        title: '操作',
+        key: 'action',
+        render: (text, record,index) => (
+          <a onClick={() => this.skuAdd(index)}>选择</a>
         ),
       },
     ];
@@ -336,7 +548,7 @@ class CreatePage extends PureComponent {
         <div style={{background:'#fff',padding: '10px'}}>
         <Tabs>
           <TabPane tab="基本信息" key="1">
-            <Form style={{ marginTop: 8 }}>
+            <Form onSubmit={this.handleSubmit} style={{ marginTop: 8 }}>
               <Form.Item {...formItemLayout} label="分类标题">
                 {getFieldDecorator('title',{
                     initialValue: ''
@@ -506,10 +718,16 @@ class CreatePage extends PureComponent {
           </TabPane>
           <TabPane tab="关联属性、规格" key="3">
             <Form onSubmit={this.handleSubmit} style={{ marginTop: 8 }}>
-              {formItems}
+              {spuFormItems}
               <Form.Item {...formItemLayoutWithOutLabel}>
-                <Button type="dashed" onClick={this.showDrawer} style={{ width: '400px' }}>
+                <Button type="dashed" onClick={this.spuShowDrawer} style={{ width: '400px' }}>
                   <Icon type="plus" /> 添加属性
+                </Button>
+              </Form.Item>
+              {skuFormItems}
+              <Form.Item {...formItemLayoutWithOutLabel}>
+                <Button type="dashed" onClick={this.skuShowDrawer} style={{ width: '400px' }}>
+                  <Icon type="plus" /> 添加规格
                 </Button>
               </Form.Item>
               <Form.Item {...formItemLayout} label="状态">
@@ -533,12 +751,12 @@ class CreatePage extends PureComponent {
             <Drawer
               title="请选择关联属性"
               closable={false}
-              onClose={this.closeDrawer}
-              visible={this.state.drawerVisible}
+              onClose={this.spuCloseDrawer}
+              visible={this.state.spuDrawerVisible}
               width={500}
             >
               <p>
-                <Form layout="inline" onSubmit={this.onSearch}>
+                <Form layout="inline" onSubmit={this.spuOnSearch}>
                   <Form.Item>
                     {getFieldDecorator('name')(
                       <Input
@@ -564,10 +782,52 @@ class CreatePage extends PureComponent {
                   </Form.Item>
                 </Form>
                 <Table 
-                  columns={columns}
+                  columns={spuColumns}
                   dataSource={this.state.spuTable.dataSource}
                   pagination={this.state.spuTable.pagination}
-                  onChange={this.changePagination}
+                  onChange={this.spuChangePagination}
+                />
+              </p>
+            </Drawer>
+
+            <Drawer
+              title="请选择关联规格"
+              closable={false}
+              onClose={this.skuCloseDrawer}
+              visible={this.state.skuDrawerVisible}
+              width={500}
+            >
+              <p>
+                <Form layout="inline" onSubmit={this.skuOnSearch}>
+                  <Form.Item>
+                    {getFieldDecorator('name')(
+                      <Input
+                        placeholder="搜索内容"
+                      />,
+                    )}
+                  </Form.Item>
+                  <Form.Item>
+                    {getFieldDecorator('goodsTypeId',{
+                        initialValue: '0',
+                      })(
+                      <Select style={{ width: 150 }}>
+                        {!!this.state.data.goodsTypes && this.state.data.goodsTypes.map((option) => {
+                          return (<Option key={option.value.toString()}>{option.name}</Option>)
+                        })}
+                      </Select>
+                    )}
+                  </Form.Item>
+                  <Form.Item>
+                    <Button type="primary" htmlType="submit">
+                      搜索
+                    </Button>
+                  </Form.Item>
+                </Form>
+                <Table 
+                  columns={skuColumns}
+                  dataSource={this.state.skuTable.dataSource}
+                  pagination={this.state.skuTable.pagination}
+                  onChange={this.skuChangePagination}
                 />
               </p>
             </Drawer>
