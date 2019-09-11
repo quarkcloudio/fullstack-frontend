@@ -55,8 +55,7 @@ class CreatePage extends PureComponent {
     data: {},
     status: '',
     loading: false,
-    categorySelected:'0',
-    fileList: false,
+    coverId: false,
     spuTable:[],
     spuSearch:[],
     spuSelectedIds:[],
@@ -82,6 +81,11 @@ class CreatePage extends PureComponent {
       type: 'form/info',
       payload: {
         actionUrl: 'admin/goods/categoryCreate',
+      },
+      callback: (res) => {
+        if (res) {
+          this.setState({ data: res.data});
+        }
       }
     });
 
@@ -150,6 +154,10 @@ class CreatePage extends PureComponent {
   spuOnSearch = () => {
     this.props.form.validateFields((err, values) => {
       if (!err) {
+
+        values['name'] = values['spuName']
+        values['goodsTypeId'] = values['spuGoodsTypeId']
+
         this.props.dispatch({
           type: 'list/data',
           payload: {
@@ -276,6 +284,10 @@ class CreatePage extends PureComponent {
   // 搜索
   skuOnSearch = () => {
     this.props.form.validateFields((err, values) => {
+
+      values['name'] = values['skuName']
+      values['goodsTypeId'] = values['skuGoodsTypeId']
+
       if (!err) {
         this.props.dispatch({
           type: 'list/data',
@@ -369,6 +381,9 @@ class CreatePage extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
+
+      values['cover_id'] = this.state.coverId;
+
       // 验证正确提交表单
       if (!err) {
         this.props.dispatch({
@@ -596,23 +611,21 @@ class CreatePage extends PureComponent {
                           info.file.id = info.file.response.data.id;
                         }
                         fileList[0] = info.file;
-                        this.setState({ fileList: fileList });
+                        this.setState({ coverId: fileList });
                       } else {
                         message.error(info.file.response.msg);
                       }
                     }
                   }}
                 >
-                  {this.state.fileList ? (
-                    <img src={this.state.fileList[0]['url']} alt="avatar" width={80} />
+                  {this.state.coverId ? (
+                    <img src={this.state.coverId[0]['url']} alt="avatar" width={80} />
                   ) : (uploadButton)}
                 </Upload>
               </Form.Item>
               <Form.Item {...formItemLayout} label="父节点">
                 {getFieldDecorator('pid',{
-                  initialValue:  this.state.categorySelected
-                  ?  this.state.categorySelected
-                  : undefined
+                  initialValue:'0'
                 })(
                   <Select
                     style={{ width: 200 }}
@@ -660,7 +673,7 @@ class CreatePage extends PureComponent {
               </Form.Item>
               <Form.Item {...formItemLayout} label="分页数量">
                 {getFieldDecorator('page_num',{
-                    initialValue: 0
+                    initialValue: 10
                   })(
                   <InputNumber style={{ width: 200 }} placeholder="请输入分页数量" />,
                 )}
@@ -758,14 +771,14 @@ class CreatePage extends PureComponent {
               <p>
                 <Form layout="inline" onSubmit={this.spuOnSearch}>
                   <Form.Item>
-                    {getFieldDecorator('name')(
+                    {getFieldDecorator('spuName')(
                       <Input
                         placeholder="搜索内容"
                       />,
                     )}
                   </Form.Item>
                   <Form.Item>
-                    {getFieldDecorator('goodsTypeId',{
+                    {getFieldDecorator('spuGoodsTypeId',{
                         initialValue: '0',
                       })(
                       <Select style={{ width: 150 }}>
@@ -800,14 +813,14 @@ class CreatePage extends PureComponent {
               <p>
                 <Form layout="inline" onSubmit={this.skuOnSearch}>
                   <Form.Item>
-                    {getFieldDecorator('name')(
+                    {getFieldDecorator('skuName')(
                       <Input
                         placeholder="搜索内容"
                       />,
                     )}
                   </Form.Item>
                   <Form.Item>
-                    {getFieldDecorator('goodsTypeId',{
+                    {getFieldDecorator('skuGoodsTypeId',{
                         initialValue: '0',
                       })(
                       <Select style={{ width: 150 }}>

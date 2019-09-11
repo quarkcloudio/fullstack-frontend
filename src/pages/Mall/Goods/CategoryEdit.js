@@ -55,8 +55,7 @@ class EditPage extends PureComponent {
     data: {},
     status: '',
     loading: false,
-    categorySelected:'0',
-    fileList: false,
+    coverId: false,
     spuTable:[],
     spuSearch:[],
     spuSelectedIds:[],
@@ -67,6 +66,8 @@ class EditPage extends PureComponent {
     skuSelectedIds:[],
     skuSelectedData:[],
     skuDrawerVisible:false,
+    spuSelectedKeys:[],
+    skuSelectedKeys:[]
   };
 
   // 当挂在模板时，初始化数据
@@ -82,31 +83,48 @@ class EditPage extends PureComponent {
       type: 'form/info',
       payload: {
         actionUrl: 'admin/goods/categoryEdit?id='+params.id,
-      }
-    });
-
-    this.props.dispatch({
-      type: 'list/info',
-      payload: {
-        actionUrl: 'admin/goods/spuIndex',
-        spuSelectedIds:this.state.spuSelectedIds
       },
       callback: (res) => {
         if (res) {
-          this.setState({ spuTable: res.data.table});
-        }
-      }
-    });
+          this.setState({
+            data: res.data,
+            coverId:res.data.cover_id,
+            spuSelectedIds:res.data.spuSelectedIds,
+            skuSelectedIds:res.data.skuSelectedIds,
+            spuSelectedData:res.data.spuSelectedData,
+            skuSelectedData:res.data.skuSelectedData,
+            spuSelectedKeys:res.data.spuSelectedKeys,
+            skuSelectedKeys:res.data.skuSelectedKeys
+          });
 
-    this.props.dispatch({
-      type: 'list/info',
-      payload: {
-        actionUrl: 'admin/goods/skuIndex',
-        skuSelectedIds:this.state.skuSelectedIds
-      },
-      callback: (res) => {
-        if (res) {
-          this.setState({ skuTable: res.data.table});
+          spuId = res.data.spuSelectedKeys.length;
+          skuId = res.data.skuSelectedKeys.length;
+
+          this.props.dispatch({
+            type: 'list/data',
+            payload: {
+              actionUrl: 'admin/goods/spuIndex',
+              spuSelectedIds:this.state.spuSelectedIds
+            },
+            callback: (res) => {
+              if (res) {
+                this.setState({ spuTable: res.data.table});
+              }
+            }
+          });
+      
+          this.props.dispatch({
+            type: 'list/data',
+            payload: {
+              actionUrl: 'admin/goods/skuIndex',
+              skuSelectedIds:this.state.skuSelectedIds
+            },
+            callback: (res) => {
+              if (res) {
+                this.setState({ skuTable: res.data.table});
+              }
+            }
+          });
         }
       }
     });
@@ -150,6 +168,8 @@ class EditPage extends PureComponent {
   spuOnSearch = () => {
     this.props.form.validateFields((err, values) => {
       if (!err) {
+        values['name'] = values['spuName'];
+        values['goodsTypeId'] = values['spuGoodsTypeId'];
         this.props.dispatch({
           type: 'list/data',
           payload: {
@@ -277,6 +297,8 @@ class EditPage extends PureComponent {
   skuOnSearch = () => {
     this.props.form.validateFields((err, values) => {
       if (!err) {
+        values['name'] = values['skuName'];
+        values['goodsTypeId'] = values['skuGoodsTypeId'];
         this.props.dispatch({
           type: 'list/data',
           payload: {
@@ -369,12 +391,15 @@ class EditPage extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
+
+      values['cover_id'] = this.state.coverId;
+
       // 验证正确提交表单
       if (!err) {
         this.props.dispatch({
           type: 'form/submit',
           payload: {
-            actionUrl: 'admin/goods/categoryStore',
+            actionUrl: 'admin/goods/categorySave',
             ...values,
           },
         });
@@ -391,6 +416,7 @@ class EditPage extends PureComponent {
   };
 
   render() {
+
     const { getFieldDecorator, getFieldValue } = this.props.form;
 
     const formItemLayout = {
@@ -411,7 +437,7 @@ class EditPage extends PureComponent {
       },
     };
 
-    getFieldDecorator('spuKeys', { initialValue: [] });
+    getFieldDecorator('spuKeys', { initialValue: this.state.spuSelectedKeys });
     const spuKeys = getFieldValue('spuKeys');
     const spuFormItems = spuKeys.map((k, index) => (
       <Form.Item
@@ -436,12 +462,12 @@ class EditPage extends PureComponent {
           <Input placeholder="属性值" disabled={true} style={{ width: '250px', marginRight: 8 }} />
         )}
         {getFieldDecorator(`attribute_spu_groups[${k}]`,{
-            initialValue: '',
+            initialValue: this.state.spuSelectedData[k]['group'] ? this.state.spuSelectedData[k]['group'] : '',
           })(
           <Input placeholder="分组名称" style={{ width: '100px', marginRight: 8 }} />
         )}
         {getFieldDecorator(`attribute_spu_sorts[${k}]`,{
-            initialValue: 0,
+            initialValue:  this.state.spuSelectedData[k]['sort'] ? this.state.spuSelectedData[k]['sort'] : 0,
           })(
           <Input placeholder="排序" style={{ width: '60px', marginRight: 8 }} />
         )}
@@ -453,7 +479,7 @@ class EditPage extends PureComponent {
       </Form.Item>
     ));
 
-    getFieldDecorator('skuKeys', { initialValue: [] });
+    getFieldDecorator('skuKeys', { initialValue: this.state.skuSelectedKeys });
     const skuKeys = getFieldValue('skuKeys');
     const skuFormItems = skuKeys.map((k, index) => (
       <Form.Item
@@ -478,12 +504,12 @@ class EditPage extends PureComponent {
           <Input placeholder="属性值" disabled={true} style={{ width: '250px', marginRight: 8 }} />
         )}
         {getFieldDecorator(`attribute_sku_groups[${k}]`,{
-            initialValue: '',
+            initialValue: this.state.skuSelectedData[k]['group'] ? this.state.skuSelectedData[k]['group'] : '',
           })(
           <Input placeholder="分组名称" style={{ width: '100px', marginRight: 8 }} />
         )}
         {getFieldDecorator(`attribute_sku_sorts[${k}]`,{
-            initialValue: 0,
+            initialValue: this.state.skuSelectedData[k]['sort'] ? this.state.skuSelectedData[k]['sort'] : 0,
           })(
           <Input placeholder="排序" style={{ width: '60px', marginRight: 8 }} />
         )}
@@ -550,15 +576,20 @@ class EditPage extends PureComponent {
           <TabPane tab="基本信息" key="1">
             <Form onSubmit={this.handleSubmit} style={{ marginTop: 8 }}>
               <Form.Item {...formItemLayout} label="分类标题">
+                {getFieldDecorator('id',{
+                    initialValue: this.state.data.id
+                  })(
+                  <Input type='hidden' />,
+                )}
                 {getFieldDecorator('title',{
-                    initialValue: ''
+                    initialValue: this.state.data.title
                   })(
                   <Input style={{ width: 400 }} placeholder="请输入分类标题" />,
                 )}
               </Form.Item>
               <Form.Item {...formItemLayout} label="分类名称">
                 {getFieldDecorator('name',{
-                    initialValue: ''
+                    initialValue:  this.state.data.name
                   })(
                   <Input style={{ width: 200 }} placeholder="请输入分类名称" />,
                 )}
@@ -603,16 +634,16 @@ class EditPage extends PureComponent {
                     }
                   }}
                 >
-                  {this.state.fileList ? (
-                    <img src={this.state.fileList[0]['url']} alt="avatar" width={80} />
+                  {this.state.coverId[0] ? (
+                    <img src={this.state.coverId[0]['url']} alt="avatar" width={80} />
                   ) : (uploadButton)}
                 </Upload>
               </Form.Item>
               <Form.Item {...formItemLayout} label="父节点">
                 {getFieldDecorator('pid',{
-                  initialValue:  this.state.categorySelected
-                  ?  this.state.categorySelected
-                  : undefined
+                  initialValue:  this.state.data.pid
+                  ?  this.state.data.pid.toString()
+                  : '0'
                 })(
                   <Select
                     style={{ width: 200 }}
@@ -625,49 +656,49 @@ class EditPage extends PureComponent {
               </Form.Item>
               <Form.Item {...formItemLayout} label="排序">
                 {getFieldDecorator('sort',{
-                    initialValue: 0
+                    initialValue: this.state.data.sort
                   })(
                   <InputNumber style={{ width: 200 }} placeholder="排序" />,
                 )}
               </Form.Item>
               <Form.Item {...formItemLayout} label="描述">
                 {getFieldDecorator('description',{
-                    initialValue: ''
+                    initialValue: this.state.data.description
                   })(
                   <TextArea style={{ width: 400 }} placeholder="请输入描述" />,
                 )}
               </Form.Item>
               <Form.Item {...formItemLayout} label="频道模板">
                 {getFieldDecorator('index_tpl',{
-                    initialValue: ''
+                    initialValue: this.state.data.index_tpl
                   })(
                   <Input style={{ width: 400 }} placeholder="请输入频道模板" />,
                 )}
               </Form.Item>
               <Form.Item {...formItemLayout} label="列表模板">
                 {getFieldDecorator('lists_tpl',{
-                    initialValue: ''
+                    initialValue: this.state.data.lists_tpl
                   })(
                   <Input style={{ width: 400 }} placeholder="请输入列表模板" />,
                 )}
               </Form.Item>
               <Form.Item {...formItemLayout} label="详情模板">
                 {getFieldDecorator('detail_tpl',{
-                    initialValue: ''
+                    initialValue: this.state.data.detail_tpl
                   })(
                   <Input style={{ width: 400 }} placeholder="请输入详情模板" />,
                 )}
               </Form.Item>
               <Form.Item {...formItemLayout} label="分页数量">
                 {getFieldDecorator('page_num',{
-                    initialValue: 0
+                    initialValue: this.state.data.page_num
                   })(
                   <InputNumber style={{ width: 200 }} placeholder="请输入分页数量" />,
                 )}
               </Form.Item>
               <Form.Item {...formItemLayout} label="状态">
                 {getFieldDecorator('status',{
-                    initialValue: true,
+                    initialValue: this.state.data.status,
                     valuePropName: 'checked'
                   })(
                   <Switch checkedChildren="正常" unCheckedChildren="禁用" />,
@@ -758,14 +789,14 @@ class EditPage extends PureComponent {
               <p>
                 <Form layout="inline" onSubmit={this.spuOnSearch}>
                   <Form.Item>
-                    {getFieldDecorator('name')(
+                    {getFieldDecorator('spuName')(
                       <Input
                         placeholder="搜索内容"
                       />,
                     )}
                   </Form.Item>
                   <Form.Item>
-                    {getFieldDecorator('goodsTypeId',{
+                    {getFieldDecorator('spuGoodsTypeId',{
                         initialValue: '0',
                       })(
                       <Select style={{ width: 150 }}>
@@ -800,14 +831,14 @@ class EditPage extends PureComponent {
               <p>
                 <Form layout="inline" onSubmit={this.skuOnSearch}>
                   <Form.Item>
-                    {getFieldDecorator('name')(
+                    {getFieldDecorator('skuName')(
                       <Input
                         placeholder="搜索内容"
                       />,
                     )}
                   </Form.Item>
                   <Form.Item>
-                    {getFieldDecorator('goodsTypeId',{
+                    {getFieldDecorator('skuGoodsTypeId',{
                         initialValue: '0',
                       })(
                       <Select style={{ width: 150 }}>
