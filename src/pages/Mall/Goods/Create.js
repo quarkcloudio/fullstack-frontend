@@ -52,11 +52,12 @@ class CreatePage extends PureComponent {
     msg: '',
     url: '',
     data: {
-      goods_types: [],
+      categorys:[],
+      shops:[],
+      goodsUnits:[],
     },
     status: '',
     loading: false,
-    selected:'0'
   };
 
   // 当挂在模板时，初始化数据
@@ -75,11 +76,7 @@ class CreatePage extends PureComponent {
       },
       callback: (res) => {
         if (res) {
-          if(params.id) {
-            this.setState({ data: res.data,selected:params.id });
-          } else {
-            this.setState({ data: res.data,selected:'0' });
-          }
+          this.setState({ data: res.data});
         }
       }
     });
@@ -125,25 +122,6 @@ class CreatePage extends PureComponent {
     let state = {
       loading: false,
     };
-
-    const options = [
-      {
-        value: 'zhejiang',
-        label: 'Zhejiang',
-        children: [
-          {
-            value: 'hangzhou',
-            label: 'Hangzhou',
-            children: [
-              {
-                value: 'xihu',
-                label: 'West Lake',
-              },
-            ],
-          },
-        ],
-      }
-    ];
 
     // 单图片上传模式
     let uploadButton = (
@@ -222,25 +200,26 @@ class CreatePage extends PureComponent {
                 {getFieldDecorator('goods_category_id',{
                     initialValue: ''
                   })(
-                  <Cascader style={{ width: 400 }} options={options} placeholder="请选择商品分类" />,
+                  <Cascader style={{ width: 400 }} options={this.state.data.categorys} placeholder="请选择商品分类" />,
                 )}
               </Form.Item>
               <Form.Item {...formItemLayout} label="商品类别">
-                {getFieldDecorator('name',{
-                    initialValue: ''
+                {getFieldDecorator('goods_mode',{
+                    initialValue: '1'
                   })(
                   <Radio.Group>
-                    <Radio value={1}>实物商品（物流发货）</Radio>
-                    <Radio value={2}>电子卡券（无需物流）</Radio>
-                    <Radio value={3}>服务商品（无需物流）</Radio>
+                    <Radio value={'1'}>实物商品（物流发货）</Radio>
+                    <Radio value={'2'}>电子卡券（无需物流）</Radio>
+                    <Radio value={'3'}>服务商品（无需物流）</Radio>
                   </Radio.Group>,
                 )}
               </Form.Item>
               <Form.Item {...formItemLayout} label="扩展分类">
-                {getFieldDecorator('name',{
+                {getFieldDecorator('other_category_ids',{
                     initialValue: undefined
                   })(
                   <TreeSelect
+                    treeData={this.state.data.categorys}
                     showSearch
                     style={{ width: 400 }}
                     dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
@@ -249,27 +228,18 @@ class CreatePage extends PureComponent {
                     multiple
                     treeDefaultExpandAll
                   >
-                    <TreeNode value="parent 1" title="parent 1" key="0-1">
-                      <TreeNode value="parent 1-0" title="parent 1-0" key="0-1-1">
-                        <TreeNode value="leaf1" title="my leaf" key="random" />
-                        <TreeNode value="leaf2" title="your leaf" key="random1" />
-                      </TreeNode>
-                      <TreeNode value="parent 1-1" title="parent 1-1" key="random2">
-                        <TreeNode value="sss" title={<b style={{ color: '#08c' }}>sss</b>} key="random3" />
-                      </TreeNode>
-                    </TreeNode>
                   </TreeSelect>,
                 )}
               </Form.Item>
               <Form.Item {...formItemLayout} label="商品名称">
-                {getFieldDecorator('name',{
+                {getFieldDecorator('goods_name',{
                     initialValue: ''
                   })(
                   <Input style={{ width: 400 }} placeholder="请输入规格名称" />,
                 )}
               </Form.Item>
               <Form.Item {...formItemLayout} label="关键词">
-                {getFieldDecorator('name',{
+                {getFieldDecorator('keywords',{
                     initialValue: ''
                   })(
                   <Input style={{ width: 400 }} placeholder="请输入关键词" />,
@@ -286,35 +256,50 @@ class CreatePage extends PureComponent {
                   />
                 )}
               </Form.Item>
+              <Form.Item {...formItemLayout} label="所属商家">
+                {getFieldDecorator('shop_id')(
+                  <Select
+                    placeholder="请选择所属商家"
+                    style={{ width: 200 }}
+                  >
+                    {!!this.state.data.shops && this.state.data.shops.map((option) => {
+                      return (<Option key={option.id.toString()}>{option.title}</Option>)
+                    })}
+                  </Select>,
+                )}
+              </Form.Item>
               <Form.Item {...formItemLayout} label="计价方式">
-                {getFieldDecorator('name',{
-                    initialValue: ''
+                {getFieldDecorator('pricing_mode',{
+                    initialValue: '1'
                   })(
                   <Radio.Group>
-                    <Radio value={1}>计件</Radio>
-                    <Radio value={2}>计重</Radio>
+                    <Radio value={'1'}>计件</Radio>
+                    <Radio value={'2'}>计重</Radio>
                   </Radio.Group>,
                 )}
               </Form.Item>
               <Form.Item {...formItemLayout} label="商品单位">
-                {getFieldDecorator('name',{
-                    initialValue: ''
-                  })(
-                  <Select style={{ width: 200 }}>
-                    <Option value="jack">Jack</Option>
-                    <Option value="lucy">Lucy</Option>
-                    <Option value="Yiminghe">yiminghe</Option>
+                {getFieldDecorator('goods_unit_id')(
+                  <Select
+                  placeholder="请选择商品单位"
+                  style={{ width: 200 }}
+                  >
+                    {!!this.state.data.goodsUnits && this.state.data.goodsUnits.map((option) => {
+                      return (<Option key={option.id.toString()}>{option.title}</Option>)
+                    })}
                   </Select>,
                 )}
+                &nbsp;&nbsp;<Button type="primary">新建商品单位</Button>&nbsp;&nbsp;<Button>重新加载</Button>
               </Form.Item>
               <Form.Item {...formItemLayout} label="商品品牌">
-                {getFieldDecorator('name',{
-                    initialValue: ''
-                  })(
-                  <Select style={{ width: 200 }}>
-                    <Option value="jack">Jack</Option>
-                    <Option value="lucy">Lucy</Option>
-                    <Option value="Yiminghe">yiminghe</Option>
+                {getFieldDecorator('goods_brand_id')(
+                  <Select
+                  placeholder="请选择商品品牌"
+                  style={{ width: 200 }}
+                  >
+                    {!!this.state.data.goodsBrands && this.state.data.goodsBrands.map((option) => {
+                      return (<Option key={option.id.toString()}>{option.name}</Option>)
+                    })}
                   </Select>,
                 )}
               </Form.Item>
@@ -325,63 +310,63 @@ class CreatePage extends PureComponent {
 
               </Form.Item>
               <Form.Item {...formItemLayout} label="最新起订量">
-                {getFieldDecorator('sort',{
-                    initialValue: 0
+                {getFieldDecorator('goods_moq',{
+                    initialValue: ''
                   })(
                   <InputNumber style={{ width: 200 }} placeholder="最新起订量" />,
                 )}
               </Form.Item>
               <Form.Item {...formItemLayout} label="店铺价">
-                {getFieldDecorator('name',{
+                {getFieldDecorator('goods_price',{
                     initialValue: ''
                   })(
-                  <Input style={{ width: 200 }} placeholder="请输入店铺价" />,
+                  <InputNumber step={0.01} style={{ width: 200 }} placeholder="请输入店铺价" />,
                 )}
               </Form.Item>
               <Form.Item {...formItemLayout} label="市场价">
-                {getFieldDecorator('name',{
-                    initialValue: ''
+                {getFieldDecorator('market_price',{
+                    initialValue: 0
                   })(
-                  <Input style={{ width: 200 }} placeholder="请输入市场价" />,
+                  <InputNumber step={0.01} style={{ width: 200 }} placeholder="请输入市场价" />,
                 )}
               </Form.Item>
               <Form.Item {...formItemLayout} label="成本价">
-                {getFieldDecorator('name',{
-                    initialValue: ''
+                {getFieldDecorator('cost_price',{
+                    initialValue: 0
                   })(
-                  <Input style={{ width: 200 }} placeholder="请输入成本价" />,
+                  <InputNumber step={0.01} style={{ width: 200 }} placeholder="请输入成本价" />,
                 )}
               </Form.Item>
               <Form.Item {...formItemLayout} label="商品库存">
-                {getFieldDecorator('name',{
-                    initialValue: ''
+                {getFieldDecorator('stock_num',{
+                    initialValue: 0
                   })(
-                  <Input style={{ width: 200 }} placeholder="请输入商品库存" />,
+                  <InputNumber style={{ width: 200 }} placeholder="请输入商品库存" />,
                 )}
               </Form.Item>
               <Form.Item {...formItemLayout} label="库存警告数量">
-                {getFieldDecorator('name',{
-                    initialValue: ''
+                {getFieldDecorator('warn_num',{
+                    initialValue: 0
                   })(
-                  <Input style={{ width: 200 }} placeholder="请输入库存警告数量" />,
+                  <InputNumber style={{ width: 200 }} placeholder="请输入库存警告数量" />,
                 )}
               </Form.Item>
               <Form.Item {...formItemLayout} label="商品货号">
-                {getFieldDecorator('name',{
+                {getFieldDecorator('goods_sn',{
                     initialValue: ''
                   })(
                   <Input style={{ width: 400 }} placeholder="请输入商品货号" />,
                 )}
               </Form.Item>
               <Form.Item {...formItemLayout} label="商品条形码">
-                {getFieldDecorator('name',{
+                {getFieldDecorator('goods_barcode',{
                     initialValue: ''
                   })(
                   <Input style={{ width: 400 }} placeholder="请输入商品条形码" />,
                 )}
               </Form.Item>
               <Form.Item {...formItemLayout} label="商品库位码">
-                {getFieldDecorator('name',{
+                {getFieldDecorator('goods_stockcode',{
                     initialValue: ''
                   })(
                   <Input style={{ width: 400 }} placeholder="请输入商品库位码" />,
