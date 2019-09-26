@@ -71,6 +71,7 @@ class CreatePage extends PureComponent {
     systemSpus:[],
     shopSpus:[],
     skus:[],
+    checkedSkus:[],
     loading: false,
     unitLoading:false,
     layoutLoading:false
@@ -178,6 +179,13 @@ class CreatePage extends PureComponent {
 
   };
 
+  onSkuChange = value => {
+    console.log(value);
+    this.setState({
+      checkedSkus: value,
+    });
+  };
+
   remove = k => {
     const { form } = this.props;
     // can use data-binding to get
@@ -223,6 +231,17 @@ class CreatePage extends PureComponent {
       wrapperCol: {
         xs: { span: 24 },
         sm: { span: 22 },
+      },
+    };
+
+    const skuFormItemLayout = {
+      labelCol: {
+        xs: { span: 24 },
+        sm: { span: 3 },
+      },
+      wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 21 },
       },
     };
 
@@ -514,56 +533,45 @@ class CreatePage extends PureComponent {
               <Form.Item {...formItemLayout} label="商品规格">
                 <div style={{background:'rgba(93,178,255,.1)',border:'1px solid #bce8f1',borderRadius:'2px',padding:'10px'}}>
                     <div style={{marginTop:'20px'}}>
-                      {!!this.state.systemSpus && this.state.systemSpus.map((systemSpu) => {
-                        if(systemSpu.style == 1) {
+                    <Form.Item {...skuFormItemLayout} label='选择规格'>
+                      {getFieldDecorator('sku',{
+                          initialValue: ''
+                        })(
+                          <Checkbox.Group
+                            onChange={this.onSkuChange}
+                          >
+                          {!!this.state.skus && this.state.skus.map((sku) => {
+                              // 多选
+                              return (
+                                <Checkbox value={sku.id}>{sku.name}</Checkbox>
+                              )
+                          })}
+                        </Checkbox.Group>
+                      )}
+                    </Form.Item>
+                    </div>
+
+                    <div style={{marginTop:'20px'}}>
+                      {!!this.state.skus && this.state.skus.map((sku) => {
                           // 多选
-                          return (
-                            <Form.Item {...attrFormItemLayout} label={systemSpu.name}>
-                              {getFieldDecorator('system_spu'+systemSpu.id,{
-                                  initialValue: ''
-                                })(
-                                  <Checkbox.Group>
-                                    {!!systemSpu.vname && systemSpu.vname.map((option) => {
-                                      return (<Checkbox value={option.id}>{option.vname}</Checkbox>)
-                                    })}
-                                  </Checkbox.Group>,
-                              )}
-                            </Form.Item>
-                          )
-                        }
-
-                        if(systemSpu.style == 2) {
-                          // 单选
-                          return (
-                            <Form.Item {...attrFormItemLayout} label={systemSpu.name}>
-                              {getFieldDecorator('system_spu'+systemSpu.id,{
-                                  initialValue: ''
-                                })(
-                                  <Select style={{ width: 200 }}>
-                                    {!!systemSpu.vname && systemSpu.vname.map((option) => {
-                                      return (<Option value={option.id}>{option.vname}</Option>)
-                                    })}
-                                  </Select>,
-                              )}
-                            </Form.Item>
-                          )
-                        }
-
-                        if(systemSpu.style == 3) {
-                          // 输入框
-                          return (
-                            <Form.Item {...attrFormItemLayout} label={systemSpu.name}>
-                              {getFieldDecorator('system_spu'+systemSpu.id,{
-                                  initialValue: ''
-                                })(
-                                  <Input style={{ width: 200 }} />,
-                              )}
-                            </Form.Item>
-                          )
-                        }
-
+                          if(this.state.checkedSkus.indexOf(sku.id) != -1) {
+                            return (
+                              <Form.Item {...attrFormItemLayout} label={sku.name}>
+                                {getFieldDecorator('sku'+sku.id,{
+                                    initialValue: ''
+                                  })(
+                                    <Checkbox.Group>
+                                      {!!sku.vname && sku.vname.map((option) => {
+                                        return (<Checkbox value={option.id}>{option.vname}</Checkbox>)
+                                      })}
+                                    </Checkbox.Group>,
+                                )}
+                              </Form.Item>
+                            )
+                          }
                       })}
                     </div>
+
                 </div>
               </Form.Item>
               <Form.Item {...formItemLayout} label="最小起订量">
