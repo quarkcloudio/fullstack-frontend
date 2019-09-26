@@ -30,15 +30,21 @@ import {
   Modal,
   Steps,
   Cascader,
-  TreeSelect
+  TreeSelect,
+  Divider,
+  Typography
 } from 'antd';
 
+const {  RangePicker } = DatePicker;
 const { TextArea } = Input;
 const TabPane = Tabs.TabPane;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
 const { Step } = Steps;
 const { TreeNode } = TreeSelect;
+const { Title } = Typography;
+
+var id = 0;
 
 @connect(({ model }) => ({
   model,
@@ -57,7 +63,17 @@ class CreatePage extends PureComponent {
       goodsUnits:[],
     },
     status: '',
+    goodsMode:1,
+    showFreightInfo:true,
+    showSpecialInfo:false,
+    shopId:'',
+    categoryId:'',
+    systemSpus:[],
+    shopSpus:[],
+    skus:[],
     loading: false,
+    unitLoading:false,
+    layoutLoading:false
   };
 
   // 当挂在模板时，初始化数据
@@ -82,6 +98,23 @@ class CreatePage extends PureComponent {
     });
   }
 
+  reload = e => {
+    // unitLoading
+    this.setState({ unitLoading: true,layoutLoading:true });
+
+    this.props.dispatch({
+      type: 'form/info',
+      payload: {
+        actionUrl: 'admin/goods/create',
+      },
+      callback: (res) => {
+        if (res) {
+          this.setState({ data: res.data,unitLoading: false,layoutLoading:false});
+        }
+      }
+    });
+  };
+
   handleSubmit = e => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
@@ -95,6 +128,76 @@ class CreatePage extends PureComponent {
           },
         });
       }
+    });
+  };
+
+  onGoodsModeChange = e => {
+    if(e.target.value == 1) {
+      this.setState({
+        showFreightInfo: true,
+        showSpecialInfo: false,
+      });
+    } else if(e.target.value == 2) {
+      this.setState({
+        showFreightInfo: false,
+        showSpecialInfo: true,
+      });
+    } else if(e.target.value == 3) {
+      this.setState({
+        showFreightInfo: false,
+        showSpecialInfo: true,
+      });
+    }
+  };
+
+  onShopChange = value => {
+    this.setState({
+      shopId: value,
+    });
+  };
+
+  onCategoryChange = value => {
+
+    this.setState({
+      categoryId: value[value.length-1],
+    });
+
+    this.props.dispatch({
+      type: 'form/info',
+      payload: {
+        actionUrl: 'admin/goods/attribute',
+        categoryId: value[value.length-1],
+        shopId: this.state.shopId,
+      },
+      callback: (res) => {
+        if (res) {
+          this.setState({ systemSpus: res.data.systemSpus,shopSpus: res.data.shopSpus,skus:res.data.skus});
+        }
+      }
+    });
+
+  };
+
+  remove = k => {
+    const { form } = this.props;
+    // can use data-binding to get
+    const keys = form.getFieldValue('keys');
+
+    // can use data-binding to set
+    form.setFieldsValue({
+      keys: keys.filter(key => key !== k),
+    });
+  };
+
+  add = () => {
+    const { form } = this.props;
+    // can use data-binding to get
+    const keys = form.getFieldValue('keys');
+    const nextKeys = keys.concat(id++);
+    // can use data-binding to set
+    // important! notify form to detect changes
+    form.setFieldsValue({
+      keys: nextKeys,
     });
   };
 
@@ -112,12 +215,44 @@ class CreatePage extends PureComponent {
       },
     };
 
-    const formItemLayoutWithOutLabel = {
+    const attrFormItemLayout = {
+      labelCol: {
+        xs: { span: 24 },
+        sm: { span: 2 },
+      },
       wrapperCol: {
-        span: 12,
-        offset: 2
+        xs: { span: 24 },
+        sm: { span: 22 },
       },
     };
+
+    const formItemLayoutWithOutLabel = {
+      wrapperCol: {
+        xs: { span: 24, offset: 0 },
+        sm: { span: 24, offset: 0 },
+      },
+    };
+    getFieldDecorator('keys', { initialValue: [] });
+    const keys = getFieldValue('keys');
+    const formItems = keys.map((k, index) => (
+      <Form.Item
+        {...formItemLayoutWithOutLabel}
+        required={false}
+        key={k}
+      >
+        {getFieldDecorator(`names[${k}]`)(
+          <Input placeholder="属性名" style={{ width: '100px', marginRight: 8 }} />
+        )}: 
+        {getFieldDecorator(`names[${k}]`)(
+          <Input placeholder="属性值，多个值间用英文逗号分割" style={{ width: '400px', marginLeft: 8, marginRight: 8 }} />
+        )}
+        <Icon
+          className="dynamic-delete-button"
+          type="minus-circle-o"
+          onClick={() => this.remove(k)}
+        />
+      </Form.Item>
+    ));
 
     let state = {
       loading: false,
@@ -196,18 +331,36 @@ class CreatePage extends PureComponent {
           </Steps>
           <div className="steps-content" style={{width:'800px',margin:'40px auto'}}>
             <Form onSubmit={this.handleSubmit} style={{ marginTop: 8 }}>
+              <Form.Item {...formItemLayout} label="所属商家">
+                {getFieldDecorator('shop_id')(
+                  <Select
+                    placeholder="请选择所属商家"
+                    style={{ width: 400 }}
+                    onChange={this.onShopChange}
+                  >
+                    {!!this.state.data.shops && this.state.data.shops.map((option) => {
+                      return (<Option key={option.id.toString()}>{option.title}</Option>)
+                    })}
+                  </Select>,
+                )}
+              </Form.Item>
               <Form.Item {...formItemLayout} label="商品分类">
                 {getFieldDecorator('goods_category_id',{
                     initialValue: ''
                   })(
-                  <Cascader style={{ width: 400 }} options={this.state.data.categorys} placeholder="请选择商品分类" />,
+                  <Cascader
+                    style={{ width: 400 }}
+                    options={this.state.data.categorys}
+                    placeholder="请选择商品分类"
+                    onChange={this.onCategoryChange}
+                  />,
                 )}
               </Form.Item>
               <Form.Item {...formItemLayout} label="商品类别">
                 {getFieldDecorator('goods_mode',{
                     initialValue: '1'
                   })(
-                  <Radio.Group>
+                  <Radio.Group onChange={this.onGoodsModeChange}>
                     <Radio value={'1'}>实物商品（物流发货）</Radio>
                     <Radio value={'2'}>电子卡券（无需物流）</Radio>
                     <Radio value={'3'}>服务商品（无需物流）</Radio>
@@ -256,18 +409,6 @@ class CreatePage extends PureComponent {
                   />
                 )}
               </Form.Item>
-              <Form.Item {...formItemLayout} label="所属商家">
-                {getFieldDecorator('shop_id')(
-                  <Select
-                    placeholder="请选择所属商家"
-                    style={{ width: 200 }}
-                  >
-                    {!!this.state.data.shops && this.state.data.shops.map((option) => {
-                      return (<Option key={option.id.toString()}>{option.title}</Option>)
-                    })}
-                  </Select>,
-                )}
-              </Form.Item>
               <Form.Item {...formItemLayout} label="计价方式">
                 {getFieldDecorator('pricing_mode',{
                     initialValue: '1'
@@ -285,11 +426,12 @@ class CreatePage extends PureComponent {
                   style={{ width: 200 }}
                   >
                     {!!this.state.data.goodsUnits && this.state.data.goodsUnits.map((option) => {
-                      return (<Option key={option.id.toString()}>{option.title}</Option>)
+                      return (<Option key={option.id.toString()}>{option.name}</Option>)
                     })}
                   </Select>,
                 )}
-                &nbsp;&nbsp;<Button type="primary">新建商品单位</Button>&nbsp;&nbsp;<Button>重新加载</Button>
+                &nbsp;&nbsp;<Button href="#/admin/mall/goods/unitCreate" target="_blank" type="primary">新建商品单位</Button>
+                &nbsp;&nbsp;<Button onClick={this.reload} loading={this.state.unitLoading}>重新加载</Button>
               </Form.Item>
               <Form.Item {...formItemLayout} label="商品品牌">
                 {getFieldDecorator('goods_brand_id')(
@@ -304,16 +446,131 @@ class CreatePage extends PureComponent {
                 )}
               </Form.Item>
               <Form.Item {...formItemLayout} label="商品属性">
+                <div style={{background:'rgba(93,178,255,.1)',border:'1px solid #bce8f1',borderRadius:'2px',padding:'10px'}}>
+                    <div style={{width:'100%',borderBottom:'solid 1px #22baa0',lineHeight:'30px'}}>
+                      <span style={{display:'inline-block',padding:'0px 10px',background:'#22baa0',color:'#fff',fontSize:'13px',fontWeight:'700',lineHeight:'30px'}}>平台系统属性</span>
+                    </div>
+                    <div style={{marginTop:'20px'}}>
+                      {!!this.state.systemSpus && this.state.systemSpus.map((systemSpu) => {
+                        if(systemSpu.style == 1) {
+                          // 多选
+                          return (
+                            <Form.Item {...attrFormItemLayout} label={systemSpu.name}>
+                              {getFieldDecorator('system_spu'+systemSpu.id,{
+                                  initialValue: ''
+                                })(
+                                  <Checkbox.Group>
+                                    {!!systemSpu.vname && systemSpu.vname.map((option) => {
+                                      return (<Checkbox value={option.id}>{option.vname}</Checkbox>)
+                                    })}
+                                  </Checkbox.Group>,
+                              )}
+                            </Form.Item>
+                          )
+                        }
 
+                        if(systemSpu.style == 2) {
+                          // 单选
+                          return (
+                            <Form.Item {...attrFormItemLayout} label={systemSpu.name}>
+                              {getFieldDecorator('system_spu'+systemSpu.id,{
+                                  initialValue: ''
+                                })(
+                                  <Select style={{ width: 200 }}>
+                                    {!!systemSpu.vname && systemSpu.vname.map((option) => {
+                                      return (<Option value={option.id}>{option.vname}</Option>)
+                                    })}
+                                  </Select>,
+                              )}
+                            </Form.Item>
+                          )
+                        }
+
+                        if(systemSpu.style == 3) {
+                          // 输入框
+                          return (
+                            <Form.Item {...attrFormItemLayout} label={systemSpu.name}>
+                              {getFieldDecorator('system_spu'+systemSpu.id,{
+                                  initialValue: ''
+                                })(
+                                  <Input style={{ width: 200 }} />,
+                              )}
+                            </Form.Item>
+                          )
+                        }
+
+                      })}
+                    </div>
+
+                    <div style={{width:'100%',borderBottom:'solid 1px #22baa0',lineHeight:'30px'}}>
+                      <span style={{display:'inline-block',padding:'0px 10px',background:'#22baa0',color:'#fff',fontSize:'13px',fontWeight:'700',lineHeight:'30px'}}>店铺自定义属性</span>
+                    </div>
+                    <div style={{marginTop:'20px'}}>
+                      {formItems}
+                      <Button type="primary" icon="plus" onClick={this.add} >添加自定义属性</Button>
+                    </div>
+                </div>
               </Form.Item>
               <Form.Item {...formItemLayout} label="商品规格">
+                <div style={{background:'rgba(93,178,255,.1)',border:'1px solid #bce8f1',borderRadius:'2px',padding:'10px'}}>
+                    <div style={{marginTop:'20px'}}>
+                      {!!this.state.systemSpus && this.state.systemSpus.map((systemSpu) => {
+                        if(systemSpu.style == 1) {
+                          // 多选
+                          return (
+                            <Form.Item {...attrFormItemLayout} label={systemSpu.name}>
+                              {getFieldDecorator('system_spu'+systemSpu.id,{
+                                  initialValue: ''
+                                })(
+                                  <Checkbox.Group>
+                                    {!!systemSpu.vname && systemSpu.vname.map((option) => {
+                                      return (<Checkbox value={option.id}>{option.vname}</Checkbox>)
+                                    })}
+                                  </Checkbox.Group>,
+                              )}
+                            </Form.Item>
+                          )
+                        }
 
+                        if(systemSpu.style == 2) {
+                          // 单选
+                          return (
+                            <Form.Item {...attrFormItemLayout} label={systemSpu.name}>
+                              {getFieldDecorator('system_spu'+systemSpu.id,{
+                                  initialValue: ''
+                                })(
+                                  <Select style={{ width: 200 }}>
+                                    {!!systemSpu.vname && systemSpu.vname.map((option) => {
+                                      return (<Option value={option.id}>{option.vname}</Option>)
+                                    })}
+                                  </Select>,
+                              )}
+                            </Form.Item>
+                          )
+                        }
+
+                        if(systemSpu.style == 3) {
+                          // 输入框
+                          return (
+                            <Form.Item {...attrFormItemLayout} label={systemSpu.name}>
+                              {getFieldDecorator('system_spu'+systemSpu.id,{
+                                  initialValue: ''
+                                })(
+                                  <Input style={{ width: 200 }} />,
+                              )}
+                            </Form.Item>
+                          )
+                        }
+
+                      })}
+                    </div>
+                </div>
               </Form.Item>
-              <Form.Item {...formItemLayout} label="最新起订量">
+              <Form.Item {...formItemLayout} label="最小起订量">
                 {getFieldDecorator('goods_moq',{
                     initialValue: ''
                   })(
-                  <InputNumber style={{ width: 200 }} placeholder="最新起订量" />,
+                  <InputNumber style={{ width: 200 }} placeholder="最小起订量" />,
                 )}
               </Form.Item>
               <Form.Item {...formItemLayout} label="店铺价">
@@ -490,6 +747,149 @@ class CreatePage extends PureComponent {
                   </TabPane>
                 </Tabs>
               </Form.Item>
+
+              <Form.Item {...formItemLayout} label="详情版式">
+                顶部模板&nbsp;
+                {getFieldDecorator('top_layout_id',{
+                  initialValue:'0'
+                })(
+                  <Select
+                    placeholder="请选择顶部模板"
+                    style={{ width: 200 }}
+                  >
+                    <Option key='0'>不使用</Option>
+                    {!!this.state.data.topLayouts && this.state.data.topLayouts.map((option) => {
+                      return (<Option key={option.id.toString()}>{option.layout_name}</Option>)
+                    })}
+                  </Select>,
+                )}
+                &nbsp;&nbsp;
+                底部模板&nbsp;
+                {getFieldDecorator('bottom_layout_id',{
+                  initialValue:'0'
+                })(
+                  <Select
+                    placeholder="请选择底部模板"
+                    style={{ width: 200 }}
+                  >
+                    <Option key='0'>不使用</Option>
+                    {!!this.state.data.bottomLayouts && this.state.data.bottomLayouts.map((option) => {
+                      return (<Option key={option.id.toString()}>{option.layout_name}</Option>)
+                    })}
+                  </Select>,
+                )}
+                <br></br>
+                包装清单版式&nbsp;
+                {getFieldDecorator('packing_layout_id',{
+                  initialValue:'0'
+                })(
+                  <Select
+                    placeholder="请选择包装清单版式"
+                    style={{ width: 200 }}
+                  >
+                    <Option key='0'>不使用</Option>
+                    {!!this.state.data.packingLayouts && this.state.data.packingLayouts.map((option) => {
+                      return (<Option key={option.id.toString()}>{option.layout_name}</Option>)
+                    })}
+                  </Select>,
+                )}
+                &nbsp;&nbsp;
+                售后保障版式&nbsp;
+                {getFieldDecorator('service_layout_id',{
+                  initialValue:'0'
+                })(
+                  <Select
+                    placeholder="请选择售后保障版式"
+                    style={{ width: 200 }}
+                  >
+                    <Option key='0'>不使用</Option>
+                    {!!this.state.data.serviceLayouts && this.state.data.serviceLayouts.map((option) => {
+                      return (<Option key={option.id.toString()}>{option.layout_name}</Option>)
+                    })}
+                  </Select>,
+                )}
+                <br></br>
+                <Button href="#/admin/mall/goods/layoutCreate" target="_blank" type="primary">新建详情版式</Button>
+                &nbsp;&nbsp;<Button onClick={this.reload} loading={this.state.layoutLoading}>重新加载</Button>
+              </Form.Item>
+              <span style={{display:this.state.showFreightInfo?'block':'none'}}>
+              <Form.Item {...formItemLayout} label="物流重量(Kg)">
+                {getFieldDecorator('goods_weight',{
+                    initialValue: 0
+                  })(
+                  <InputNumber style={{ width: 200 }} placeholder="物流重量" />,
+                )}
+                &nbsp;Kg
+              </Form.Item>
+              <Form.Item {...formItemLayout} label="物流体积(m³)">
+                {getFieldDecorator('goods_volume',{
+                    initialValue: 0
+                  })(
+                  <InputNumber style={{ width: 200 }} placeholder="物流体积" />,
+                )}
+                &nbsp;m³
+              </Form.Item>
+              </span>
+              <span style={{display:this.state.showSpecialInfo?'block':'none'}}>
+              <Form.Item {...formItemLayout} label="兑换生效期">
+                {getFieldDecorator('effective_type',{
+                    initialValue: '1'
+                  })(
+                  <Radio.Group>
+                    <Radio value={'1'}>付款完成立即生效</Radio><br></br>
+                    <Radio value={'2'}>付款完成</Radio>
+                    {getFieldDecorator('effective_hour',{
+                        initialValue: 0
+                      })(
+                      <InputNumber style={{ width: 60 }} />,
+                    )}&nbsp;&nbsp;
+                    小时后生效<br></br>
+                    <Radio value={'3'}>付款完成次日生效</Radio>
+                  </Radio.Group>,
+                )}
+              </Form.Item>
+              <Form.Item {...formItemLayout} label="使用有效期">
+                {getFieldDecorator('valid_period_type',{
+                    initialValue: '1'
+                  })(
+                  <Radio.Group>
+                    <Radio value={'1'}>长期有效</Radio><br></br>
+                    <Radio value={'2'}>日期范围内有效</Radio>
+                    {getFieldDecorator('add_time')(
+                      <RangePicker
+                        showTime={{
+                          hideDisabledOptions: true,
+                          defaultValue: [moment('00:00:00', 'HH:mm:ss'), moment('23:59:59', 'HH:mm:ss')],
+                        }}
+                        format="YYYY-MM-DD HH:mm:ss"
+                      />
+                    )}<br></br>
+                    <Radio value={'3'}> 自购买之日起，</Radio>
+                    {getFieldDecorator('valid_period_hour',{
+                        initialValue: 0
+                      })(
+                      <InputNumber style={{ width: 60 }} />,
+                    )}&nbsp;&nbsp;
+                    小时内有效<br></br>
+                    <Radio value={'4'}> 自购买之日起，</Radio>
+                    {getFieldDecorator('valid_period_day',{
+                        initialValue: 0
+                      })(
+                      <InputNumber style={{ width: 60 }} />,
+                    )}&nbsp;&nbsp;
+                    天内有效
+                  </Radio.Group>,
+                )}
+              </Form.Item>
+              <Form.Item {...formItemLayout} label="支持过期退款">
+                {getFieldDecorator('is_expired_refund',{
+                    initialValue: true,
+                    valuePropName: 'checked'
+                  })(
+                  <Switch checkedChildren="是" unCheckedChildren="否" />,
+                )}
+              </Form.Item>
+              </span>
               <Form.Item {...formItemLayout} label="排序">
                 {getFieldDecorator('sort',{
                     initialValue: 0
@@ -497,12 +897,25 @@ class CreatePage extends PureComponent {
                   <InputNumber style={{ width: 200 }} placeholder="排序" />,
                 )}
               </Form.Item>
+              <Form.Item {...formItemLayout} label="库存计数" help="①拍下减库存：买家拍下商品即减少库存，存在恶拍风险。热销商品如需避免超卖可选此方式
+②付款减库存：买家拍下并完成付款方可减少库存，存在超卖风险。如需减少恶拍、提高回款效率，可选此方式；货到付款时将在卖家确认订单时减库存
+③出库减库存：卖家发货时减库存，如果库存充实，需要确保线上库存与线下库存保持一致，可选此方式">
+                {getFieldDecorator('pricing_mode',{
+                    initialValue: '1'
+                  })(
+                  <Radio.Group>
+                    <Radio value={'1'}>拍下减库存</Radio>
+                    <Radio value={'2'}>付款减库存</Radio>
+                    <Radio value={'3'}>出库减库存</Radio>
+                  </Radio.Group>,
+                )}
+              </Form.Item>
               <Form.Item {...formItemLayout} label="状态">
                 {getFieldDecorator('status',{
                     initialValue: true,
                     valuePropName: 'checked'
                   })(
-                  <Switch checkedChildren="正常" unCheckedChildren="禁用" />,
+                  <Switch checkedChildren="出售中" unCheckedChildren="已下架" />,
                 )}
               </Form.Item>
               <Form.Item wrapperCol={{ span: 12, offset: 4 }}>

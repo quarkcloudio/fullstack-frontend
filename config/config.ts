@@ -175,6 +175,34 @@ export default {
           ],
         },
         {
+          path: '/video',
+          name: 'video',
+          icon: 'file-word',
+          routes: [
+            {
+              path: '/video/index',
+              name: 'index',
+              component: './Video/Index',
+            },
+            {
+              path: '/video/create',
+              name: 'create',
+              component: './Video/Create',
+            },
+            {
+              path: '/video/edit',
+              name: 'edit',
+              component: './Video/Edit',
+              hideInMenu: true,
+            },
+            {
+              path: '/video/myPublished',
+              name: 'myPublished',
+              component: './Video/MyPublished',
+            },
+          ],
+        },
+        {
           path: '/mall',
           name: 'mall',
           icon: 'usergroup-add',
@@ -301,6 +329,36 @@ export default {
                   path: '/mall/goods/skuEdit',
                   name: 'skuEdit',
                   component: './Mall/Goods/SkuEdit',
+                },
+                {
+                  path: '/mall/goods/unitIndex',
+                  name: 'unitIndex',
+                  component: './Mall/Goods/UnitIndex',
+                },
+                {
+                  path: '/mall/goods/unitCreate',
+                  name: 'unitCreate',
+                  component: './Mall/Goods/UnitCreate',
+                },
+                {
+                  path: '/mall/goods/unitEdit',
+                  name: 'unitEdit',
+                  component: './Mall/Goods/UnitEdit',
+                },
+                {
+                  path: '/mall/goods/layoutIndex',
+                  name: 'layoutIndex',
+                  component: './Mall/Goods/LayoutIndex',
+                },
+                {
+                  path: '/mall/goods/layoutCreate',
+                  name: 'layoutCreate',
+                  component: './Mall/Goods/LayoutCreate',
+                },
+                {
+                  path: '/mall/goods/layoutEdit',
+                  name: 'layoutEdit',
+                  component: './Mall/Goods/LayoutEdit',
                 },
               ],
             },
