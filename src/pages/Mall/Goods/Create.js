@@ -206,15 +206,15 @@ class CreatePage extends PureComponent {
     const dataSource = [
       {
         key: '0',
-        name: 'Edward King 0',
+        name: '1',
         age: '32',
-        address: 'London, Park Lane no. 0',
+        address: '1',
       },
       {
         key: '1',
-        name: 'Edward King 1',
+        name: '1',
         age: '32',
-        address: 'London, Park Lane no. 1',
+        address: '1',
       },
     ];
 
