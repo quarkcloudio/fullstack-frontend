@@ -32,7 +32,9 @@ import {
   Cascader,
   TreeSelect,
   Divider,
-  Typography
+  Typography,
+  Table,
+  Popconfirm
 } from 'antd';
 
 const {  RangePicker } = DatePicker;
@@ -43,6 +45,90 @@ const RadioGroup = Radio.Group;
 const { Step } = Steps;
 const { TreeNode } = TreeSelect;
 const { Title } = Typography;
+const EditableContext = React.createContext();
+
+const EditableRow = ({ form, index, ...props }) => (
+  <EditableContext.Provider value={form}>
+    <tr {...props} />
+  </EditableContext.Provider>
+);
+
+const EditableFormRow = Form.create()(EditableRow);
+
+class EditableCell extends React.Component {
+  state = {
+    editing: false,
+  };
+
+  toggleEdit = () => {
+    const editing = !this.state.editing;
+    this.setState({ editing }, () => {
+      if (editing) {
+        this.input.focus();
+      }
+    });
+  };
+
+  save = e => {
+    const { record, handleSave } = this.props;
+    this.form.validateFields((error, values) => {
+      if (error && error[e.currentTarget.id]) {
+        return;
+      }
+      this.toggleEdit();
+      handleSave({ ...record, ...values });
+    });
+  };
+
+  renderCell = form => {
+    this.form = form;
+    const { children, dataIndex, record, title } = this.props;
+    const { editing } = this.state;
+    return editing ? (
+      <Form.Item style={{ margin: 0 }}>
+        {form.getFieldDecorator(dataIndex, {
+          rules: [
+            {
+              required: true,
+              message: `${title} is required.`,
+            },
+          ],
+          initialValue: record[dataIndex],
+        })(<Input ref={node => (this.input = node)} onPressEnter={this.save} onBlur={this.save} />)}
+      </Form.Item>
+    ) : (
+      <div
+        className="editable-cell-value-wrap"
+        style={{ paddingRight: 24 }}
+        onClick={this.toggleEdit}
+      >
+        {children}
+      </div>
+    );
+  };
+
+  render() {
+    const {
+      editable,
+      dataIndex,
+      title,
+      record,
+      index,
+      handleSave,
+      children,
+      ...restProps
+    } = this.props;
+    return (
+      <td {...restProps}>
+        {editable ? (
+          <EditableContext.Consumer>{this.renderCell}</EditableContext.Consumer>
+        ) : (
+          children
+        )}
+      </td>
+    );
+  }
+}
 
 var id = 0;
 
@@ -53,6 +139,36 @@ var id = 0;
 @Form.create()
 
 class CreatePage extends PureComponent {
+
+  handleDelete = key => {
+    const dataSource = [...this.state.dataSource];
+    this.setState({ dataSource: dataSource.filter(item => item.key !== key) });
+  };
+
+  handleAdd = () => {
+    const { count, dataSource } = this.state;
+    const newData = {
+      key: count,
+      name: `Edward King ${count}`,
+      age: 32,
+      address: `London, Park Lane no. ${count}`,
+    };
+    this.setState({
+      dataSource: [...dataSource, newData],
+      count: count + 1,
+    });
+  };
+
+  handleSave = row => {
+    const newData = [...this.state.dataSource];
+    const index = newData.findIndex(item => row.key === item.key);
+    const item = newData[index];
+    newData.splice(index, 1, {
+      ...item,
+      ...row,
+    });
+    this.setState({ dataSource: newData });
+  };
 
   state = {
     msg: '',
@@ -74,7 +190,8 @@ class CreatePage extends PureComponent {
     checkedSkus:[],
     loading: false,
     unitLoading:false,
-    layoutLoading:false
+    layoutLoading:false,
+    dataSource:[]
   };
 
   // 当挂在模板时，初始化数据
@@ -85,6 +202,23 @@ class CreatePage extends PureComponent {
 
     // loading
     this.setState({ loading: true });
+
+    const dataSource = [
+      {
+        key: '0',
+        name: 'Edward King 0',
+        age: '32',
+        address: 'London, Park Lane no. 0',
+      },
+      {
+        key: '1',
+        name: 'Edward King 1',
+        age: '32',
+        address: 'London, Park Lane no. 1',
+      },
+    ];
+
+    this.setState({ dataSource: dataSource });
 
     this.props.dispatch({
       type: 'form/info',
@@ -340,6 +474,84 @@ class CreatePage extends PureComponent {
       xhr.send(fd);
     };
 
+    const components = {
+      body: {
+        row: EditableFormRow,
+        cell: EditableCell,
+      },
+    };
+
+    let getColumns = [
+      {
+        title: 'ID',
+        dataIndex: 'id',
+      },
+      {
+        title: '尺寸',
+        dataIndex: 'address',
+      },
+      {
+        title: '颜色',
+        dataIndex: 'address',
+      },
+      {
+        title: '市场价',
+        dataIndex: 'name',
+        editable: true,
+      },
+      {
+        title: '成本价',
+        dataIndex: 'name',
+        editable: true,
+      },
+      {
+        title: '店铺价',
+        dataIndex: 'name',
+        editable: true,
+      },
+      {
+        title: '库存',
+        dataIndex: 'name',
+        editable: true,
+      },
+      {
+        title: '商品货号',
+        dataIndex: 'name',
+        editable: true,
+      },
+      {
+        title: '商品条形码',
+        dataIndex: 'name',
+        editable: true,
+      },
+      {
+        title: '操作',
+        dataIndex: 'operation',
+        render: (text, record) =>
+          this.state.dataSource.length >= 1 ? (
+            <Popconfirm title="Sure to delete?" onConfirm={() => this.handleDelete(record.key)}>
+              <a>禁用</a>
+            </Popconfirm>
+          ) : null,
+      },
+    ];
+
+    const columns = getColumns.map(col => {
+      if (!col.editable) {
+        return col;
+      }
+      return {
+        ...col,
+        onCell: record => ({
+          record,
+          editable: col.editable,
+          dataIndex: col.dataIndex,
+          title: col.title,
+          handleSave: this.handleSave,
+        }),
+      };
+    });
+
     return (
       <PageHeaderWrapper title={false}>
         <div style={{background:'#fff',padding:'20px'}}>
@@ -571,7 +783,16 @@ class CreatePage extends PureComponent {
                           }
                       })}
                     </div>
-
+                    <div style={{marginTop:'20px',background:'#fff'}}>
+                      <Table
+                        components={components}
+                        rowClassName={() => 'editable-row'}
+                        bordered
+                        dataSource={this.state.dataSource}
+                        columns={columns}
+                        pagination={false}
+                      />
+                    </div>
                 </div>
               </Form.Item>
               <Form.Item {...formItemLayout} label="最小起订量">
