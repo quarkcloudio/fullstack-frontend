@@ -555,12 +555,12 @@ class CreatePage extends PureComponent {
     return (
       <PageHeaderWrapper title={false}>
         <div style={{background:'#fff',padding:'20px'}}>
-          <Steps current={0} style={{width:'900px',margin:'30px auto'}}>
+          <Steps current={0} style={{width:'100%',margin:'30px auto'}}>
             <Step title="填写商品详情" />
             <Step title="上传商品图片" />
             <Step title="商品发布成功" />
           </Steps>
-          <div className="steps-content" style={{width:'800px',margin:'40px auto'}}>
+          <div className="steps-content" style={{width:'100%',margin:'40px auto'}}>
             <Form onSubmit={this.handleSubmit} style={{ marginTop: 8 }}>
               <Form.Item {...formItemLayout} label="所属商家">
                 {getFieldDecorator('shop_id')(
