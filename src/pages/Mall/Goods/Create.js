@@ -4,6 +4,7 @@ import router from 'umi/router';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import BraftEditor from 'braft-editor';
 import 'braft-editor/dist/index.css';
+import styles from './Style.less';
 import moment from 'moment';
 import 'moment/locale/zh-cn';
 moment.locale('zh-cn');
@@ -90,15 +91,21 @@ class EditableCell extends React.Component {
           rules: [
             {
               required: true,
-              message: `${title} is required.`,
-            },
+              message: `${title} is required.`
+            }
           ],
-          initialValue: record[dataIndex],
-        })(<Input ref={node => (this.input = node)} onPressEnter={this.save} onBlur={this.save} />)}
+          initialValue: record[dataIndex]
+        })(
+          <Input
+            ref={node => (this.input = node)}
+            onPressEnter={this.save}
+            onBlur={this.save}
+          />
+        )}
       </Form.Item>
     ) : (
       <div
-        className="editable-cell-value-wrap"
+        className={styles.editableCellValueWrap}
         style={{ paddingRight: 24 }}
         onClick={this.toggleEdit}
       >
@@ -206,15 +213,21 @@ class CreatePage extends PureComponent {
     const dataSource = [
       {
         key: '0',
-        name: '1',
-        age: '32',
-        address: '1',
+        market_price: '0',
+        cost_price: '0',
+        goods_price: '0',
+        stock_num: '0',
+        goods_sn: '0',
+        goods_barcode: '0',
       },
       {
         key: '1',
-        name: '1',
-        age: '32',
-        address: '1',
+        market_price: '0',
+        cost_price: '0',
+        goods_price: '0',
+        stock_num: '0',
+        goods_sn: '0',
+        goods_barcode: '0',
       },
     ];
 
@@ -484,44 +497,44 @@ class CreatePage extends PureComponent {
     let getColumns = [
       {
         title: 'ID',
-        dataIndex: 'id',
+        dataIndex: 'key',
       },
       {
         title: '尺寸',
-        dataIndex: 'address',
+        dataIndex: 'chicun',
       },
       {
         title: '颜色',
-        dataIndex: 'address',
+        dataIndex: 'yanse',
       },
       {
         title: '市场价',
-        dataIndex: 'name',
+        dataIndex: 'market_price',
         editable: true,
       },
       {
         title: '成本价',
-        dataIndex: 'name',
+        dataIndex: 'cost_price',
         editable: true,
       },
       {
         title: '店铺价',
-        dataIndex: 'name',
+        dataIndex: 'goods_price',
         editable: true,
       },
       {
         title: '库存',
-        dataIndex: 'name',
+        dataIndex: 'stock_num',
         editable: true,
       },
       {
         title: '商品货号',
-        dataIndex: 'name',
+        dataIndex: 'goods_sn',
         editable: true,
       },
       {
         title: '商品条形码',
-        dataIndex: 'name',
+        dataIndex: 'goods_barcode',
         editable: true,
       },
       {
@@ -529,7 +542,7 @@ class CreatePage extends PureComponent {
         dataIndex: 'operation',
         render: (text, record) =>
           this.state.dataSource.length >= 1 ? (
-            <Popconfirm title="Sure to delete?" onConfirm={() => this.handleDelete(record.key)}>
+            <Popconfirm title="确定要禁用吗？" onConfirm={() => this.handleDelete(record.key)}>
               <a>禁用</a>
             </Popconfirm>
           ) : null,
