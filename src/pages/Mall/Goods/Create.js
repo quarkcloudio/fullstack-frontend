@@ -85,15 +85,29 @@ class EditableCell extends React.Component {
     this.form = form;
     const { children, dataIndex, record, title } = this.props;
     const { editing } = this.state;
+
+    let rules = false;
+    let editableCellClass = styles.editableCellValueWrap;
+    let editableRowInput = styles.editableRowInput;
+
+    if(dataIndex == 'goods_price' || dataIndex == 'stock_num') {
+      rules = [
+        {
+          required: true,
+          message: `${title}必填`
+        }
+      ];
+    }
+
+    if(dataIndex == 'goods_sn' || dataIndex == 'goods_barcode') {
+      editableCellClass = styles.bigEditableCellValueWrap;
+      editableRowInput = styles.bigEditableRowInput;
+    }
+
     return editing ? (
-      <Form.Item style={{ margin: 0 }}>
+      <Form.Item className={editableRowInput}>
         {form.getFieldDecorator(dataIndex, {
-          rules: [
-            {
-              required: true,
-              message: `${title} is required.`
-            }
-          ],
+          rules: rules,
           initialValue: record[dataIndex]
         })(
           <Input
@@ -105,7 +119,7 @@ class EditableCell extends React.Component {
       </Form.Item>
     ) : (
       <div
-        className={styles.editableCellValueWrap}
+        className={editableCellClass}
         style={{ paddingRight: 24 }}
         onClick={this.toggleEdit}
       >
@@ -198,7 +212,9 @@ class CreatePage extends PureComponent {
     loading: false,
     unitLoading:false,
     layoutLoading:false,
-    dataSource:[]
+    columns:[],
+    dataSource:[],
+    checkedSkuValues:[]
   };
 
   // 当挂在模板时，初始化数据
@@ -209,29 +225,6 @@ class CreatePage extends PureComponent {
 
     // loading
     this.setState({ loading: true });
-
-    const dataSource = [
-      {
-        key: '0',
-        market_price: '0',
-        cost_price: '0',
-        goods_price: '0',
-        stock_num: '0',
-        goods_sn: '0',
-        goods_barcode: '0',
-      },
-      {
-        key: '1',
-        market_price: '0',
-        cost_price: '0',
-        goods_price: '0',
-        stock_num: '0',
-        goods_sn: '0',
-        goods_barcode: '0',
-      },
-    ];
-
-    this.setState({ dataSource: dataSource });
 
     this.props.dispatch({
       type: 'form/info',
@@ -327,10 +320,118 @@ class CreatePage extends PureComponent {
   };
 
   onSkuChange = value => {
-    console.log(value);
     this.setState({
       checkedSkus: value,
     });
+  };
+
+  onSkuValueChange = (skuValues,skuId) => {
+
+    console.log(skuId);
+
+    let getColumns = [];
+
+    let col = {
+      title: 'ID',
+      dataIndex: 'id',
+    };
+    getColumns.push(col);
+
+    if(this.state.checkedSkus) {
+      this.state.skus.map(value => {
+        if(this.state.checkedSkus.indexOf(value.id) != -1) {
+          col = {
+            title: value.name,
+            dataIndex: value.id,
+          };
+          getColumns.push(col);
+        }
+      });
+    }
+
+    let defaultColumns = [
+      {
+        title: '市场价',
+        dataIndex: 'market_price',
+        editable: true,
+      },
+      {
+        title: '成本价',
+        dataIndex: 'cost_price',
+        editable: true,
+      },
+      {
+        title: '店铺价',
+        dataIndex: 'goods_price',
+        editable: true,
+      },
+      {
+        title: '库存',
+        dataIndex: 'stock_num',
+        editable: true,
+      },
+      {
+        title: '商品货号',
+        dataIndex: 'goods_sn',
+        editable: true,
+      },
+      {
+        title: '商品条形码',
+        dataIndex: 'goods_barcode',
+        editable: true,
+      },
+      {
+        title: '操作',
+        dataIndex: 'operation',
+        render: (text, record) =>
+          this.state.dataSource.length >= 1 ? (
+            <Popconfirm title="确定要禁用吗？" onConfirm={() => this.handleDelete(record.key)}>
+              <a>禁用</a>
+            </Popconfirm>
+          ) : null,
+      },
+    ];
+
+    defaultColumns.map(value => {
+      getColumns.push(value);
+    });
+
+    let columns = getColumns.map(col => {
+      if (!col.editable) {
+        return col;
+      }
+      return {
+        ...col,
+        onCell: record => ({
+          record,
+          editable: col.editable,
+          dataIndex: col.dataIndex,
+          title: col.title,
+          handleSave: this.handleSave,
+        }),
+      };
+    });
+
+    let dataSource = [];
+    let colValue = [];
+
+    skuValues.map((value, index) => {
+      colValue = {
+        key: index,
+        id: value,
+        market_price: '',
+        cost_price: '',
+        goods_price: '',
+        stock_num: '',
+        goods_sn: '',
+        goods_barcode: '',
+      };
+      dataSource.push(colValue);
+    });
+
+    console.log(columns)
+
+    this.setState({ dataSource: dataSource,columns: columns , checkedSkuValues: skuValues,});
   };
 
   remove = k => {
@@ -493,77 +594,6 @@ class CreatePage extends PureComponent {
         cell: EditableCell,
       },
     };
-
-    let getColumns = [
-      {
-        title: 'ID',
-        dataIndex: 'key',
-      },
-      {
-        title: '尺寸',
-        dataIndex: 'chicun',
-      },
-      {
-        title: '颜色',
-        dataIndex: 'yanse',
-      },
-      {
-        title: '市场价',
-        dataIndex: 'market_price',
-        editable: true,
-      },
-      {
-        title: '成本价',
-        dataIndex: 'cost_price',
-        editable: true,
-      },
-      {
-        title: '店铺价',
-        dataIndex: 'goods_price',
-        editable: true,
-      },
-      {
-        title: '库存',
-        dataIndex: 'stock_num',
-        editable: true,
-      },
-      {
-        title: '商品货号',
-        dataIndex: 'goods_sn',
-        editable: true,
-      },
-      {
-        title: '商品条形码',
-        dataIndex: 'goods_barcode',
-        editable: true,
-      },
-      {
-        title: '操作',
-        dataIndex: 'operation',
-        render: (text, record) =>
-          this.state.dataSource.length >= 1 ? (
-            <Popconfirm title="确定要禁用吗？" onConfirm={() => this.handleDelete(record.key)}>
-              <a>禁用</a>
-            </Popconfirm>
-          ) : null,
-      },
-    ];
-
-    const columns = getColumns.map(col => {
-      if (!col.editable) {
-        return col;
-      }
-      return {
-        ...col,
-        onCell: record => ({
-          record,
-          editable: col.editable,
-          dataIndex: col.dataIndex,
-          title: col.title,
-          handleSave: this.handleSave,
-        }),
-      };
-    });
 
     return (
       <PageHeaderWrapper title={false}>
@@ -785,7 +815,9 @@ class CreatePage extends PureComponent {
                                 {getFieldDecorator('sku'+sku.id,{
                                     initialValue: ''
                                   })(
-                                    <Checkbox.Group>
+                                    <Checkbox.Group
+                                      onChange={(value) => this.onSkuValueChange(value,sku.id)}
+                                    >
                                       {!!sku.vname && sku.vname.map((option) => {
                                         return (<Checkbox value={option.id}>{option.vname}</Checkbox>)
                                       })}
@@ -799,10 +831,10 @@ class CreatePage extends PureComponent {
                     <div style={{marginTop:'20px',background:'#fff'}}>
                       <Table
                         components={components}
-                        rowClassName={() => 'editable-row'}
+                        rowClassName={styles.editableRow}
                         bordered
                         dataSource={this.state.dataSource}
-                        columns={columns}
+                        columns={this.state.columns}
                         pagination={false}
                       />
                     </div>
