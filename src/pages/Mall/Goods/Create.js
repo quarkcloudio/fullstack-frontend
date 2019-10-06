@@ -327,7 +327,8 @@ class CreatePage extends PureComponent {
 
   onSkuValueChange = (skuValues,skuId) => {
 
-    console.log(skuId);
+    let checkedSkuValues = this.state.checkedSkuValues;
+    checkedSkuValues[skuId] = skuValues;
 
     let getColumns = [];
 
@@ -340,11 +341,15 @@ class CreatePage extends PureComponent {
     if(this.state.checkedSkus) {
       this.state.skus.map(value => {
         if(this.state.checkedSkus.indexOf(value.id) != -1) {
-          col = {
-            title: value.name,
-            dataIndex: value.id,
-          };
-          getColumns.push(col);
+          checkedSkuValues.map((value1,index) => {
+            if(value.id == index && value1.length != 0) {
+              col = {
+                title: value.name,
+                dataIndex: value.id,
+              };
+              getColumns.push(col);
+            }
+          })
         }
       });
     }
@@ -413,26 +418,59 @@ class CreatePage extends PureComponent {
     });
 
     let dataSource = [];
-    let colValue = [];
+    let dataSourceLength = 0;
 
-    skuValues.map((value, index) => {
-      colValue = {
-        key: index,
-        id: value,
-        market_price: '',
-        cost_price: '',
-        goods_price: '',
-        stock_num: '',
-        goods_sn: '',
-        goods_barcode: '',
-      };
+    let descarteValues = this.descartes(checkedSkuValues);
+
+    descarteValues.map((descarteValue) => {
+
+      
+      dataSourceLength = dataSourceLength + 1;
+
+      let colValue = [];
+      colValue['id'] = dataSourceLength;
+      colValue['key'] = dataSourceLength;
+      colValue['market_price'] = '';
+      colValue['cost_price'] = '';
+      colValue['goods_price'] = '';
+      colValue['stock_num'] = '';
+      colValue['goods_sn'] = '';
+      colValue['goods_barcode'] = '';
+
+      if(descarteValue.length !=undefined ) {
+        descarteValue.map((mapDescarteValue) => {
+          this.state.skus.map((sku) => {
+            sku.vname.map((vname) => {
+              if(vname.id == mapDescarteValue) {
+                colValue[sku.id] = vname.vname;
+              }
+            })
+          });
+        })
+      }
+
       dataSource.push(colValue);
     });
 
-    console.log(columns)
+    console.log(descarteValues)
 
-    this.setState({ dataSource: dataSource,columns: columns , checkedSkuValues: skuValues,});
+    this.setState({ dataSource: dataSource,columns: columns,checkedSkuValues: checkedSkuValues});
   };
+
+  descartes = array => {
+    if( array.length < 2 ) return array[0] || [];
+
+    return [].reduce.call(array, function(col, set) {
+        var res = [];
+        col.forEach(function(c) {
+            set.forEach(function(s) {
+                var t = [].concat( Array.isArray(c) ? c : [c] );
+                t.push(s);
+                res.push(t);
+        })});
+        return res;
+    });
+  }
 
   remove = k => {
     const { form } = this.props;
