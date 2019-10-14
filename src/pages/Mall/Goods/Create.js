@@ -35,7 +35,8 @@ import {
   Divider,
   Typography,
   Table,
-  Popconfirm
+  Popconfirm,
+  Affix
 } from 'antd';
 
 const {  RangePicker } = DatePicker;
@@ -205,16 +206,18 @@ class CreatePage extends PureComponent {
     showSpecialInfo:false,
     shopId:'',
     categoryId:'',
-    systemSpus:[],
-    shopSpus:[],
-    skus:[],
+    systemSpus:false,
+    shopSpus:false,
+    skus:false,
     checkedSkus:[],
     loading: false,
     unitLoading:false,
     layoutLoading:false,
     columns:[],
-    dataSource:[],
-    checkedSkuValues:[]
+    dataSource:false,
+    checkedSkuValues:[],
+    coverId:false,
+    fileId:false,
   };
 
   // 当挂在模板时，初始化数据
@@ -259,6 +262,11 @@ class CreatePage extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
+      values['sku_values'] = this.state.dataSource;
+      values['pc_content'] = values['pc_content'].toHTML();
+      values['mobile_content'] = values['mobile_content'].toHTML();
+      values['cover_id'] = this.state.coverId;
+      values['file_id'] = this.state.fileId;
       // 验证正确提交表单
       if (!err) {
         this.props.dispatch({
@@ -422,43 +430,86 @@ class CreatePage extends PureComponent {
 
     let descarteValues = this.descartes(checkedSkuValues);
 
-    descarteValues.map((descarteValue) => {
+    if(descarteValues.length != 0) {
 
-      
-      dataSourceLength = dataSourceLength + 1;
+      descarteValues.map((descarteValue) => {
 
-      let colValue = [];
-      colValue['id'] = dataSourceLength;
-      colValue['key'] = dataSourceLength;
-      colValue['market_price'] = '';
-      colValue['cost_price'] = '';
-      colValue['goods_price'] = '';
-      colValue['stock_num'] = '';
-      colValue['goods_sn'] = '';
-      colValue['goods_barcode'] = '';
+        dataSourceLength = dataSourceLength + 1;
+  
+        let colValue = [];
+        colValue['id'] = dataSourceLength;
+        colValue['key'] = dataSourceLength;
+        colValue['market_price'] = '';
+        colValue['cost_price'] = '';
+        colValue['goods_price'] = '';
+        colValue['stock_num'] = '';
+        colValue['goods_sn'] = '';
+        colValue['goods_barcode'] = '';
+  
+        if(descarteValue.length !=undefined ) {
+          descarteValue.map((mapDescarteValue) => {
+            this.state.skus.map((sku) => {
+              sku.vname.map((vname) => {
+                if(vname.id == mapDescarteValue) {
+                  colValue[sku.id] = vname.vname;
+                  colValue['sku_'+sku.id] = 'sku_id:'+sku.id+';sku_name:'+sku.name+';sku_value_id:'+vname.id+';sku_value_name:'+vname.vname;
+                }
+              });
+            });
+          })
+        }
+  
+        dataSource.push(colValue);
+      });
+    } else {
 
-      if(descarteValue.length !=undefined ) {
-        descarteValue.map((mapDescarteValue) => {
-          this.state.skus.map((sku) => {
-            sku.vname.map((vname) => {
-              if(vname.id == mapDescarteValue) {
-                colValue[sku.id] = vname.vname;
-              }
-            })
-          });
-        })
-      }
+      checkedSkuValues.map((descarteValue,index) => {
+  
+        if(descarteValue.length !=undefined ) {
+          descarteValue.map((mapDescarteValue) => {
 
-      dataSource.push(colValue);
-    });
+            dataSourceLength = dataSourceLength + 1;
+  
+            let colValue = [];
+            colValue['id'] = dataSourceLength;
+            colValue['key'] = dataSourceLength;
+            colValue['market_price'] = '';
+            colValue['cost_price'] = '';
+            colValue['goods_price'] = '';
+            colValue['stock_num'] = '';
+            colValue['goods_sn'] = '';
+            colValue['goods_barcode'] = '';
 
-    console.log(descarteValues)
+            this.state.skus.map((sku) => {
+              sku.vname.map((vname) => {
+                if(vname.id == mapDescarteValue) {
+                  colValue[sku.id] = vname.vname;
+                  dataSource.push(colValue);
+                }
+              });
+            });
+
+          })
+        }
+  
+      });
+    }
+
+    console.log(checkedSkuValues)
 
     this.setState({ dataSource: dataSource,columns: columns,checkedSkuValues: checkedSkuValues});
   };
 
   descartes = array => {
-    if( array.length < 2 ) return array[0] || [];
+
+    let i = 0;
+    array.map((value) => {
+      if(value && value.length>0) {
+        i = i+1;
+      }
+    });
+
+    if( i < 2 ) return [];
 
     return [].reduce.call(array, function(col, set) {
         var res = [];
@@ -545,10 +596,10 @@ class CreatePage extends PureComponent {
         required={false}
         key={k}
       >
-        {getFieldDecorator(`names[${k}]`)(
+        {getFieldDecorator(`shop_spu_names[${k}]`)(
           <Input placeholder="属性名" style={{ width: '100px', marginRight: 8 }} />
         )}: 
-        {getFieldDecorator(`names[${k}]`)(
+        {getFieldDecorator(`shop_spu_values[${k}]`)(
           <Input placeholder="属性值，多个值间用英文逗号分割" style={{ width: '400px', marginLeft: 8, marginRight: 8 }} />
         )}
         <Icon
@@ -759,16 +810,19 @@ class CreatePage extends PureComponent {
               </Form.Item>
               <Form.Item {...formItemLayout} label="商品属性">
                 <div style={{background:'rgba(93,178,255,.1)',border:'1px solid #bce8f1',borderRadius:'2px',padding:'10px'}}>
-                    <div style={{width:'100%',borderBottom:'solid 1px #22baa0',lineHeight:'30px'}}>
-                      <span style={{display:'inline-block',padding:'0px 10px',background:'#22baa0',color:'#fff',fontSize:'13px',fontWeight:'700',lineHeight:'30px'}}>平台系统属性</span>
-                    </div>
+                {this.state.systemSpus ? 
+                  <div style={{width:'100%',borderBottom:'solid 1px #22baa0',lineHeight:'30px'}}>
+                    <span style={{display:'inline-block',padding:'0px 10px',background:'#22baa0',color:'#fff',fontSize:'13px',fontWeight:'700',lineHeight:'30px'}}>平台系统属性</span>
+                  </div>
+                : null}
+
                     <div style={{marginTop:'20px'}}>
                       {!!this.state.systemSpus && this.state.systemSpus.map((systemSpu) => {
                         if(systemSpu.style == 1) {
                           // 多选
                           return (
                             <Form.Item {...attrFormItemLayout} label={systemSpu.name}>
-                              {getFieldDecorator('system_spu'+systemSpu.id,{
+                              {getFieldDecorator('system_spu_'+systemSpu.id,{
                                   initialValue: ''
                                 })(
                                   <Checkbox.Group>
@@ -785,7 +839,7 @@ class CreatePage extends PureComponent {
                           // 单选
                           return (
                             <Form.Item {...attrFormItemLayout} label={systemSpu.name}>
-                              {getFieldDecorator('system_spu'+systemSpu.id,{
+                              {getFieldDecorator('system_spu_'+systemSpu.id,{
                                   initialValue: ''
                                 })(
                                   <Select style={{ width: 200 }}>
@@ -802,7 +856,7 @@ class CreatePage extends PureComponent {
                           // 输入框
                           return (
                             <Form.Item {...attrFormItemLayout} label={systemSpu.name}>
-                              {getFieldDecorator('system_spu'+systemSpu.id,{
+                              {getFieldDecorator('system_spu_'+systemSpu.id,{
                                   initialValue: ''
                                 })(
                                   <Input style={{ width: 200 }} />,
@@ -825,25 +879,28 @@ class CreatePage extends PureComponent {
               </Form.Item>
               <Form.Item {...formItemLayout} label="商品规格">
                 <div style={{background:'rgba(93,178,255,.1)',border:'1px solid #bce8f1',borderRadius:'2px',padding:'10px'}}>
-                    <div style={{marginTop:'20px'}}>
-                    <Form.Item {...skuFormItemLayout} label='选择规格'>
-                      {getFieldDecorator('sku',{
-                          initialValue: ''
-                        })(
-                          <Checkbox.Group
-                            onChange={this.onSkuChange}
-                          >
-                          {!!this.state.skus && this.state.skus.map((sku) => {
-                              // 多选
-                              return (
-                                <Checkbox value={sku.id}>{sku.name}</Checkbox>
-                              )
-                          })}
-                        </Checkbox.Group>
-                      )}
-                    </Form.Item>
-                    </div>
-
+                    
+                    {this.state.skus ? 
+                      <div style={{marginTop:'20px'}}>
+                        <Form.Item {...skuFormItemLayout} label='选择规格'>
+                          {getFieldDecorator('sku',{
+                              initialValue: ''
+                            })(
+                              <Checkbox.Group
+                                onChange={this.onSkuChange}
+                              >
+                              {!!this.state.skus && this.state.skus.map((sku) => {
+                                  // 多选
+                                  return (
+                                    <Checkbox value={sku.id}>{sku.name}</Checkbox>
+                                  )
+                              })}
+                            </Checkbox.Group>
+                          )}
+                        </Form.Item>
+                      </div>
+                    : null}
+                    
                     <div style={{marginTop:'20px'}}>
                       {!!this.state.skus && this.state.skus.map((sku) => {
                           // 多选
@@ -866,16 +923,19 @@ class CreatePage extends PureComponent {
                           }
                       })}
                     </div>
-                    <div style={{marginTop:'20px',background:'#fff'}}>
-                      <Table
-                        components={components}
-                        rowClassName={styles.editableRow}
-                        bordered
-                        dataSource={this.state.dataSource}
-                        columns={this.state.columns}
-                        pagination={false}
-                      />
-                    </div>
+
+                    {this.state.dataSource ? 
+                      <div style={{marginTop:'20px',background:'#fff'}}>
+                        <Table
+                          components={components}
+                          rowClassName={styles.editableRow}
+                          bordered
+                          dataSource={this.state.dataSource}
+                          columns={this.state.columns}
+                          pagination={false}
+                        />
+                      </div>
+                    : null}
                 </div>
               </Form.Item>
               <Form.Item {...formItemLayout} label="最小起订量">
@@ -992,43 +1052,58 @@ class CreatePage extends PureComponent {
               >
                 <Upload
                   name={'file'}
-                  listType={"picture-card"}
-                  showUploadList={false}
-                  action={'/api/admin/picture/upload'}
+                  fileList={[]}
+                  multiple={false}
+                  action={'/api/admin/file/upload'}
                   headers={{authorization: 'Bearer ' + sessionStorage['token']}}
                   beforeUpload = {(file) => {
-                    if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
-                      message.error('请上传jpg或png格式的图片!');
+                    let canUpload = false;
+                    let limitType = ['video/x-flv','video/mp4','video/x-msvideo','video/webm','video/mpeg','video/ogg']
+                    for(var i = 0; i < limitType.length; i++) {
+                      if(limitType[i] == file.type) {
+                        canUpload = true;
+                      }
+                    }
+                    if (!canUpload) {
+                      message.error('请上传正确格式的文件!');
                       return false;
                     }
-                    const isLt2M = file.size / 1024 / 1024 < 2;
-                    if (!isLt2M) {
-                      message.error('图片大小不可超过2MB!');
+                    const isLtSize = file.size / 1024 / 1024 < 200;
+                    if (!isLtSize) {
+                      message.error('文件大小不可超过'+200+'MB!');
                       return false;
                     }
                     return true;
                   }}
                   onChange = {(info) => {
-                    if (info.file.status === 'done') {
-                      // Get this url from response in real world.
-                      if (info.file.response.status === 'success') {
-                        let fileList = [];
-                        if (info.file.response) {
-                          info.file.url = info.file.response.data.url;
-                          info.file.uid = info.file.response.data.id;
-                          info.file.id = info.file.response.data.id;
+                    let fileList = info.fileList;
+                    fileList = fileList.slice(-1);
+                    fileList = fileList.map((file) => {
+                      if (file.response) {
+                        if(file.response.status === 'success') {
+                          file.url = file.response.data.url;
+                          file.uid = file.response.data.id;
+                          file.id = file.response.data.id;
                         }
-                        fileList[0] = info.file;
-                        this.setState({ coverId: fileList });
-                      } else {
-                        message.error(info.file.response.msg);
                       }
-                    }
+                      return file;
+                    });
+  
+                    fileList = fileList.filter((file) => {
+                      if (file.response) {
+                        return file.response.status === 'success';
+                      }
+                      return true;
+                    });
+  
+                    fileList[0] = info.file;
+                    this.setState({ fileId: fileList });
+
                   }}
                 >
-                  {this.state.coverId ? (
-                    <img src={this.state.coverId[0]['url']} alt="avatar" width={80} />
-                  ) : (uploadButton)}
+                  <Button>
+                    <Icon type="upload" /> 上传视频
+                  </Button>
                 </Upload>
               </Form.Item>
               <Form.Item {...formItemLayout} label="商品内容">
@@ -1230,11 +1305,15 @@ class CreatePage extends PureComponent {
                   <Switch checkedChildren="出售中" unCheckedChildren="已下架" />,
                 )}
               </Form.Item>
-              <Form.Item wrapperCol={{ span: 12, offset: 4 }}>
-                <Button type="primary" htmlType="submit">
-                  下一步
-                </Button>
-              </Form.Item>
+
+              <Affix offsetBottom={10}>
+                <Form.Item wrapperCol={{ span: 12, offset: 10 }}>
+                  <Button type="primary" htmlType="submit">
+                    下一步，上传商品图片
+                  </Button>
+                </Form.Item>
+              </Affix>
+
             </Form>
           </div>
         </div>
