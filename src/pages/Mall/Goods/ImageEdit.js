@@ -232,7 +232,7 @@ class CreatePage extends PureComponent {
     this.props.dispatch({
       type: 'form/info',
       payload: {
-        actionUrl: 'admin/goods/edit',
+        actionUrl: 'admin/goods/create',
       },
       callback: (res) => {
         if (res) {
@@ -249,7 +249,7 @@ class CreatePage extends PureComponent {
     this.props.dispatch({
       type: 'form/info',
       payload: {
-        actionUrl: 'admin/goods/edit',
+        actionUrl: 'admin/goods/create',
       },
       callback: (res) => {
         if (res) {
@@ -272,7 +272,7 @@ class CreatePage extends PureComponent {
         this.props.dispatch({
           type: 'form/submit',
           payload: {
-            actionUrl: 'admin/goods/save',
+            actionUrl: 'admin/goods/store',
             ...values,
           },
         });

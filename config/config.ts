@@ -266,9 +266,19 @@ export default {
                   component: './Mall/Goods/Create',
                 },
                 {
+                  path: '/mall/goods/imageCreate',
+                  name: 'imageCreate',
+                  component: './Mall/Goods/ImageCreate',
+                },
+                {
                   path: '/mall/goods/edit',
                   name: 'edit',
                   component: './Mall/Goods/Edit',
+                },
+                {
+                  path: '/mall/goods/imageEdit',
+                  name: 'imageEdit',
+                  component: './Mall/Goods/ImageEdit',
                 },
                 {
                   path: '/mall/goods/categoryIndex',
