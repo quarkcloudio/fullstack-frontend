@@ -29,14 +29,14 @@ import {
   Upload,
   message,
   Modal,
-  Steps,
   Cascader,
   TreeSelect,
   Divider,
   Typography,
   Table,
   Popconfirm,
-  Affix
+  Affix,
+  Spin,
 } from 'antd';
 
 const {  RangePicker } = DatePicker;
@@ -44,7 +44,6 @@ const { TextArea } = Input;
 const TabPane = Tabs.TabPane;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
-const { Step } = Steps;
 const { TreeNode } = TreeSelect;
 const { Title } = Typography;
 const EditableContext = React.createContext();
@@ -210,7 +209,7 @@ class CreatePage extends PureComponent {
     shopSpus:false,
     skus:false,
     checkedSkus:[],
-    loading: false,
+    loading: true,
     unitLoading:false,
     layoutLoading:false,
     columns:[],
@@ -226,17 +225,41 @@ class CreatePage extends PureComponent {
     // 获得url参数
     const params = this.props.location.query;
 
-    // loading
-    this.setState({ loading: true });
-
     this.props.dispatch({
       type: 'form/info',
       payload: {
         actionUrl: 'admin/goods/edit',
+        ...params
       },
       callback: (res) => {
         if (res) {
-          this.setState({ data: res.data});
+
+          let showFreightInfo = true;
+          let showSpecialInfo = false;
+
+          if(res.data.goods_mode == 1) {
+            let showFreightInfo = true;
+            let showSpecialInfo = false;
+          } else if(res.data.goods_mode == 2) {
+            let showFreightInfo = false;
+            let showSpecialInfo = true;
+          } else if(res.data.goods_mode == 3) {
+            let showFreightInfo = false;
+            let showSpecialInfo = true;
+          }
+
+          this.setState({
+            loading: false,
+            data: res.data,
+            coverId:res.data.cover_id,
+            fileId:res.data.file_id,
+            showFreightInfo:showFreightInfo,
+            showSpecialInfo:showSpecialInfo,
+            systemSpus: res.data.systemSpus,
+            shopSpus: res.data.shopSpus,
+            skus:res.data.skus
+          });
+          
         }
       }
     });
@@ -610,10 +633,6 @@ class CreatePage extends PureComponent {
       </Form.Item>
     ));
 
-    let state = {
-      loading: false,
-    };
-
     // 单图片上传模式
     let uploadButton = (
       <div>
@@ -684,236 +703,159 @@ class CreatePage extends PureComponent {
       },
     };
 
+    const tabOnChange = (key) => {
+      if(key == 2) {
+        router.push('/mall/goods/imageEdit?id='+this.state.data.id);
+      }
+    }
+
     return (
       <PageHeaderWrapper title={false}>
-        <div style={{background:'#fff',padding:'20px'}}>
-          <Steps current={0} style={{width:'100%',margin:'30px auto'}}>
-            <Step title="填写商品详情" />
-            <Step title="上传商品图片" />
-            <Step title="商品发布成功" />
-          </Steps>
-          <div className="steps-content" style={{width:'100%',margin:'40px auto'}}>
-            <Form onSubmit={this.handleSubmit} style={{ marginTop: 8 }}>
-              <Form.Item {...formItemLayout} label="所属商家">
-                {getFieldDecorator('shop_id')(
-                  <Select
-                    placeholder="请选择所属商家"
-                    style={{ width: 400 }}
-                    onChange={this.onShopChange}
-                  >
-                    {!!this.state.data.shops && this.state.data.shops.map((option) => {
-                      return (<Option key={option.id.toString()}>{option.title}</Option>)
-                    })}
-                  </Select>,
-                )}
-              </Form.Item>
-              <Form.Item {...formItemLayout} label="商品分类">
-                {getFieldDecorator('goods_category_id',{
-                    initialValue: ''
+        <div style={{background:'#fff'}}>
+          <Tabs defaultActiveKey="1" onChange={tabOnChange} tabBarExtraContent={<a href="javascript:history.go(-1)">返回上一页&nbsp;&nbsp;&nbsp;&nbsp;</a>}>
+            <TabPane tab="编辑商品" key="1">
+            <Spin spinning={this.state.loading} tip="Loading...">
+            <div className="steps-content" style={{width:'100%',margin:'40px auto'}}>
+              <Form onSubmit={this.handleSubmit} style={{ marginTop: 8 }}>
+                <Form.Item {...formItemLayout} label="所属商家">
+                  {getFieldDecorator('shop_id',{
+                    initialValue: this.state.data.shop_id ? this.state.data.shop_id.toString() : undefined
                   })(
-                  <Cascader
-                    style={{ width: 400 }}
-                    options={this.state.data.categorys}
-                    placeholder="请选择商品分类"
-                    onChange={this.onCategoryChange}
-                  />,
-                )}
-              </Form.Item>
-              <Form.Item {...formItemLayout} label="商品类别">
-                {getFieldDecorator('goods_mode',{
-                    initialValue: '1'
-                  })(
-                  <Radio.Group onChange={this.onGoodsModeChange}>
-                    <Radio value={'1'}>实物商品（物流发货）</Radio>
-                    <Radio value={'2'}>电子卡券（无需物流）</Radio>
-                    <Radio value={'3'}>服务商品（无需物流）</Radio>
-                  </Radio.Group>,
-                )}
-              </Form.Item>
-              <Form.Item {...formItemLayout} label="扩展分类">
-                {getFieldDecorator('other_category_ids',{
-                    initialValue: undefined
-                  })(
-                  <TreeSelect
-                    treeData={this.state.data.categorys}
-                    showSearch
-                    style={{ width: 400 }}
-                    dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-                    placeholder="请选择扩展分类"
-                    allowClear
-                    multiple
-                    treeDefaultExpandAll
-                  >
-                  </TreeSelect>,
-                )}
-              </Form.Item>
-              <Form.Item {...formItemLayout} label="商品名称">
-                {getFieldDecorator('goods_name',{
-                    initialValue: ''
-                  })(
-                  <Input style={{ width: 400 }} placeholder="请输入规格名称" />,
-                )}
-              </Form.Item>
-              <Form.Item {...formItemLayout} label="关键词">
-                {getFieldDecorator('keywords',{
-                    initialValue: ''
-                  })(
-                  <Input style={{ width: 400 }} placeholder="请输入关键词" />,
-                )}
-              </Form.Item>
-              <Form.Item {...formItemLayout} label="商品买点">
-                {getFieldDecorator('description',{
-                    initialValue: ''
-                  })(
-                  <TextArea
-                    style={{ width: 400 }}
-                    placeholder="请输入商品买点"
-                    autosize={{ minRows: 3, maxRows: 5 }}
-                  />
-                )}
-              </Form.Item>
-              <Form.Item {...formItemLayout} label="计价方式">
-                {getFieldDecorator('pricing_mode',{
-                    initialValue: '1'
-                  })(
-                  <Radio.Group>
-                    <Radio value={'1'}>计件</Radio>
-                    <Radio value={'2'}>计重</Radio>
-                  </Radio.Group>,
-                )}
-              </Form.Item>
-              <Form.Item {...formItemLayout} label="商品单位">
-                {getFieldDecorator('goods_unit_id')(
-                  <Select
-                  placeholder="请选择商品单位"
-                  style={{ width: 200 }}
-                  >
-                    {!!this.state.data.goodsUnits && this.state.data.goodsUnits.map((option) => {
-                      return (<Option key={option.id.toString()}>{option.name}</Option>)
-                    })}
-                  </Select>,
-                )}
-                &nbsp;&nbsp;<Button href="#/admin/mall/goods/unitCreate" target="_blank" type="primary">新建商品单位</Button>
-                &nbsp;&nbsp;<Button onClick={this.reload} loading={this.state.unitLoading}>重新加载</Button>
-              </Form.Item>
-              <Form.Item {...formItemLayout} label="商品品牌">
-                {getFieldDecorator('goods_brand_id')(
-                  <Select
-                  placeholder="请选择商品品牌"
-                  style={{ width: 200 }}
-                  >
-                    {!!this.state.data.goodsBrands && this.state.data.goodsBrands.map((option) => {
-                      return (<Option key={option.id.toString()}>{option.name}</Option>)
-                    })}
-                  </Select>,
-                )}
-              </Form.Item>
-              <Form.Item {...formItemLayout} label="商品属性">
-                <div style={{background:'rgba(93,178,255,.1)',border:'1px solid #bce8f1',borderRadius:'2px',padding:'10px'}}>
-                {this.state.systemSpus ? 
-                  <div style={{width:'100%',borderBottom:'solid 1px #22baa0',lineHeight:'30px'}}>
-                    <span style={{display:'inline-block',padding:'0px 10px',background:'#22baa0',color:'#fff',fontSize:'13px',fontWeight:'700',lineHeight:'30px'}}>平台系统属性</span>
-                  </div>
-                : null}
-
-                    <div style={{marginTop:'20px'}}>
-                      {!!this.state.systemSpus && this.state.systemSpus.map((systemSpu) => {
-                        if(systemSpu.style == 1) {
-                          // 多选
-                          return (
-                            <Form.Item {...attrFormItemLayout} label={systemSpu.name}>
-                              {getFieldDecorator('system_spu_'+systemSpu.id,{
-                                  initialValue: ''
-                                })(
-                                  <Checkbox.Group>
-                                    {!!systemSpu.vname && systemSpu.vname.map((option) => {
-                                      return (<Checkbox value={option.id}>{option.vname}</Checkbox>)
-                                    })}
-                                  </Checkbox.Group>,
-                              )}
-                            </Form.Item>
-                          )
-                        }
-
-                        if(systemSpu.style == 2) {
-                          // 单选
-                          return (
-                            <Form.Item {...attrFormItemLayout} label={systemSpu.name}>
-                              {getFieldDecorator('system_spu_'+systemSpu.id,{
-                                  initialValue: ''
-                                })(
-                                  <Select style={{ width: 200 }}>
-                                    {!!systemSpu.vname && systemSpu.vname.map((option) => {
-                                      return (<Option value={option.id}>{option.vname}</Option>)
-                                    })}
-                                  </Select>,
-                              )}
-                            </Form.Item>
-                          )
-                        }
-
-                        if(systemSpu.style == 3) {
-                          // 输入框
-                          return (
-                            <Form.Item {...attrFormItemLayout} label={systemSpu.name}>
-                              {getFieldDecorator('system_spu_'+systemSpu.id,{
-                                  initialValue: ''
-                                })(
-                                  <Input style={{ width: 200 }} />,
-                              )}
-                            </Form.Item>
-                          )
-                        }
-
+                    <Select
+                      placeholder="请选择所属商家"
+                      style={{ width: 400 }}
+                      onChange={this.onShopChange}
+                    >
+                      {!!this.state.data.shops && this.state.data.shops.map((option) => {
+                        return (<Option key={option.id.toString()}>{option.title}</Option>)
                       })}
-                    </div>
-
+                    </Select>,
+                  )}
+                </Form.Item>
+                <Form.Item {...formItemLayout} label="商品分类">
+                  {getFieldDecorator('goods_category_id',{
+                      initialValue: this.state.data.goods_category_id ? this.state.data.goods_category_id : undefined
+                    })(
+                    <Cascader
+                      style={{ width: 400 }}
+                      options={this.state.data.categorys}
+                      placeholder="请选择商品分类"
+                      onChange={this.onCategoryChange}
+                    />,
+                  )}
+                </Form.Item>
+                <Form.Item {...formItemLayout} label="商品类别">
+                  {getFieldDecorator('goods_mode',{
+                      initialValue: this.state.data.goods_mode ? this.state.data.goods_mode.toString() : undefined
+                    })(
+                    <Radio.Group onChange={this.onGoodsModeChange}>
+                      <Radio value={'1'} disabled={true}>实物商品（物流发货）</Radio>
+                      <Radio value={'2'} disabled={true}>电子卡券（无需物流）</Radio>
+                      <Radio value={'3'} disabled={true}>服务商品（无需物流）</Radio>
+                    </Radio.Group>,
+                  )}
+                </Form.Item>
+                <Form.Item {...formItemLayout} label="扩展分类">
+                  {getFieldDecorator('other_category_ids',{
+                      initialValue: this.state.data.other_category_ids ? this.state.data.other_category_ids : undefined
+                    })(
+                    <TreeSelect
+                      treeData={this.state.data.categorys}
+                      showSearch
+                      style={{ width: 400 }}
+                      dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+                      placeholder="请选择扩展分类"
+                      allowClear
+                      multiple
+                      treeDefaultExpandAll
+                    >
+                    </TreeSelect>,
+                  )}
+                </Form.Item>
+                <Form.Item {...formItemLayout} label="商品名称">
+                  {getFieldDecorator('goods_name',{
+                      initialValue: this.state.data.goods_name
+                    })(
+                    <Input style={{ width: 400 }} placeholder="请输入规格名称" />,
+                  )}
+                </Form.Item>
+                <Form.Item {...formItemLayout} label="关键词">
+                  {getFieldDecorator('keywords',{
+                      initialValue: this.state.data.keywords
+                    })(
+                    <Input style={{ width: 400 }} placeholder="请输入关键词" />,
+                  )}
+                </Form.Item>
+                <Form.Item {...formItemLayout} label="商品买点">
+                  {getFieldDecorator('description',{
+                      initialValue: this.state.data.description
+                    })(
+                    <TextArea
+                      style={{ width: 400 }}
+                      placeholder="请输入商品买点"
+                      autosize={{ minRows: 3, maxRows: 5 }}
+                    />
+                  )}
+                </Form.Item>
+                <Form.Item {...formItemLayout} label="计价方式">
+                  {getFieldDecorator('pricing_mode',{
+                      initialValue: this.state.data.pricing_mode ? this.state.data.pricing_mode.toString() : undefined
+                    })(
+                    <Radio.Group>
+                      <Radio value={'1'}>计件</Radio>
+                      <Radio value={'2'}>计重</Radio>
+                    </Radio.Group>,
+                  )}
+                </Form.Item>
+                <Form.Item {...formItemLayout} label="商品单位">
+                  {getFieldDecorator('goods_unit_id',{
+                      initialValue: this.state.data.goods_unit_id ? this.state.data.goods_unit_id.toString() : undefined
+                    })(
+                    <Select
+                    placeholder="请选择商品单位"
+                    style={{ width: 200 }}
+                    >
+                      {!!this.state.data.goodsUnits && this.state.data.goodsUnits.map((option) => {
+                        return (<Option key={option.id.toString()}>{option.name}</Option>)
+                      })}
+                    </Select>,
+                  )}
+                  &nbsp;&nbsp;<Button href="#/admin/mall/goods/unitCreate" target="_blank" type="primary">新建商品单位</Button>
+                  &nbsp;&nbsp;<Button onClick={this.reload} loading={this.state.unitLoading}>重新加载</Button>
+                </Form.Item>
+                <Form.Item {...formItemLayout} label="商品品牌">
+                  {getFieldDecorator('goods_brand_id',{
+                      initialValue: this.state.data.goods_brand_id ? this.state.data.goods_brand_id.toString() : undefined
+                    })(
+                    <Select
+                    placeholder="请选择商品品牌"
+                    style={{ width: 200 }}
+                    >
+                      {!!this.state.data.goodsBrands && this.state.data.goodsBrands.map((option) => {
+                        return (<Option key={option.id.toString()}>{option.name}</Option>)
+                      })}
+                    </Select>,
+                  )}
+                </Form.Item>
+                <Form.Item {...formItemLayout} label="商品属性">
+                  <div style={{background:'rgba(93,178,255,.1)',border:'1px solid #bce8f1',borderRadius:'2px',padding:'10px'}}>
+                  {this.state.systemSpus ? 
                     <div style={{width:'100%',borderBottom:'solid 1px #22baa0',lineHeight:'30px'}}>
-                      <span style={{display:'inline-block',padding:'0px 10px',background:'#22baa0',color:'#fff',fontSize:'13px',fontWeight:'700',lineHeight:'30px'}}>店铺自定义属性</span>
+                      <span style={{display:'inline-block',padding:'0px 10px',background:'#22baa0',color:'#fff',fontSize:'13px',fontWeight:'700',lineHeight:'30px'}}>平台系统属性</span>
                     </div>
-                    <div style={{marginTop:'20px'}}>
-                      {formItems}
-                      <Button type="primary" icon="plus" onClick={this.add} >添加自定义属性</Button>
-                    </div>
-                </div>
-              </Form.Item>
-              <Form.Item {...formItemLayout} label="商品规格">
-                <div style={{background:'rgba(93,178,255,.1)',border:'1px solid #bce8f1',borderRadius:'2px',padding:'10px'}}>
-                    
-                    {this.state.skus ? 
+                  : null}
+
                       <div style={{marginTop:'20px'}}>
-                        <Form.Item {...skuFormItemLayout} label='选择规格'>
-                          {getFieldDecorator('sku',{
-                              initialValue: ''
-                            })(
-                              <Checkbox.Group
-                                onChange={this.onSkuChange}
-                              >
-                              {!!this.state.skus && this.state.skus.map((sku) => {
-                                  // 多选
-                                  return (
-                                    <Checkbox value={sku.id}>{sku.name}</Checkbox>
-                                  )
-                              })}
-                            </Checkbox.Group>
-                          )}
-                        </Form.Item>
-                      </div>
-                    : null}
-                    
-                    <div style={{marginTop:'20px'}}>
-                      {!!this.state.skus && this.state.skus.map((sku) => {
-                          // 多选
-                          if(this.state.checkedSkus.indexOf(sku.id) != -1) {
+                        {!!this.state.systemSpus && this.state.systemSpus.map((systemSpu) => {
+                          if(systemSpu.style == 1) {
+                            // 多选
                             return (
-                              <Form.Item {...attrFormItemLayout} label={sku.name}>
-                                {getFieldDecorator('sku'+sku.id,{
+                              <Form.Item {...attrFormItemLayout} label={systemSpu.name}>
+                                {getFieldDecorator('system_spu_'+systemSpu.id,{
                                     initialValue: ''
                                   })(
-                                    <Checkbox.Group
-                                      onChange={(value) => this.onSkuValueChange(value,sku.id)}
-                                    >
-                                      {!!sku.vname && sku.vname.map((option) => {
+                                    <Checkbox.Group>
+                                      {!!systemSpu.vname && systemSpu.vname.map((option) => {
                                         return (<Checkbox value={option.id}>{option.vname}</Checkbox>)
                                       })}
                                     </Checkbox.Group>,
@@ -921,401 +863,502 @@ class CreatePage extends PureComponent {
                               </Form.Item>
                             )
                           }
-                      })}
-                    </div>
 
-                    {this.state.dataSource ? 
-                      <div style={{marginTop:'20px',background:'#fff'}}>
-                        <Table
-                          components={components}
-                          rowClassName={styles.editableRow}
-                          bordered
-                          dataSource={this.state.dataSource}
-                          columns={this.state.columns}
-                          pagination={false}
-                        />
+                          if(systemSpu.style == 2) {
+                            // 单选
+                            return (
+                              <Form.Item {...attrFormItemLayout} label={systemSpu.name}>
+                                {getFieldDecorator('system_spu_'+systemSpu.id,{
+                                    initialValue: ''
+                                  })(
+                                    <Select style={{ width: 200 }}>
+                                      {!!systemSpu.vname && systemSpu.vname.map((option) => {
+                                        return (<Option value={option.id}>{option.vname}</Option>)
+                                      })}
+                                    </Select>,
+                                )}
+                              </Form.Item>
+                            )
+                          }
+
+                          if(systemSpu.style == 3) {
+                            // 输入框
+                            return (
+                              <Form.Item {...attrFormItemLayout} label={systemSpu.name}>
+                                {getFieldDecorator('system_spu_'+systemSpu.id,{
+                                    initialValue: ''
+                                  })(
+                                    <Input style={{ width: 200 }} />,
+                                )}
+                              </Form.Item>
+                            )
+                          }
+
+                        })}
                       </div>
-                    : null}
-                </div>
-              </Form.Item>
-              <Form.Item {...formItemLayout} label="最小起订量">
-                {getFieldDecorator('goods_moq',{
-                    initialValue: ''
-                  })(
-                  <InputNumber style={{ width: 200 }} placeholder="最小起订量" />,
-                )}
-              </Form.Item>
-              <Form.Item {...formItemLayout} label="店铺价">
-                {getFieldDecorator('goods_price',{
-                    initialValue: ''
-                  })(
-                  <InputNumber step={0.01} style={{ width: 200 }} placeholder="请输入店铺价" />,
-                )}
-              </Form.Item>
-              <Form.Item {...formItemLayout} label="市场价">
-                {getFieldDecorator('market_price',{
-                    initialValue: 0
-                  })(
-                  <InputNumber step={0.01} style={{ width: 200 }} placeholder="请输入市场价" />,
-                )}
-              </Form.Item>
-              <Form.Item {...formItemLayout} label="成本价">
-                {getFieldDecorator('cost_price',{
-                    initialValue: 0
-                  })(
-                  <InputNumber step={0.01} style={{ width: 200 }} placeholder="请输入成本价" />,
-                )}
-              </Form.Item>
-              <Form.Item {...formItemLayout} label="商品库存">
-                {getFieldDecorator('stock_num',{
-                    initialValue: 0
-                  })(
-                  <InputNumber style={{ width: 200 }} placeholder="请输入商品库存" />,
-                )}
-              </Form.Item>
-              <Form.Item {...formItemLayout} label="库存警告数量">
-                {getFieldDecorator('warn_num',{
-                    initialValue: 0
-                  })(
-                  <InputNumber style={{ width: 200 }} placeholder="请输入库存警告数量" />,
-                )}
-              </Form.Item>
-              <Form.Item {...formItemLayout} label="商品货号">
-                {getFieldDecorator('goods_sn',{
-                    initialValue: ''
-                  })(
-                  <Input style={{ width: 400 }} placeholder="请输入商品货号" />,
-                )}
-              </Form.Item>
-              <Form.Item {...formItemLayout} label="商品条形码">
-                {getFieldDecorator('goods_barcode',{
-                    initialValue: ''
-                  })(
-                  <Input style={{ width: 400 }} placeholder="请输入商品条形码" />,
-                )}
-              </Form.Item>
-              <Form.Item {...formItemLayout} label="商品库位码">
-                {getFieldDecorator('goods_stockcode',{
-                    initialValue: ''
-                  })(
-                  <Input style={{ width: 400 }} placeholder="请输入商品库位码" />,
-                )}
-              </Form.Item>
-              <Form.Item
-                {...formItemLayout}
-                label="商品主图"
-              >
-                <Upload
-                  name={'file'}
-                  listType={"picture-card"}
-                  showUploadList={false}
-                  action={'/api/admin/picture/upload'}
-                  headers={{authorization: 'Bearer ' + sessionStorage['token']}}
-                  beforeUpload = {(file) => {
-                    if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
-                      message.error('请上传jpg或png格式的图片!');
-                      return false;
-                    }
-                    const isLt2M = file.size / 1024 / 1024 < 2;
-                    if (!isLt2M) {
-                      message.error('图片大小不可超过2MB!');
-                      return false;
-                    }
-                    return true;
-                  }}
-                  onChange = {(info) => {
-                    if (info.file.status === 'done') {
-                      // Get this url from response in real world.
-                      if (info.file.response.status === 'success') {
-                        let fileList = [];
-                        if (info.file.response) {
-                          info.file.url = info.file.response.data.url;
-                          info.file.uid = info.file.response.data.id;
-                          info.file.id = info.file.response.data.id;
-                        }
-                        fileList[0] = info.file;
-                        this.setState({ coverId: fileList });
-                      } else {
-                        message.error(info.file.response.msg);
-                      }
-                    }
-                  }}
+
+                      <div style={{width:'100%',borderBottom:'solid 1px #22baa0',lineHeight:'30px'}}>
+                        <span style={{display:'inline-block',padding:'0px 10px',background:'#22baa0',color:'#fff',fontSize:'13px',fontWeight:'700',lineHeight:'30px'}}>店铺自定义属性</span>
+                      </div>
+                      <div style={{marginTop:'20px'}}>
+                        {formItems}
+                        <Button type="primary" icon="plus" onClick={this.add} >添加自定义属性</Button>
+                      </div>
+                  </div>
+                </Form.Item>
+                <Form.Item {...formItemLayout} label="商品规格">
+                  <div style={{background:'rgba(93,178,255,.1)',border:'1px solid #bce8f1',borderRadius:'2px',padding:'10px'}}>
+                      
+                      {this.state.skus ? 
+                        <div style={{marginTop:'20px'}}>
+                          <Form.Item {...skuFormItemLayout} label='选择规格'>
+                            {getFieldDecorator('sku',{
+                                initialValue: ''
+                              })(
+                                <Checkbox.Group
+                                  onChange={this.onSkuChange}
+                                >
+                                {!!this.state.skus && this.state.skus.map((sku) => {
+                                    // 多选
+                                    return (
+                                      <Checkbox value={sku.id}>{sku.name}</Checkbox>
+                                    )
+                                })}
+                              </Checkbox.Group>
+                            )}
+                          </Form.Item>
+                        </div>
+                      : null}
+                      
+                      <div style={{marginTop:'20px'}}>
+                        {!!this.state.skus && this.state.skus.map((sku) => {
+                            // 多选
+                            if(this.state.checkedSkus.indexOf(sku.id) != -1) {
+                              return (
+                                <Form.Item {...attrFormItemLayout} label={sku.name}>
+                                  {getFieldDecorator('sku'+sku.id,{
+                                      initialValue: ''
+                                    })(
+                                      <Checkbox.Group
+                                        onChange={(value) => this.onSkuValueChange(value,sku.id)}
+                                      >
+                                        {!!sku.vname && sku.vname.map((option) => {
+                                          return (<Checkbox value={option.id}>{option.vname}</Checkbox>)
+                                        })}
+                                      </Checkbox.Group>,
+                                  )}
+                                </Form.Item>
+                              )
+                            }
+                        })}
+                      </div>
+
+                      {this.state.dataSource ? 
+                        <div style={{marginTop:'20px',background:'#fff'}}>
+                          <Table
+                            components={components}
+                            rowClassName={styles.editableRow}
+                            bordered
+                            dataSource={this.state.dataSource}
+                            columns={this.state.columns}
+                            pagination={false}
+                          />
+                        </div>
+                      : null}
+                  </div>
+                </Form.Item>
+                <Form.Item {...formItemLayout} label="最小起订量">
+                  {getFieldDecorator('goods_moq',{
+                      initialValue: this.state.data.goods_moq
+                    })(
+                    <InputNumber style={{ width: 200 }} placeholder="最小起订量" />,
+                  )}
+                </Form.Item>
+                <Form.Item {...formItemLayout} label="店铺价">
+                  {getFieldDecorator('goods_price',{
+                      initialValue: this.state.data.goods_price
+                    })(
+                    <InputNumber step={0.01} style={{ width: 200 }} placeholder="请输入店铺价" />,
+                  )}
+                </Form.Item>
+                <Form.Item {...formItemLayout} label="市场价">
+                  {getFieldDecorator('market_price',{
+                      initialValue: this.state.data.market_price
+                    })(
+                    <InputNumber step={0.01} style={{ width: 200 }} placeholder="请输入市场价" />,
+                  )}
+                </Form.Item>
+                <Form.Item {...formItemLayout} label="成本价">
+                  {getFieldDecorator('cost_price',{
+                      initialValue: this.state.data.cost_price
+                    })(
+                    <InputNumber step={0.01} style={{ width: 200 }} placeholder="请输入成本价" />,
+                  )}
+                </Form.Item>
+                <Form.Item {...formItemLayout} label="商品库存">
+                  {getFieldDecorator('stock_num',{
+                      initialValue: this.state.data.stock_num
+                    })(
+                    <InputNumber style={{ width: 200 }} placeholder="请输入商品库存" />,
+                  )}
+                </Form.Item>
+                <Form.Item {...formItemLayout} label="库存警告数量">
+                  {getFieldDecorator('warn_num',{
+                      initialValue: this.state.data.warn_num
+                    })(
+                    <InputNumber style={{ width: 200 }} placeholder="请输入库存警告数量" />,
+                  )}
+                </Form.Item>
+                <Form.Item {...formItemLayout} label="商品货号">
+                  {getFieldDecorator('goods_sn',{
+                      initialValue: this.state.data.goods_sn
+                    })(
+                    <Input style={{ width: 400 }} placeholder="请输入商品货号" />,
+                  )}
+                </Form.Item>
+                <Form.Item {...formItemLayout} label="商品条形码">
+                  {getFieldDecorator('goods_barcode',{
+                      initialValue: this.state.data.goods_barcode
+                    })(
+                    <Input style={{ width: 400 }} placeholder="请输入商品条形码" />,
+                  )}
+                </Form.Item>
+                <Form.Item {...formItemLayout} label="商品库位码">
+                  {getFieldDecorator('goods_stockcode',{
+                      initialValue: this.state.data.goods_stockcode
+                    })(
+                    <Input style={{ width: 400 }} placeholder="请输入商品库位码" />,
+                  )}
+                </Form.Item>
+                <Form.Item
+                  {...formItemLayout}
+                  label="商品主图"
                 >
-                  {this.state.coverId ? (
-                    <img src={this.state.coverId[0]['url']} alt="avatar" width={80} />
-                  ) : (uploadButton)}
-                </Upload>
-              </Form.Item>
-              <Form.Item
-                {...formItemLayout}
-                label="主图视频"
-              >
-                <Upload
-                  name={'file'}
-                  fileList={[]}
-                  multiple={false}
-                  action={'/api/admin/file/upload'}
-                  headers={{authorization: 'Bearer ' + sessionStorage['token']}}
-                  beforeUpload = {(file) => {
-                    let canUpload = false;
-                    let limitType = ['video/x-flv','video/mp4','video/x-msvideo','video/webm','video/mpeg','video/ogg']
-                    for(var i = 0; i < limitType.length; i++) {
-                      if(limitType[i] == file.type) {
-                        canUpload = true;
+                  <Upload
+                    name={'file'}
+                    listType={"picture-card"}
+                    showUploadList={false}
+                    action={'/api/admin/picture/upload'}
+                    headers={{authorization: 'Bearer ' + sessionStorage['token']}}
+                    beforeUpload = {(file) => {
+                      if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
+                        message.error('请上传jpg或png格式的图片!');
+                        return false;
                       }
-                    }
-                    if (!canUpload) {
-                      message.error('请上传正确格式的文件!');
-                      return false;
-                    }
-                    const isLtSize = file.size / 1024 / 1024 < 200;
-                    if (!isLtSize) {
-                      message.error('文件大小不可超过'+200+'MB!');
-                      return false;
-                    }
-                    return true;
-                  }}
-                  onChange = {(info) => {
-                    let fileList = info.fileList;
-                    fileList = fileList.slice(-1);
-                    fileList = fileList.map((file) => {
-                      if (file.response) {
-                        if(file.response.status === 'success') {
-                          file.url = file.response.data.url;
-                          file.uid = file.response.data.id;
-                          file.id = file.response.data.id;
-                        }
-                      }
-                      return file;
-                    });
-  
-                    fileList = fileList.filter((file) => {
-                      if (file.response) {
-                        return file.response.status === 'success';
+                      const isLt2M = file.size / 1024 / 1024 < 2;
+                      if (!isLt2M) {
+                        message.error('图片大小不可超过2MB!');
+                        return false;
                       }
                       return true;
-                    });
-  
-                    fileList[0] = info.file;
-                    this.setState({ fileId: fileList });
-
-                  }}
-                >
-                  <Button>
-                    <Icon type="upload" /> 上传视频
-                  </Button>
-                </Upload>
-              </Form.Item>
-              <Form.Item {...formItemLayout} label="商品内容">
-                <Tabs defaultActiveKey="1">
-                  <TabPane tab="电脑端" key="1">
-                    <div style={{border: '1px solid #ccc;'}}>
-                      {getFieldDecorator('pc_content',{
-                        initialValue: BraftEditor.createEditorState(),
-                      })(
-                        <BraftEditor
-                          contentStyle={{'height' : 400, 'boxShadow' : 'inset 0 1px 3px rgba(0,0,0,.1)'}}
-                          media={{ uploadFn: handleEditorUpload }}
-                        />
-                      )}
-                    </div>
-                  </TabPane>
-                  <TabPane tab="手机端" key="2">
-                    <div style={{border: '1px solid #ccc;'}}>
-                      {getFieldDecorator('mobile_content',{
-                        initialValue: BraftEditor.createEditorState(),
-                      })(
-                        <BraftEditor
-                          contentStyle={{'height' : 400, 'boxShadow' : 'inset 0 1px 3px rgba(0,0,0,.1)'}}
-                          media={{ uploadFn: handleEditorUpload }}
-                        />
-                      )}
-                    </div>
-                  </TabPane>
-                </Tabs>
-              </Form.Item>
-
-              <Form.Item {...formItemLayout} label="详情版式">
-                顶部模板&nbsp;
-                {getFieldDecorator('top_layout_id',{
-                  initialValue:'0'
-                })(
-                  <Select
-                    placeholder="请选择顶部模板"
-                    style={{ width: 200 }}
+                    }}
+                    onChange = {(info) => {
+                      if (info.file.status === 'done') {
+                        // Get this url from response in real world.
+                        if (info.file.response.status === 'success') {
+                          let fileList = [];
+                          if (info.file.response) {
+                            info.file.url = info.file.response.data.url;
+                            info.file.uid = info.file.response.data.id;
+                            info.file.id = info.file.response.data.id;
+                          }
+                          fileList[0] = info.file;
+                          this.setState({ coverId: fileList });
+                        } else {
+                          message.error(info.file.response.msg);
+                        }
+                      }
+                    }}
                   >
-                    <Option key='0'>不使用</Option>
-                    {!!this.state.data.topLayouts && this.state.data.topLayouts.map((option) => {
-                      return (<Option key={option.id.toString()}>{option.layout_name}</Option>)
-                    })}
-                  </Select>,
-                )}
-                &nbsp;&nbsp;
-                底部模板&nbsp;
-                {getFieldDecorator('bottom_layout_id',{
-                  initialValue:'0'
-                })(
-                  <Select
-                    placeholder="请选择底部模板"
-                    style={{ width: 200 }}
-                  >
-                    <Option key='0'>不使用</Option>
-                    {!!this.state.data.bottomLayouts && this.state.data.bottomLayouts.map((option) => {
-                      return (<Option key={option.id.toString()}>{option.layout_name}</Option>)
-                    })}
-                  </Select>,
-                )}
-                <br></br>
-                包装清单版式&nbsp;
-                {getFieldDecorator('packing_layout_id',{
-                  initialValue:'0'
-                })(
-                  <Select
-                    placeholder="请选择包装清单版式"
-                    style={{ width: 200 }}
-                  >
-                    <Option key='0'>不使用</Option>
-                    {!!this.state.data.packingLayouts && this.state.data.packingLayouts.map((option) => {
-                      return (<Option key={option.id.toString()}>{option.layout_name}</Option>)
-                    })}
-                  </Select>,
-                )}
-                &nbsp;&nbsp;
-                售后保障版式&nbsp;
-                {getFieldDecorator('service_layout_id',{
-                  initialValue:'0'
-                })(
-                  <Select
-                    placeholder="请选择售后保障版式"
-                    style={{ width: 200 }}
-                  >
-                    <Option key='0'>不使用</Option>
-                    {!!this.state.data.serviceLayouts && this.state.data.serviceLayouts.map((option) => {
-                      return (<Option key={option.id.toString()}>{option.layout_name}</Option>)
-                    })}
-                  </Select>,
-                )}
-                <br></br>
-                <Button href="#/admin/mall/goods/layoutCreate" target="_blank" type="primary">新建详情版式</Button>
-                &nbsp;&nbsp;<Button onClick={this.reload} loading={this.state.layoutLoading}>重新加载</Button>
-              </Form.Item>
-              <span style={{display:this.state.showFreightInfo?'block':'none'}}>
-              <Form.Item {...formItemLayout} label="物流重量(Kg)">
-                {getFieldDecorator('goods_weight',{
-                    initialValue: 0
-                  })(
-                  <InputNumber style={{ width: 200 }} placeholder="物流重量" />,
-                )}
-                &nbsp;Kg
-              </Form.Item>
-              <Form.Item {...formItemLayout} label="物流体积(m³)">
-                {getFieldDecorator('goods_volume',{
-                    initialValue: 0
-                  })(
-                  <InputNumber style={{ width: 200 }} placeholder="物流体积" />,
-                )}
-                &nbsp;m³
-              </Form.Item>
-              </span>
-              <span style={{display:this.state.showSpecialInfo?'block':'none'}}>
-              <Form.Item {...formItemLayout} label="兑换生效期">
-                {getFieldDecorator('effective_type',{
-                    initialValue: '1'
-                  })(
-                  <Radio.Group>
-                    <Radio value={'1'}>付款完成立即生效</Radio><br></br>
-                    <Radio value={'2'}>付款完成</Radio>
-                    {getFieldDecorator('effective_hour',{
-                        initialValue: 0
-                      })(
-                      <InputNumber style={{ width: 60 }} />,
-                    )}&nbsp;&nbsp;
-                    小时后生效<br></br>
-                    <Radio value={'3'}>付款完成次日生效</Radio>
-                  </Radio.Group>,
-                )}
-              </Form.Item>
-              <Form.Item {...formItemLayout} label="使用有效期">
-                {getFieldDecorator('valid_period_type',{
-                    initialValue: '1'
-                  })(
-                  <Radio.Group>
-                    <Radio value={'1'}>长期有效</Radio><br></br>
-                    <Radio value={'2'}>日期范围内有效</Radio>
-                    {getFieldDecorator('add_time')(
-                      <RangePicker
-                        showTime={{
-                          hideDisabledOptions: true,
-                          defaultValue: [moment('00:00:00', 'HH:mm:ss'), moment('23:59:59', 'HH:mm:ss')],
-                        }}
-                        format="YYYY-MM-DD HH:mm:ss"
-                      />
-                    )}<br></br>
-                    <Radio value={'3'}> 自购买之日起，</Radio>
-                    {getFieldDecorator('valid_period_hour',{
-                        initialValue: 0
-                      })(
-                      <InputNumber style={{ width: 60 }} />,
-                    )}&nbsp;&nbsp;
-                    小时内有效<br></br>
-                    <Radio value={'4'}> 自购买之日起，</Radio>
-                    {getFieldDecorator('valid_period_day',{
-                        initialValue: 0
-                      })(
-                      <InputNumber style={{ width: 60 }} />,
-                    )}&nbsp;&nbsp;
-                    天内有效
-                  </Radio.Group>,
-                )}
-              </Form.Item>
-              <Form.Item {...formItemLayout} label="支持过期退款">
-                {getFieldDecorator('is_expired_refund',{
-                    initialValue: true,
-                    valuePropName: 'checked'
-                  })(
-                  <Switch checkedChildren="是" unCheckedChildren="否" />,
-                )}
-              </Form.Item>
-              </span>
-              <Form.Item {...formItemLayout} label="排序">
-                {getFieldDecorator('sort',{
-                    initialValue: 0
-                  })(
-                  <InputNumber style={{ width: 200 }} placeholder="排序" />,
-                )}
-              </Form.Item>
-              <Form.Item {...formItemLayout} label="库存计数" help="①拍下减库存：买家拍下商品即减少库存，存在恶拍风险。热销商品如需避免超卖可选此方式
-②付款减库存：买家拍下并完成付款方可减少库存，存在超卖风险。如需减少恶拍、提高回款效率，可选此方式；货到付款时将在卖家确认订单时减库存
-③出库减库存：卖家发货时减库存，如果库存充实，需要确保线上库存与线下库存保持一致，可选此方式">
-                {getFieldDecorator('pricing_mode',{
-                    initialValue: '1'
-                  })(
-                  <Radio.Group>
-                    <Radio value={'1'}>拍下减库存</Radio>
-                    <Radio value={'2'}>付款减库存</Radio>
-                    <Radio value={'3'}>出库减库存</Radio>
-                  </Radio.Group>,
-                )}
-              </Form.Item>
-              <Form.Item {...formItemLayout} label="状态">
-                {getFieldDecorator('status',{
-                    initialValue: true,
-                    valuePropName: 'checked'
-                  })(
-                  <Switch checkedChildren="出售中" unCheckedChildren="已下架" />,
-                )}
-              </Form.Item>
-
-              <Affix offsetBottom={10}>
-                <Form.Item wrapperCol={{ span: 12, offset: 10 }}>
-                  <Button type="primary" htmlType="submit">
-                    下一步，上传商品图片
-                  </Button>
+                    {this.state.coverId ? (
+                      <img src={this.state.coverId[0]['url']} alt="avatar" width={80} />
+                    ) : (uploadButton)}
+                  </Upload>
                 </Form.Item>
-              </Affix>
+                <Form.Item
+                  {...formItemLayout}
+                  label="主图视频"
+                >
+                  <Upload
+                    name={'file'}
+                    fileList={this.state.fileId}
+                    multiple={false}
+                    action={'/api/admin/file/upload'}
+                    headers={{authorization: 'Bearer ' + sessionStorage['token']}}
+                    beforeUpload = {(file) => {
+                      let canUpload = false;
+                      let limitType = ['video/x-flv','video/mp4','video/x-msvideo','video/webm','video/mpeg','video/ogg']
+                      for(var i = 0; i < limitType.length; i++) {
+                        if(limitType[i] == file.type) {
+                          canUpload = true;
+                        }
+                      }
+                      if (!canUpload) {
+                        message.error('请上传正确格式的文件!');
+                        return false;
+                      }
+                      const isLtSize = file.size / 1024 / 1024 < 200;
+                      if (!isLtSize) {
+                        message.error('文件大小不可超过'+200+'MB!');
+                        return false;
+                      }
+                      return true;
+                    }}
+                    onChange = {(info) => {
+                      let fileList = info.fileList;
+                      fileList = fileList.slice(-1);
+                      fileList = fileList.map((file) => {
+                        if (file.response) {
+                          if(file.response.status === 'success') {
+                            file.url = file.response.data.url;
+                            file.uid = file.response.data.id;
+                            file.id = file.response.data.id;
+                          }
+                        }
+                        return file;
+                      });
+    
+                      fileList = fileList.filter((file) => {
+                        if (file.response) {
+                          return file.response.status === 'success';
+                        }
+                        return true;
+                      });
+    
+                      fileList[0] = info.file;
+                      this.setState({ fileId: fileList });
 
-            </Form>
-          </div>
+                    }}
+                  >
+                    <Button>
+                      <Icon type="upload" /> 上传视频
+                    </Button>
+                  </Upload>
+                </Form.Item>
+                <Form.Item {...formItemLayout} label="商品内容">
+                  <Tabs defaultActiveKey="1">
+                    <TabPane tab="电脑端" key="1">
+                      <div style={{border: '1px solid #ccc;'}}>
+                        {getFieldDecorator('pc_content',{
+                          initialValue:this.state.data.pc_content,
+                        })(
+                          <BraftEditor
+                            contentStyle={{'height' : 400, 'boxShadow' : 'inset 0 1px 3px rgba(0,0,0,.1)'}}
+                            media={{ uploadFn: handleEditorUpload }}
+                          />
+                        )}
+                      </div>
+                    </TabPane>
+                    <TabPane tab="手机端" key="2">
+                      <div style={{border: '1px solid #ccc;'}}>
+                        {getFieldDecorator('mobile_content',{
+                          initialValue:this.state.data.mobile_content,
+                        })(
+                          <BraftEditor
+                            contentStyle={{'height' : 400, 'boxShadow' : 'inset 0 1px 3px rgba(0,0,0,.1)'}}
+                            media={{ uploadFn: handleEditorUpload }}
+                          />
+                        )}
+                      </div>
+                    </TabPane>
+                  </Tabs>
+                </Form.Item>
+
+                <Form.Item {...formItemLayout} label="详情版式">
+                  顶部模板&nbsp;
+                  {getFieldDecorator('top_layout_id',{
+                    initialValue:this.state.data.top_layout_id ? this.state.data.top_layout_id.toString() : '0'
+                  })(
+                    <Select
+                      placeholder="请选择顶部模板"
+                      style={{ width: 200 }}
+                    >
+                      <Option key='0'>不使用</Option>
+                      {!!this.state.data.topLayouts && this.state.data.topLayouts.map((option) => {
+                        return (<Option key={option.id.toString()}>{option.layout_name}</Option>)
+                      })}
+                    </Select>,
+                  )}
+                  &nbsp;&nbsp;
+                  底部模板&nbsp;
+                  {getFieldDecorator('bottom_layout_id',{
+                    initialValue:this.state.data.bottom_layout_id ? this.state.data.bottom_layout_id.toString() : '0'
+                  })(
+                    <Select
+                      placeholder="请选择底部模板"
+                      style={{ width: 200 }}
+                    >
+                      <Option key='0'>不使用</Option>
+                      {!!this.state.data.bottomLayouts && this.state.data.bottomLayouts.map((option) => {
+                        return (<Option key={option.id.toString()}>{option.layout_name}</Option>)
+                      })}
+                    </Select>,
+                  )}
+                  <br></br>
+                  包装清单版式&nbsp;
+                  {getFieldDecorator('packing_layout_id',{
+                    initialValue:this.state.data.packing_layout_id ? this.state.data.packing_layout_id.toString() : '0'
+                  })(
+                    <Select
+                      placeholder="请选择包装清单版式"
+                      style={{ width: 200 }}
+                    >
+                      <Option key='0'>不使用</Option>
+                      {!!this.state.data.packingLayouts && this.state.data.packingLayouts.map((option) => {
+                        return (<Option key={option.id.toString()}>{option.layout_name}</Option>)
+                      })}
+                    </Select>,
+                  )}
+                  &nbsp;&nbsp;
+                  售后保障版式&nbsp;
+                  {getFieldDecorator('service_layout_id',{
+                    initialValue:this.state.data.service_layout_id ? this.state.data.service_layout_id.toString() : '0'
+                  })(
+                    <Select
+                      placeholder="请选择售后保障版式"
+                      style={{ width: 200 }}
+                    >
+                      <Option key='0'>不使用</Option>
+                      {!!this.state.data.serviceLayouts && this.state.data.serviceLayouts.map((option) => {
+                        return (<Option key={option.id.toString()}>{option.layout_name}</Option>)
+                      })}
+                    </Select>,
+                  )}
+                  <br></br>
+                  <Button href="#/admin/mall/goods/layoutCreate" target="_blank" type="primary">新建详情版式</Button>
+                  &nbsp;&nbsp;<Button onClick={this.reload} loading={this.state.layoutLoading}>重新加载</Button>
+                </Form.Item>
+                <span style={{display:this.state.showFreightInfo?'block':'none'}}>
+                <Form.Item {...formItemLayout} label="物流重量(Kg)">
+                  {getFieldDecorator('goods_weight',{
+                      initialValue: this.state.data.goods_weight
+                    })(
+                    <InputNumber style={{ width: 200 }} placeholder="物流重量" />,
+                  )}
+                  &nbsp;Kg
+                </Form.Item>
+                <Form.Item {...formItemLayout} label="物流体积(m³)">
+                  {getFieldDecorator('goods_volume',{
+                      initialValue:this.state.data.goods_volume
+                    })(
+                    <InputNumber style={{ width: 200 }} placeholder="物流体积" />,
+                  )}
+                  &nbsp;m³
+                </Form.Item>
+                </span>
+                <span style={{display:this.state.showSpecialInfo?'block':'none'}}>
+                <Form.Item {...formItemLayout} label="兑换生效期">
+                  {getFieldDecorator('effective_type',{
+                      initialValue: this.state.data.effective_type ? this.state.data.effective_type.toString() : undefined
+                    })(
+                    <Radio.Group>
+                      <Radio value={'1'}>付款完成立即生效</Radio><br></br>
+                      <Radio value={'2'}>付款完成</Radio>
+                      {getFieldDecorator('effective_hour',{
+                          initialValue: this.state.data.effective_hour
+                        })(
+                        <InputNumber style={{ width: 60 }} />,
+                      )}&nbsp;&nbsp;
+                      小时后生效<br></br>
+                      <Radio value={'3'}>付款完成次日生效</Radio>
+                    </Radio.Group>,
+                  )}
+                </Form.Item>
+                <Form.Item {...formItemLayout} label="使用有效期">
+                  {getFieldDecorator('valid_period_type',{
+                      initialValue: this.state.data.valid_period_type ? this.state.data.valid_period_type.toString() : undefined
+                    })(
+                    <Radio.Group>
+                      <Radio value={'1'}>长期有效</Radio><br></br>
+                      <Radio value={'2'}>日期范围内有效</Radio>
+                      {getFieldDecorator('add_time',{
+                        initialValue: [
+                          !!this.state.data.add_time_begin&&moment(this.state.data.add_time_begin, 'YYYY-MM-DD HH:mm:ss'),
+                          !!this.state.data.add_time_end&&moment(this.state.data.add_time_end, 'YYYY-MM-DD HH:mm:ss')
+                        ]
+                      })(
+                        <RangePicker
+                          showTime={{
+                            hideDisabledOptions: true,
+                            defaultValue: [moment('00:00:00', 'HH:mm:ss'), moment('23:59:59', 'HH:mm:ss')],
+                          }}
+                          format="YYYY-MM-DD HH:mm:ss"
+                        />
+                      )}<br></br>
+                      <Radio value={'3'}> 自购买之日起，</Radio>
+                      {getFieldDecorator('valid_period_hour',{
+                          initialValue: this.state.data.valid_period_hour
+                        })(
+                        <InputNumber style={{ width: 60 }} />,
+                      )}&nbsp;&nbsp;
+                      小时内有效<br></br>
+                      <Radio value={'4'}> 自购买之日起，</Radio>
+                      {getFieldDecorator('valid_period_day',{
+                          initialValue: this.state.data.valid_period_day
+                        })(
+                        <InputNumber style={{ width: 60 }} />,
+                      )}&nbsp;&nbsp;
+                      天内有效
+                    </Radio.Group>,
+                  )}
+                </Form.Item>
+                <Form.Item {...formItemLayout} label="支持过期退款">
+                  {getFieldDecorator('is_expired_refund',{
+                      initialValue: this.state.data.is_expired_refund,
+                      valuePropName: 'checked'
+                    })(
+                    <Switch checkedChildren="是" unCheckedChildren="否" />,
+                  )}
+                </Form.Item>
+                </span>
+                <Form.Item {...formItemLayout} label="排序">
+                  {getFieldDecorator('sort',{
+                      initialValue: this.state.data.sort
+                    })(
+                    <InputNumber style={{ width: 200 }} placeholder="排序" />,
+                  )}
+                </Form.Item>
+                <Form.Item {...formItemLayout} label="库存计数" help="①拍下减库存：买家拍下商品即减少库存，存在恶拍风险。热销商品如需避免超卖可选此方式
+  ②付款减库存：买家拍下并完成付款方可减少库存，存在超卖风险。如需减少恶拍、提高回款效率，可选此方式；货到付款时将在卖家确认订单时减库存
+  ③出库减库存：卖家发货时减库存，如果库存充实，需要确保线上库存与线下库存保持一致，可选此方式">
+                  {getFieldDecorator('pricing_mode',{
+                      initialValue: this.state.data.pricing_mode ? this.state.data.pricing_mode.toString() : undefined
+                    })(
+                    <Radio.Group>
+                      <Radio value={'1'}>拍下减库存</Radio>
+                      <Radio value={'2'}>付款减库存</Radio>
+                      <Radio value={'3'}>出库减库存</Radio>
+                    </Radio.Group>,
+                  )}
+                </Form.Item>
+                <Form.Item {...formItemLayout} label="状态">
+                  {getFieldDecorator('status',{
+                      initialValue: this.state.data.status,
+                      valuePropName: 'checked'
+                    })(
+                    <Switch checkedChildren="出售中" unCheckedChildren="已下架" />,
+                  )}
+                </Form.Item>
+
+                <Affix offsetBottom={10}>
+                  <Form.Item wrapperCol={{ span: 12, offset: 10 }}>
+                    <Button href="#/admin/mall/goods/index">
+                      返回商品列表
+                    </Button>
+                    &nbsp;&nbsp;
+                    <Button type="primary" htmlType="submit">
+                      确认提交
+                    </Button>
+                  </Form.Item>
+                </Affix>
+
+              </Form>
+            </div>
+            </Spin>
+            </TabPane>
+            <TabPane tab="编辑图片" key="2">
+            </TabPane>
+          </Tabs>
         </div>
       </PageHeaderWrapper>
     );

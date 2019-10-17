@@ -281,6 +281,11 @@ export default {
                   component: './Mall/Goods/ImageEdit',
                 },
                 {
+                  path: '/mall/goods/complete',
+                  name: 'complete',
+                  component: './Mall/Goods/Complete',
+                },
+                {
                   path: '/mall/goods/categoryIndex',
                   name: 'categoryIndex',
                   component: './Mall/Goods/CategoryIndex',

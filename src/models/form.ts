@@ -1,6 +1,7 @@
 import { routerRedux } from 'dva/router';
 import { Reducer } from 'redux';
 import { Effect,Subscription } from 'dva';
+import router from 'umi/router';
 import { message } from 'antd';
 import { 
   get,
@@ -112,11 +113,7 @@ const form: ModelType = {
 
         // 页面跳转
         if(response.url) {
-          yield put(
-            routerRedux.push({
-              pathname: response.url,
-            }),
-          );
+          router.push(response.url);
         }
 
         if (callback && typeof callback === 'function') {
