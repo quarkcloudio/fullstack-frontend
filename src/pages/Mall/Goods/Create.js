@@ -206,16 +206,16 @@ class CreatePage extends PureComponent {
     showSpecialInfo:false,
     shopId:'',
     categoryId:'',
-    systemSpus:false,
-    shopSpus:false,
-    skus:false,
-    checkedSkus:[],
+    systemGoodsAttributes:false,
+    shopGoodsAttributes:false,
+    goodsAttributes:false,
+    checkedGoodsAttributes:[],
     loading: false,
     unitLoading:false,
     layoutLoading:false,
     columns:[],
     dataSource:false,
-    checkedSkuValues:[],
+    checkedGoodsAttributeValues:[],
     coverId:false,
     fileId:false,
   };
@@ -262,7 +262,7 @@ class CreatePage extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
-      values['sku_values'] = this.state.dataSource;
+      values['goods_skus'] = this.state.dataSource;
       values['pc_content'] = values['pc_content'].toHTML();
       values['mobile_content'] = values['mobile_content'].toHTML();
       values['cover_id'] = this.state.coverId;
@@ -320,23 +320,27 @@ class CreatePage extends PureComponent {
       },
       callback: (res) => {
         if (res) {
-          this.setState({ systemSpus: res.data.systemSpus,shopSpus: res.data.shopSpus,skus:res.data.skus});
+          this.setState({ 
+            systemGoodsAttributes: res.data.systemGoodsAttributes,
+            shopGoodsAttributes: res.data.shopGoodsAttributes,
+            goodsAttributes:res.data.goodsAttributes
+          });
         }
       }
     });
 
   };
 
-  onSkuChange = value => {
+  onGoodsAttributeChange = value => {
     this.setState({
-      checkedSkus: value,
+      checkedGoodsAttributes: value,
     });
   };
 
-  onSkuValueChange = (skuValues,skuId) => {
+  onGoodsAttributeValueChange = (goodsAttributeValues,goodsAttributeId) => {
 
-    let checkedSkuValues = this.state.checkedSkuValues;
-    checkedSkuValues[skuId] = skuValues;
+    let checkedGoodsAttributeValues = this.state.checkedGoodsAttributeValues;
+    checkedGoodsAttributeValues[goodsAttributeId] = goodsAttributeValues;
 
     let getColumns = [];
 
@@ -346,10 +350,10 @@ class CreatePage extends PureComponent {
     };
     getColumns.push(col);
 
-    if(this.state.checkedSkus) {
-      this.state.skus.map(value => {
-        if(this.state.checkedSkus.indexOf(value.id) != -1) {
-          checkedSkuValues.map((value1,index) => {
+    if(this.state.checkedGoodsAttributes) {
+      this.state.goodsAttributes.map(value => {
+        if(this.state.checkedGoodsAttributes.indexOf(value.id) != -1) {
+          checkedGoodsAttributeValues.map((value1,index) => {
             if(value.id == index && value1.length != 0) {
               col = {
                 title: value.name,
@@ -428,7 +432,7 @@ class CreatePage extends PureComponent {
     let dataSource = [];
     let dataSourceLength = 0;
 
-    let descarteValues = this.descartes(checkedSkuValues);
+    let descarteValues = this.descartes(checkedGoodsAttributeValues);
 
     if(descarteValues.length != 0) {
 
@@ -448,11 +452,11 @@ class CreatePage extends PureComponent {
   
         if(descarteValue.length !=undefined ) {
           descarteValue.map((mapDescarteValue) => {
-            this.state.skus.map((sku) => {
-              sku.vname.map((vname) => {
+            this.state.goodsAttributes.map((goodsAttribute) => {
+              goodsAttribute.vname.map((vname) => {
                 if(vname.id == mapDescarteValue) {
-                  colValue[sku.id] = vname.vname;
-                  colValue['sku_'+sku.id] = 'sku_id:'+sku.id+';sku_name:'+sku.name+';sku_value_id:'+vname.id+';sku_value_name:'+vname.vname;
+                  colValue[goodsAttribute.id] = vname.vname;
+                  colValue['goodsAttribute_'+goodsAttribute.id] = 'goodsAttribute_id:'+goodsAttribute.id+';goodsAttribute_name:'+goodsAttribute.name+';goodsAttribute_value_id:'+vname.id+';goodsAttribute_value_name:'+vname.vname;
                 }
               });
             });
@@ -463,7 +467,7 @@ class CreatePage extends PureComponent {
       });
     } else {
 
-      checkedSkuValues.map((descarteValue,index) => {
+      checkedGoodsAttributeValues.map((descarteValue,index) => {
   
         if(descarteValue.length !=undefined ) {
           descarteValue.map((mapDescarteValue) => {
@@ -480,10 +484,10 @@ class CreatePage extends PureComponent {
             colValue['goods_sn'] = '';
             colValue['goods_barcode'] = '';
 
-            this.state.skus.map((sku) => {
-              sku.vname.map((vname) => {
+            this.state.goodsAttributes.map((goodsAttribute) => {
+              goodsAttribute.vname.map((vname) => {
                 if(vname.id == mapDescarteValue) {
-                  colValue[sku.id] = vname.vname;
+                  colValue[goodsAttribute.id] = vname.vname;
                   dataSource.push(colValue);
                 }
               });
@@ -495,9 +499,9 @@ class CreatePage extends PureComponent {
       });
     }
 
-    console.log(checkedSkuValues)
+    console.log(checkedGoodsAttributeValues)
 
-    this.setState({ dataSource: dataSource,columns: columns,checkedSkuValues: checkedSkuValues});
+    this.setState({ dataSource: dataSource,columns: columns,checkedGoodsAttributeValues: checkedGoodsAttributeValues});
   };
 
   descartes = array => {
@@ -571,7 +575,7 @@ class CreatePage extends PureComponent {
       },
     };
 
-    const skuFormItemLayout = {
+    const goodsAttributeFormItemLayout = {
       labelCol: {
         xs: { span: 24 },
         sm: { span: 3 },
@@ -596,10 +600,10 @@ class CreatePage extends PureComponent {
         required={false}
         key={k}
       >
-        {getFieldDecorator(`shop_spu_names[${k}]`)(
+        {getFieldDecorator(`shop_goods_attribute_names[${k}]`)(
           <Input placeholder="属性名" style={{ width: '100px', marginRight: 8 }} />
         )}: 
-        {getFieldDecorator(`shop_spu_values[${k}]`)(
+        {getFieldDecorator(`shop_goods_attribute_values[${k}]`)(
           <Input placeholder="属性值，多个值间用英文逗号分割" style={{ width: '400px', marginLeft: 8, marginRight: 8 }} />
         )}
         <Icon
@@ -810,23 +814,23 @@ class CreatePage extends PureComponent {
               </Form.Item>
               <Form.Item {...formItemLayout} label="商品属性">
                 <div style={{background:'rgba(93,178,255,.1)',border:'1px solid #bce8f1',borderRadius:'2px',padding:'10px'}}>
-                {this.state.systemSpus ? 
+                {this.state.systemGoodsAttributes ? 
                   <div style={{width:'100%',borderBottom:'solid 1px #22baa0',lineHeight:'30px'}}>
                     <span style={{display:'inline-block',padding:'0px 10px',background:'#22baa0',color:'#fff',fontSize:'13px',fontWeight:'700',lineHeight:'30px'}}>平台系统属性</span>
                   </div>
                 : null}
 
                     <div style={{marginTop:'20px'}}>
-                      {!!this.state.systemSpus && this.state.systemSpus.map((systemSpu) => {
-                        if(systemSpu.style == 1) {
+                      {!!this.state.systemGoodsAttributes && this.state.systemGoodsAttributes.map((systemGoodsAttribute) => {
+                        if(systemGoodsAttribute.style == 1) {
                           // 多选
                           return (
-                            <Form.Item {...attrFormItemLayout} label={systemSpu.name}>
-                              {getFieldDecorator('system_spu_'+systemSpu.id,{
+                            <Form.Item {...attrFormItemLayout} label={systemGoodsAttribute.name}>
+                              {getFieldDecorator('system_goods_attribute_'+systemGoodsAttribute.id,{
                                   initialValue: ''
                                 })(
                                   <Checkbox.Group>
-                                    {!!systemSpu.vname && systemSpu.vname.map((option) => {
+                                    {!!systemGoodsAttribute.vname && systemGoodsAttribute.vname.map((option) => {
                                       return (<Checkbox value={option.id}>{option.vname}</Checkbox>)
                                     })}
                                   </Checkbox.Group>,
@@ -835,15 +839,15 @@ class CreatePage extends PureComponent {
                           )
                         }
 
-                        if(systemSpu.style == 2) {
+                        if(systemGoodsAttribute.style == 2) {
                           // 单选
                           return (
-                            <Form.Item {...attrFormItemLayout} label={systemSpu.name}>
-                              {getFieldDecorator('system_spu_'+systemSpu.id,{
+                            <Form.Item {...attrFormItemLayout} label={systemGoodsAttribute.name}>
+                              {getFieldDecorator('system_goods_attribute_'+systemGoodsAttribute.id,{
                                   initialValue: ''
                                 })(
                                   <Select style={{ width: 200 }}>
-                                    {!!systemSpu.vname && systemSpu.vname.map((option) => {
+                                    {!!systemGoodsAttribute.vname && systemGoodsAttribute.vname.map((option) => {
                                       return (<Option value={option.id}>{option.vname}</Option>)
                                     })}
                                   </Select>,
@@ -852,11 +856,11 @@ class CreatePage extends PureComponent {
                           )
                         }
 
-                        if(systemSpu.style == 3) {
+                        if(systemGoodsAttribute.style == 3) {
                           // 输入框
                           return (
-                            <Form.Item {...attrFormItemLayout} label={systemSpu.name}>
-                              {getFieldDecorator('system_spu_'+systemSpu.id,{
+                            <Form.Item {...attrFormItemLayout} label={systemGoodsAttribute.name}>
+                              {getFieldDecorator('system_goods_attribute_'+systemGoodsAttribute.id,{
                                   initialValue: ''
                                 })(
                                   <Input style={{ width: 200 }} />,
@@ -880,19 +884,19 @@ class CreatePage extends PureComponent {
               <Form.Item {...formItemLayout} label="商品规格">
                 <div style={{background:'rgba(93,178,255,.1)',border:'1px solid #bce8f1',borderRadius:'2px',padding:'10px'}}>
                     
-                    {this.state.skus ? 
+                    {this.state.goodsAttributes ? 
                       <div style={{marginTop:'20px'}}>
-                        <Form.Item {...skuFormItemLayout} label='选择规格'>
-                          {getFieldDecorator('sku',{
+                        <Form.Item {...goodsAttributeFormItemLayout} label='选择规格'>
+                          {getFieldDecorator('goodsAttribute',{
                               initialValue: ''
                             })(
                               <Checkbox.Group
-                                onChange={this.onSkuChange}
+                                onChange={this.onGoodsAttributeChange}
                               >
-                              {!!this.state.skus && this.state.skus.map((sku) => {
+                              {!!this.state.goodsAttributes && this.state.goodsAttributes.map((goodsAttribute) => {
                                   // 多选
                                   return (
-                                    <Checkbox value={sku.id}>{sku.name}</Checkbox>
+                                    <Checkbox value={goodsAttribute.id}>{goodsAttribute.name}</Checkbox>
                                   )
                               })}
                             </Checkbox.Group>
@@ -902,18 +906,18 @@ class CreatePage extends PureComponent {
                     : null}
                     
                     <div style={{marginTop:'20px'}}>
-                      {!!this.state.skus && this.state.skus.map((sku) => {
+                      {!!this.state.goodsAttributes && this.state.goodsAttributes.map((goodsAttribute) => {
                           // 多选
-                          if(this.state.checkedSkus.indexOf(sku.id) != -1) {
+                          if(this.state.checkedGoodsAttributes.indexOf(goodsAttribute.id) != -1) {
                             return (
-                              <Form.Item {...attrFormItemLayout} label={sku.name}>
-                                {getFieldDecorator('sku'+sku.id,{
+                              <Form.Item {...attrFormItemLayout} label={goodsAttribute.name}>
+                                {getFieldDecorator('goodsAttribute'+goodsAttribute.id,{
                                     initialValue: ''
                                   })(
                                     <Checkbox.Group
-                                      onChange={(value) => this.onSkuValueChange(value,sku.id)}
+                                      onChange={(value) => this.onGoodsAttributeValueChange(value,goodsAttribute.id)}
                                     >
-                                      {!!sku.vname && sku.vname.map((option) => {
+                                      {!!goodsAttribute.vname && goodsAttribute.vname.map((option) => {
                                         return (<Checkbox value={option.id}>{option.vname}</Checkbox>)
                                       })}
                                     </Checkbox.Group>,

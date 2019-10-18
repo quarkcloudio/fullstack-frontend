@@ -217,6 +217,7 @@ class CreatePage extends PureComponent {
     checkedSkuValues:[],
     coverId:false,
     fileId:false,
+    keys:[]
   };
 
   // 当挂在模板时，初始化数据
@@ -248,6 +249,8 @@ class CreatePage extends PureComponent {
             let showSpecialInfo = true;
           }
 
+          console.log(res.data.checkedSkuValues);
+
           this.setState({
             loading: false,
             data: res.data,
@@ -257,9 +260,14 @@ class CreatePage extends PureComponent {
             showSpecialInfo:showSpecialInfo,
             systemSpus: res.data.systemSpus,
             shopSpus: res.data.shopSpus,
-            skus:res.data.skus
+            skus:res.data.skus,
+            keys:res.data.keys,
+            checkedSkus: res.data.checkedSkus,
+            checkedSkuValues:res.data.checkedSkuValues
           });
-          
+          id = res.data.keys.length;
+
+          this.initSkuValue();
         }
       }
     });
@@ -359,6 +367,10 @@ class CreatePage extends PureComponent {
   onSkuValueChange = (skuValues,skuId) => {
 
     let checkedSkuValues = this.state.checkedSkuValues;
+    let getCheckedSkuValues = [];
+    getCheckedSkuValues['value'] = skuValues;
+    getCheckedSkuValues['id'] = skuId;
+
     checkedSkuValues[skuId] = skuValues;
 
     let getColumns = [];
@@ -523,6 +535,170 @@ class CreatePage extends PureComponent {
     this.setState({ dataSource: dataSource,columns: columns,checkedSkuValues: checkedSkuValues});
   };
 
+  initSkuValue = () => {
+
+    let checkedSkuValues = this.state.data.checkedSkuValues;
+
+    let getColumns = [];
+
+    let col = {
+      title: 'ID',
+      dataIndex: 'id',
+    };
+    getColumns.push(col);
+
+    if(this.state.checkedSkus) {
+      this.state.skus.map(value => {
+        if(this.state.checkedSkus.indexOf(value.id) != -1) {
+          checkedSkuValues.map((value1,index) => {
+            if(value.id == index && value1.length != 0) {
+              col = {
+                title: value.name,
+                dataIndex: value.id,
+              };
+              getColumns.push(col);
+            }
+          })
+        }
+      });
+    }
+
+    let defaultColumns = [
+      {
+        title: '市场价',
+        dataIndex: 'market_price',
+        editable: true,
+      },
+      {
+        title: '成本价',
+        dataIndex: 'cost_price',
+        editable: true,
+      },
+      {
+        title: '店铺价',
+        dataIndex: 'goods_price',
+        editable: true,
+      },
+      {
+        title: '库存',
+        dataIndex: 'stock_num',
+        editable: true,
+      },
+      {
+        title: '商品货号',
+        dataIndex: 'goods_sn',
+        editable: true,
+      },
+      {
+        title: '商品条形码',
+        dataIndex: 'goods_barcode',
+        editable: true,
+      },
+      {
+        title: '操作',
+        dataIndex: 'operation',
+        render: (text, record) =>
+          this.state.dataSource.length >= 1 ? (
+            <Popconfirm title="确定要禁用吗？" onConfirm={() => this.handleDelete(record.key)}>
+              <a>禁用</a>
+            </Popconfirm>
+          ) : null,
+      },
+    ];
+
+    defaultColumns.map(value => {
+      getColumns.push(value);
+    });
+
+    let columns = getColumns.map(col => {
+      if (!col.editable) {
+        return col;
+      }
+      return {
+        ...col,
+        onCell: record => ({
+          record,
+          editable: col.editable,
+          dataIndex: col.dataIndex,
+          title: col.title,
+          handleSave: this.handleSave,
+        }),
+      };
+    });
+
+    let dataSource = [];
+    let dataSourceLength = 0;
+
+    let descarteValues = this.descartes(checkedSkuValues);
+
+    if(descarteValues.length != 0) {
+
+      descarteValues.map((descarteValue) => {
+
+        dataSourceLength = dataSourceLength + 1;
+  
+        let colValue = [];
+        colValue['id'] = dataSourceLength;
+        colValue['key'] = dataSourceLength;
+        colValue['market_price'] = '';
+        colValue['cost_price'] = '';
+        colValue['goods_price'] = '';
+        colValue['stock_num'] = '';
+        colValue['goods_sn'] = '';
+        colValue['goods_barcode'] = '';
+  
+        if(descarteValue.length !=undefined ) {
+          descarteValue.map((mapDescarteValue) => {
+            this.state.skus.map((sku) => {
+              sku.vname.map((vname) => {
+                if(vname.id == mapDescarteValue) {
+                  colValue[sku.id] = vname.vname;
+                  colValue['sku_'+sku.id] = 'sku_id:'+sku.id+';sku_name:'+sku.name+';sku_value_id:'+vname.id+';sku_value_name:'+vname.vname;
+                }
+              });
+            });
+          })
+        }
+  
+        dataSource.push(colValue);
+      });
+    } else {
+
+      checkedSkuValues.map((descarteValue,index) => {
+  
+        if(descarteValue.length !=undefined ) {
+          descarteValue.map((mapDescarteValue) => {
+
+            dataSourceLength = dataSourceLength + 1;
+  
+            let colValue = [];
+            colValue['id'] = dataSourceLength;
+            colValue['key'] = dataSourceLength;
+            colValue['market_price'] = '';
+            colValue['cost_price'] = '';
+            colValue['goods_price'] = '';
+            colValue['stock_num'] = '';
+            colValue['goods_sn'] = '';
+            colValue['goods_barcode'] = '';
+
+            this.state.skus.map((sku) => {
+              sku.vname.map((vname) => {
+                if(vname.id == mapDescarteValue) {
+                  colValue[sku.id] = vname.vname;
+                  dataSource.push(colValue);
+                }
+              });
+            });
+
+          })
+        }
+  
+      });
+    }
+
+    this.setState({ dataSource: dataSource,columns: columns,checkedSkuValues: checkedSkuValues});
+  };
+
   descartes = array => {
 
     let i = 0;
@@ -611,18 +787,24 @@ class CreatePage extends PureComponent {
         sm: { span: 24, offset: 0 },
       },
     };
-    getFieldDecorator('keys', { initialValue: [] });
+    getFieldDecorator('keys', { initialValue: this.state.keys });
+
     const keys = getFieldValue('keys');
+
     const formItems = keys.map((k, index) => (
       <Form.Item
         {...formItemLayoutWithOutLabel}
         required={false}
         key={k}
       >
-        {getFieldDecorator(`shop_spu_names[${k}]`)(
+        {getFieldDecorator(`shop_spu_names[${k}]`,{
+            initialValue: this.state.shopSpus[k] ? this.state.shopSpus[k]['other_attr_name'] :''
+          })(
           <Input placeholder="属性名" style={{ width: '100px', marginRight: 8 }} />
         )}: 
-        {getFieldDecorator(`shop_spu_values[${k}]`)(
+        {getFieldDecorator(`shop_spu_values[${k}]`,{
+            initialValue: this.state.shopSpus[k] ? this.state.shopSpus[k]['other_attr_value'] :''
+          })(
           <Input placeholder="属性值，多个值间用英文逗号分割" style={{ width: '400px', marginLeft: 8, marginRight: 8 }} />
         )}
         <Icon
@@ -852,7 +1034,7 @@ class CreatePage extends PureComponent {
                             return (
                               <Form.Item {...attrFormItemLayout} label={systemSpu.name}>
                                 {getFieldDecorator('system_spu_'+systemSpu.id,{
-                                    initialValue: ''
+                                    initialValue: systemSpu.goods_attribute_value_id
                                   })(
                                     <Checkbox.Group>
                                       {!!systemSpu.vname && systemSpu.vname.map((option) => {
@@ -869,7 +1051,7 @@ class CreatePage extends PureComponent {
                             return (
                               <Form.Item {...attrFormItemLayout} label={systemSpu.name}>
                                 {getFieldDecorator('system_spu_'+systemSpu.id,{
-                                    initialValue: ''
+                                    initialValue: systemSpu.goods_attribute_value_id
                                   })(
                                     <Select style={{ width: 200 }}>
                                       {!!systemSpu.vname && systemSpu.vname.map((option) => {
@@ -886,7 +1068,7 @@ class CreatePage extends PureComponent {
                             return (
                               <Form.Item {...attrFormItemLayout} label={systemSpu.name}>
                                 {getFieldDecorator('system_spu_'+systemSpu.id,{
-                                    initialValue: ''
+                                    initialValue: systemSpu.goods_attribute_value_id
                                   })(
                                     <Input style={{ width: 200 }} />,
                                 )}
@@ -913,7 +1095,7 @@ class CreatePage extends PureComponent {
                         <div style={{marginTop:'20px'}}>
                           <Form.Item {...skuFormItemLayout} label='选择规格'>
                             {getFieldDecorator('sku',{
-                                initialValue: ''
+                                initialValue: this.state.checkedSkus ? this.state.checkedSkus : undefined
                               })(
                                 <Checkbox.Group
                                   onChange={this.onSkuChange}
@@ -937,7 +1119,7 @@ class CreatePage extends PureComponent {
                               return (
                                 <Form.Item {...attrFormItemLayout} label={sku.name}>
                                   {getFieldDecorator('sku'+sku.id,{
-                                      initialValue: ''
+                                      initialValue: this.state.checkedSkuValues[sku.id]
                                     })(
                                       <Checkbox.Group
                                         onChange={(value) => this.onSkuValueChange(value,sku.id)}
