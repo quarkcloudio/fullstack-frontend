@@ -10,7 +10,7 @@ class IndexPage extends PureComponent {
   render() {
     return (
       <PageHeaderWrapper title={false}>
-        <BasicList url={'admin/admin/index'} />
+        <BasicList url={'admin/goods/attributeIndex'} />
       </PageHeaderWrapper>
     );
   }

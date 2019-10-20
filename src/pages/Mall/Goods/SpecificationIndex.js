@@ -10,7 +10,7 @@ class IndexPage extends PureComponent {
   render() {
     return (
       <PageHeaderWrapper title={false}>
-        <BasicList url={'admin/goods/spuIndex'} />
+        <BasicList url={'admin/goods/specificationIndex'} />
       </PageHeaderWrapper>
     );
   }
