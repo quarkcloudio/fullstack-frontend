@@ -129,7 +129,9 @@ const ModalForm: React.SFC<ModalFormProps> = props => {
           }
 
           if(control.componentName == 'datePicker') {
-            values[control.name] = values[control.name].format('YYYY-MM-DD HH:mm:ss');
+            if(values[control.name]) {
+              values[control.name] = values[control.name].format('YYYY-MM-DD HH:mm:ss');
+            }
           }
 
           if(control.componentName == 'rangePicker') {
