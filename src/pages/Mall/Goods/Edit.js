@@ -248,7 +248,7 @@ class CreatePage extends PureComponent {
             keys: res.data.keys,
             checkedGoodsAttributes: res.data.checkedGoodsAttributes,
             checkedGoodsAttributeValues: res.data.checkedGoodsAttributeValues,
-            goodsSkus:res.data.goodsSkus
+            goodsSkus: res.data.goodsSkus,
           });
 
           id = res.data.keys.length;
@@ -263,10 +263,13 @@ class CreatePage extends PureComponent {
     // unitLoading
     this.setState({ unitLoading: true, layoutLoading: true });
 
+    const params = this.props.location.query;
+
     this.props.dispatch({
       type: 'form/info',
       payload: {
         actionUrl: 'admin/goods/edit',
+        ...params,
       },
       callback: res => {
         if (res) {
@@ -279,6 +282,8 @@ class CreatePage extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
+      const params = this.props.location.query;
+
       values['goods_skus'] = this.state.dataSource;
       values['pc_content'] = values['pc_content'].toHTML();
       values['mobile_content'] = values['mobile_content'].toHTML();
@@ -291,6 +296,7 @@ class CreatePage extends PureComponent {
           payload: {
             actionUrl: 'admin/goods/save',
             ...values,
+            ...params,
           },
         });
       }
@@ -353,12 +359,21 @@ class CreatePage extends PureComponent {
   };
 
   onGoodsAttributeValueChange = (goodsAttributeValues, goodsAttributeId) => {
-    let checkedGoodsAttributeValues = this.state.checkedGoodsAttributeValues;
-    let getCheckedGoodsAttributeValues = [];
-    getCheckedGoodsAttributeValues['value'] = goodsAttributeValues;
-    getCheckedGoodsAttributeValues['id'] = goodsAttributeId;
+    let checkedGoodsAttributeValues = [];
 
-    checkedGoodsAttributeValues[goodsAttributeId] = goodsAttributeValues;
+    this.state.checkedGoodsAttributes.map(checkedGoodsAttribute => {
+      let getCheckedGoodsAttributeValues = [];
+      if (goodsAttributeId == checkedGoodsAttribute) {
+        getCheckedGoodsAttributeValues['value'] = goodsAttributeValues;
+      } else {
+        getCheckedGoodsAttributeValues['value'] = this.props.form.getFieldValue(
+          'goodsAttribute' + checkedGoodsAttribute,
+        );
+      }
+
+      getCheckedGoodsAttributeValues['id'] = checkedGoodsAttribute;
+      checkedGoodsAttributeValues.push(getCheckedGoodsAttributeValues);
+    });
 
     let getColumns = [];
 
@@ -367,6 +382,8 @@ class CreatePage extends PureComponent {
       dataIndex: 'id',
     };
     getColumns.push(col);
+
+    let tempCheckedGoodsAttributeValues = [];
 
     if (this.state.checkedGoodsAttributes) {
       this.state.goodsAttributes.map(value => {
@@ -378,6 +395,7 @@ class CreatePage extends PureComponent {
                 dataIndex: value.id,
               };
               getColumns.push(col);
+              tempCheckedGoodsAttributeValues.push(value1['value']);
             }
           });
         }
@@ -450,7 +468,7 @@ class CreatePage extends PureComponent {
     let dataSource = [];
     let dataSourceLength = 0;
 
-    let descarteValues = this.descartes(checkedGoodsAttributeValues);
+    let descarteValues = this.descartes(tempCheckedGoodsAttributeValues);
 
     if (descarteValues.length != 0) {
       descarteValues.map(descarteValue => {
@@ -461,8 +479,12 @@ class CreatePage extends PureComponent {
         colValue['key'] = dataSourceLength;
 
         this.state.goodsSkus.map(goodsSku => {
-          console.log(goodsSku.goods_attribute_info == descarteValue);
-          if(goodsSku.goods_attribute_info == descarteValue) {
+          console.log(
+            goodsSku.goods_attribute_info.sort().toString() +
+              '==' +
+              descarteValue.sort().toString(),
+          );
+          if (goodsSku.goods_attribute_info.sort().toString() == descarteValue.sort().toString()) {
             colValue['market_price'] = goodsSku['market_price'];
             colValue['cost_price'] = goodsSku['cost_price'];
             colValue['goods_price'] = goodsSku['goods_price'];
@@ -504,12 +526,23 @@ class CreatePage extends PureComponent {
             let colValue = [];
             colValue['id'] = dataSourceLength;
             colValue['key'] = dataSourceLength;
-            colValue['market_price'] = '';
-            colValue['cost_price'] = '';
-            colValue['goods_price'] = '';
-            colValue['stock_num'] = '';
-            colValue['goods_sn'] = '';
-            colValue['goods_barcode'] = '';
+            this.state.goodsSkus.map(goodsSku => {
+              console.log(
+                goodsSku.goods_attribute_info.sort().toString() +
+                  '==' +
+                  descarteValue.sort().toString(),
+              );
+              if (
+                goodsSku.goods_attribute_info.sort().toString() == descarteValue.sort().toString()
+              ) {
+                colValue['market_price'] = goodsSku['market_price'];
+                colValue['cost_price'] = goodsSku['cost_price'];
+                colValue['goods_price'] = goodsSku['goods_price'];
+                colValue['stock_num'] = goodsSku['stock_num'];
+                colValue['goods_sn'] = goodsSku['goods_sn'];
+                colValue['goods_barcode'] = goodsSku['goods_barcode'];
+              }
+            });
 
             this.state.goodsAttributes.map(goodsAttribute => {
               goodsAttribute.vname.map(vname => {
@@ -641,8 +674,12 @@ class CreatePage extends PureComponent {
         colValue['id'] = dataSourceLength;
         colValue['key'] = dataSourceLength;
         this.state.goodsSkus.map(goodsSku => {
-          console.log(goodsSku.goods_attribute_info.sort().toString()+ '=='+ descarteValue.sort().toString());
-          if(goodsSku.goods_attribute_info.sort().toString() == descarteValue.sort().toString()) {
+          console.log(
+            goodsSku.goods_attribute_info.sort().toString() +
+              '==' +
+              descarteValue.sort().toString(),
+          );
+          if (goodsSku.goods_attribute_info.sort().toString() == descarteValue.sort().toString()) {
             colValue['market_price'] = goodsSku['market_price'];
             colValue['cost_price'] = goodsSku['cost_price'];
             colValue['goods_price'] = goodsSku['goods_price'];
@@ -684,12 +721,24 @@ class CreatePage extends PureComponent {
             let colValue = [];
             colValue['id'] = dataSourceLength;
             colValue['key'] = dataSourceLength;
-            colValue['market_price'] = '';
-            colValue['cost_price'] = '';
-            colValue['goods_price'] = '';
-            colValue['stock_num'] = '';
-            colValue['goods_sn'] = '';
-            colValue['goods_barcode'] = '';
+
+            this.state.goodsSkus.map(goodsSku => {
+              console.log(
+                goodsSku.goods_attribute_info.sort().toString() +
+                  '==' +
+                  descarteValue.sort().toString(),
+              );
+              if (
+                goodsSku.goods_attribute_info.sort().toString() == descarteValue.sort().toString()
+              ) {
+                colValue['market_price'] = goodsSku['market_price'];
+                colValue['cost_price'] = goodsSku['cost_price'];
+                colValue['goods_price'] = goodsSku['goods_price'];
+                colValue['stock_num'] = goodsSku['stock_num'];
+                colValue['goods_sn'] = goodsSku['goods_sn'];
+                colValue['goods_barcode'] = goodsSku['goods_barcode'];
+              }
+            });
 
             this.state.goodsAttributes.map(goodsAttribute => {
               goodsAttribute.vname.map(vname => {
@@ -1460,7 +1509,9 @@ class CreatePage extends PureComponent {
                         <TabPane tab="电脑端" key="1">
                           <div style={{ border: '1px solid #ccc;' }}>
                             {getFieldDecorator('pc_content', {
-                              initialValue: this.state.data.pc_content,
+                              initialValue: BraftEditor.createEditorState(
+                                this.state.data.pc_content,
+                              ),
                             })(
                               <BraftEditor
                                 contentStyle={{
@@ -1475,7 +1526,9 @@ class CreatePage extends PureComponent {
                         <TabPane tab="手机端" key="2">
                           <div style={{ border: '1px solid #ccc;' }}>
                             {getFieldDecorator('mobile_content', {
-                              initialValue: this.state.data.mobile_content,
+                              initialValue: BraftEditor.createEditorState(
+                                this.state.data.mobile_content,
+                              ),
                             })(
                               <BraftEditor
                                 contentStyle={{
