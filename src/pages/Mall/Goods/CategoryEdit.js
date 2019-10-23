@@ -82,6 +82,11 @@ class EditPage extends PureComponent {
       },
       callback: res => {
         if (res) {
+
+          if(res.data.cover_id == 0) {
+            res.data.cover_id = false;
+          }
+
           this.setState({
             data: res.data,
             coverId: res.data.cover_id,

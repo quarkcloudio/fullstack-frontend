@@ -201,6 +201,7 @@ class CreatePage extends PureComponent {
     layoutLoading: false,
     columns: [],
     dataSource: false,
+    goodsSkus: false,
     checkedGoodsAttributeValues: [],
     coverId: false,
     fileId: false,
@@ -247,6 +248,7 @@ class CreatePage extends PureComponent {
             keys: res.data.keys,
             checkedGoodsAttributes: res.data.checkedGoodsAttributes,
             checkedGoodsAttributeValues: res.data.checkedGoodsAttributeValues,
+            goodsSkus:res.data.goodsSkus
           });
 
           id = res.data.keys.length;
@@ -457,12 +459,18 @@ class CreatePage extends PureComponent {
         let colValue = [];
         colValue['id'] = dataSourceLength;
         colValue['key'] = dataSourceLength;
-        colValue['market_price'] = '';
-        colValue['cost_price'] = '';
-        colValue['goods_price'] = '';
-        colValue['stock_num'] = '';
-        colValue['goods_sn'] = '';
-        colValue['goods_barcode'] = '';
+
+        this.state.goodsSkus.map(goodsSku => {
+          console.log(goodsSku.goods_attribute_info == descarteValue);
+          if(goodsSku.goods_attribute_info == descarteValue) {
+            colValue['market_price'] = goodsSku['market_price'];
+            colValue['cost_price'] = goodsSku['cost_price'];
+            colValue['goods_price'] = goodsSku['goods_price'];
+            colValue['stock_num'] = goodsSku['stock_num'];
+            colValue['goods_sn'] = goodsSku['goods_sn'];
+            colValue['goods_barcode'] = goodsSku['goods_barcode'];
+          }
+        });
 
         if (descarteValue.length != undefined) {
           descarteValue.map(mapDescarteValue => {
@@ -534,6 +542,8 @@ class CreatePage extends PureComponent {
     };
     getColumns.push(col);
 
+    let tempCheckedGoodsAttributeValues = [];
+
     if (this.state.checkedGoodsAttributes) {
       this.state.goodsAttributes.map(value => {
         if (this.state.checkedGoodsAttributes.indexOf(value.id) != -1) {
@@ -544,6 +554,7 @@ class CreatePage extends PureComponent {
                 dataIndex: value.id,
               };
               getColumns.push(col);
+              tempCheckedGoodsAttributeValues.push(value1['value']);
             }
           });
         }
@@ -616,7 +627,11 @@ class CreatePage extends PureComponent {
     let dataSource = [];
     let dataSourceLength = 0;
 
-    let descarteValues = this.descartes(checkedGoodsAttributeValues);
+    console.log(tempCheckedGoodsAttributeValues);
+
+    let descarteValues = this.descartes(tempCheckedGoodsAttributeValues);
+
+    console.log(descarteValues);
 
     if (descarteValues.length != 0) {
       descarteValues.map(descarteValue => {
@@ -625,12 +640,17 @@ class CreatePage extends PureComponent {
         let colValue = [];
         colValue['id'] = dataSourceLength;
         colValue['key'] = dataSourceLength;
-        colValue['market_price'] = '';
-        colValue['cost_price'] = '';
-        colValue['goods_price'] = '';
-        colValue['stock_num'] = '';
-        colValue['goods_sn'] = '';
-        colValue['goods_barcode'] = '';
+        this.state.goodsSkus.map(goodsSku => {
+          console.log(goodsSku.goods_attribute_info.sort().toString()+ '=='+ descarteValue.sort().toString());
+          if(goodsSku.goods_attribute_info.sort().toString() == descarteValue.sort().toString()) {
+            colValue['market_price'] = goodsSku['market_price'];
+            colValue['cost_price'] = goodsSku['cost_price'];
+            colValue['goods_price'] = goodsSku['goods_price'];
+            colValue['stock_num'] = goodsSku['stock_num'];
+            colValue['goods_sn'] = goodsSku['goods_sn'];
+            colValue['goods_barcode'] = goodsSku['goods_barcode'];
+          }
+        });
 
         if (descarteValue.length != undefined) {
           descarteValue.map(mapDescarteValue => {
@@ -755,11 +775,11 @@ class CreatePage extends PureComponent {
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 4 },
+        sm: { span: 3 },
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 20 },
+        sm: { span: 21 },
       },
     };
 
