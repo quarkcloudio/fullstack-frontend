@@ -148,23 +148,10 @@ var id = 0;
 }))
 @Form.create()
 class CreatePage extends PureComponent {
-  handleDelete = key => {
-    const dataSource = [...this.state.dataSource];
-    this.setState({ dataSource: dataSource.filter(item => item.key !== key) });
-  };
-
-  handleAdd = () => {
-    const { count, dataSource } = this.state;
-    const newData = {
-      key: count,
-      name: `Edward King ${count}`,
-      age: 32,
-      address: `London, Park Lane no. ${count}`,
-    };
-    this.setState({
-      dataSource: [...dataSource, newData],
-      count: count + 1,
-    });
+  handleChangeStatus = key => {
+    let dataSource = [...this.state.dataSource];
+    dataSource[key-1]['status'] = dataSource[key-1]['status']==0 ? 1 :0 ;
+    this.setState({ dataSource: dataSource});
   };
 
   handleSave = row => {
@@ -284,7 +271,13 @@ class CreatePage extends PureComponent {
     this.props.form.validateFields((err, values) => {
       const params = this.props.location.query;
 
-      values['goods_skus'] = this.state.dataSource;
+      let dataSource = []
+      this.state.dataSource.map(row => {
+        let getRow = {...row};
+        dataSource.push(getRow)
+      })
+
+      values['goods_skus'] = dataSource;
       values['pc_content'] = values['pc_content'].toHTML();
       values['mobile_content'] = values['mobile_content'].toHTML();
       values['cover_id'] = this.state.coverId;
@@ -388,6 +381,7 @@ class CreatePage extends PureComponent {
     if (this.state.checkedGoodsAttributes) {
       this.state.goodsAttributes.map(value => {
         if (this.state.checkedGoodsAttributes.indexOf(value.id) != -1) {
+          console.log(checkedGoodsAttributeValues)
           checkedGoodsAttributeValues.map((value1, index) => {
             if (value.id == value1['id'] && value1['value'].length != 0) {
               col = {
@@ -435,13 +429,17 @@ class CreatePage extends PureComponent {
       },
       {
         title: '操作',
-        dataIndex: 'operation',
+        dataIndex: 'status',
         render: (text, record) =>
-          this.state.dataSource.length >= 1 ? (
-            <Popconfirm title="确定要禁用吗？" onConfirm={() => this.handleDelete(record.key)}>
+        text != 0 ? (
+            <Popconfirm title="确定要禁用吗？" onConfirm={() => this.handleChangeStatus(record.key)}>
               <a>禁用</a>
             </Popconfirm>
-          ) : null,
+          ) : (
+            <Popconfirm title="确定要启用吗？" onConfirm={() => this.handleChangeStatus(record.key)}>
+              <a>启用</a>
+            </Popconfirm>
+          ),
       },
     ];
 
@@ -477,13 +475,9 @@ class CreatePage extends PureComponent {
         let colValue = [];
         colValue['id'] = dataSourceLength;
         colValue['key'] = dataSourceLength;
+        colValue['status'] = 1;
 
         this.state.goodsSkus.map(goodsSku => {
-          console.log(
-            goodsSku.goods_attribute_info.sort().toString() +
-              '==' +
-              descarteValue.sort().toString(),
-          );
           if (goodsSku.goods_attribute_info.sort().toString() == descarteValue.sort().toString()) {
             colValue['market_price'] = goodsSku['market_price'];
             colValue['cost_price'] = goodsSku['cost_price'];
@@ -491,6 +485,7 @@ class CreatePage extends PureComponent {
             colValue['stock_num'] = goodsSku['stock_num'];
             colValue['goods_sn'] = goodsSku['goods_sn'];
             colValue['goods_barcode'] = goodsSku['goods_barcode'];
+            colValue['status'] = goodsSku['status'];
           }
         });
 
@@ -526,6 +521,7 @@ class CreatePage extends PureComponent {
             let colValue = [];
             colValue['id'] = dataSourceLength;
             colValue['key'] = dataSourceLength;
+            colValue['status'] = 1;
             this.state.goodsSkus.map(goodsSku => {
               console.log(
                 goodsSku.goods_attribute_info.sort().toString() +
@@ -541,6 +537,7 @@ class CreatePage extends PureComponent {
                 colValue['stock_num'] = goodsSku['stock_num'];
                 colValue['goods_sn'] = goodsSku['goods_sn'];
                 colValue['goods_barcode'] = goodsSku['goods_barcode'];
+                colValue['status'] = goodsSku['status'];
               }
             });
 
@@ -627,13 +624,17 @@ class CreatePage extends PureComponent {
       },
       {
         title: '操作',
-        dataIndex: 'operation',
+        dataIndex: 'status',
         render: (text, record) =>
-          this.state.dataSource.length >= 1 ? (
-            <Popconfirm title="确定要禁用吗？" onConfirm={() => this.handleDelete(record.key)}>
+        text != 0 ? (
+            <Popconfirm title="确定要禁用吗？" onConfirm={() => this.handleChangeStatus(record.key)}>
               <a>禁用</a>
             </Popconfirm>
-          ) : null,
+          ) : (
+            <Popconfirm title="确定要启用吗？" onConfirm={() => this.handleChangeStatus(record.key)}>
+              <a>启用</a>
+            </Popconfirm>
+          ),
       },
     ];
 
@@ -660,11 +661,7 @@ class CreatePage extends PureComponent {
     let dataSource = [];
     let dataSourceLength = 0;
 
-    console.log(tempCheckedGoodsAttributeValues);
-
     let descarteValues = this.descartes(tempCheckedGoodsAttributeValues);
-
-    console.log(descarteValues);
 
     if (descarteValues.length != 0) {
       descarteValues.map(descarteValue => {
@@ -674,11 +671,6 @@ class CreatePage extends PureComponent {
         colValue['id'] = dataSourceLength;
         colValue['key'] = dataSourceLength;
         this.state.goodsSkus.map(goodsSku => {
-          console.log(
-            goodsSku.goods_attribute_info.sort().toString() +
-              '==' +
-              descarteValue.sort().toString(),
-          );
           if (goodsSku.goods_attribute_info.sort().toString() == descarteValue.sort().toString()) {
             colValue['market_price'] = goodsSku['market_price'];
             colValue['cost_price'] = goodsSku['cost_price'];
@@ -686,6 +678,7 @@ class CreatePage extends PureComponent {
             colValue['stock_num'] = goodsSku['stock_num'];
             colValue['goods_sn'] = goodsSku['goods_sn'];
             colValue['goods_barcode'] = goodsSku['goods_barcode'];
+            colValue['status'] = goodsSku['status'];
           }
         });
 
@@ -737,6 +730,7 @@ class CreatePage extends PureComponent {
                 colValue['stock_num'] = goodsSku['stock_num'];
                 colValue['goods_sn'] = goodsSku['goods_sn'];
                 colValue['goods_barcode'] = goodsSku['goods_barcode'];
+                colValue['status'] = goodsSku['status'];
               }
             });
 
@@ -786,11 +780,13 @@ class CreatePage extends PureComponent {
   // todo
   getCheckedGoodsAttributeValues = goodsAttributeId => {
     var getCheckedGoodsAttributeValue = undefined;
-    this.state.checkedGoodsAttributeValues.map(checkedGoodsAttributeValue => {
-      if (checkedGoodsAttributeValue['id'] == goodsAttributeId) {
-        getCheckedGoodsAttributeValue = checkedGoodsAttributeValue['value'];
-      }
-    });
+    if(this.state.checkedGoodsAttributeValues) {
+      this.state.checkedGoodsAttributeValues.map(checkedGoodsAttributeValue => {
+        if (checkedGoodsAttributeValue['id'] == goodsAttributeId) {
+          getCheckedGoodsAttributeValue = checkedGoodsAttributeValue['value'];
+        }
+      });
+    }
 
     return getCheckedGoodsAttributeValue;
   };

@@ -69,8 +69,23 @@ class EditPage extends PureComponent {
     // 获得url参数
     const params = this.props.location.query;
 
-    // loading
-    this.setState({loading:true,goodsId:params.id});
+    this.props.dispatch({
+      type: 'form/info',
+      payload: {
+        actionUrl: 'admin/goods/imageEdit',
+        ...params,
+      },
+      callback: res => {
+        if (res) {
+          this.setState({
+            loading: false,
+            goodsId: params.id,
+            fileList: res.data.cover_id
+          });
+        }
+      },
+    });
+
   }
 
   handleSubmit = e => {
@@ -83,7 +98,7 @@ class EditPage extends PureComponent {
         this.props.dispatch({
           type: 'form/submit',
           payload: {
-            actionUrl: 'admin/goods/imageStore',
+            actionUrl: 'admin/goods/imageSave',
             ...values,
           },
         });

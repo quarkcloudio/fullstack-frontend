@@ -162,23 +162,10 @@ var id = 0;
 
 class CreatePage extends PureComponent {
 
-  handleDelete = key => {
-    const dataSource = [...this.state.dataSource];
-    this.setState({ dataSource: dataSource.filter(item => item.key !== key) });
-  };
-
-  handleAdd = () => {
-    const { count, dataSource } = this.state;
-    const newData = {
-      key: count,
-      name: `Edward King ${count}`,
-      age: 32,
-      address: `London, Park Lane no. ${count}`,
-    };
-    this.setState({
-      dataSource: [...dataSource, newData],
-      count: count + 1,
-    });
+  handleChangeStatus = key => {
+    let dataSource = [...this.state.dataSource];
+    dataSource[key-1]['status'] = dataSource[key-1]['status']==0 ? 1 :0 ;
+    this.setState({ dataSource: dataSource});
   };
 
   handleSave = row => {
@@ -399,13 +386,17 @@ class CreatePage extends PureComponent {
       },
       {
         title: '操作',
-        dataIndex: 'operation',
+        dataIndex: 'status',
         render: (text, record) =>
-          this.state.dataSource.length >= 1 ? (
-            <Popconfirm title="确定要禁用吗？" onConfirm={() => this.handleDelete(record.key)}>
+        text != 0 ? (
+            <Popconfirm title="确定要禁用吗？" onConfirm={() => this.handleChangeStatus(record.key)}>
               <a>禁用</a>
             </Popconfirm>
-          ) : null,
+          ) : (
+            <Popconfirm title="确定要启用吗？" onConfirm={() => this.handleChangeStatus(record.key)}>
+              <a>启用</a>
+            </Popconfirm>
+          ),
       },
     ];
 
@@ -449,6 +440,7 @@ class CreatePage extends PureComponent {
         colValue['stock_num'] = '';
         colValue['goods_sn'] = '';
         colValue['goods_barcode'] = '';
+        colValue['status'] = 1;
   
         if(descarteValue.length !=undefined ) {
           descarteValue.map((mapDescarteValue) => {
@@ -483,6 +475,7 @@ class CreatePage extends PureComponent {
             colValue['stock_num'] = '';
             colValue['goods_sn'] = '';
             colValue['goods_barcode'] = '';
+            colValue['status'] = 1;
 
             this.state.goodsAttributes.map((goodsAttribute) => {
               goodsAttribute.vname.map((vname) => {
