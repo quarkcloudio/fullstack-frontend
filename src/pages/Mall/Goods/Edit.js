@@ -200,6 +200,8 @@ class CreatePage extends PureComponent {
     // 获得url参数
     const params = this.props.location.query;
 
+    this.setState({ loading: true });
+
     this.props.dispatch({
       type: 'form/info',
       payload: {
@@ -269,6 +271,8 @@ class CreatePage extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
+      this.setState({ loading: true });
+
       const params = this.props.location.query;
 
       let dataSource = []
@@ -290,6 +294,11 @@ class CreatePage extends PureComponent {
             actionUrl: 'admin/goods/save',
             ...values,
             ...params,
+          },
+          callback: res => {
+            if (res) {
+              this.setState({ loading: false });
+            }
           },
         });
       }
@@ -864,13 +873,13 @@ class CreatePage extends PureComponent {
       <Form.Item {...formItemLayoutWithOutLabel} required={false} key={k}>
         {getFieldDecorator(`shop_goods_attribute_names[${k}]`, {
           initialValue: this.state.shopGoodsAttributes[k]
-            ? this.state.shopGoodsAttributes[k]['other_attr_name']
+            ? this.state.shopGoodsAttributes[k]['attribute_name']
             : '',
         })(<Input placeholder="属性名" style={{ width: '100px', marginRight: 8 }} />)}
         :
         {getFieldDecorator(`shop_goods_attribute_values[${k}]`, {
           initialValue: this.state.shopGoodsAttributes[k]
-            ? this.state.shopGoodsAttributes[k]['other_attr_value']
+            ? this.state.shopGoodsAttributes[k]['attribute_value']
             : '',
         })(
           <Input

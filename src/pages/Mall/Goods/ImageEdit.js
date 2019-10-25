@@ -36,7 +36,8 @@ import {
   Typography,
   Table,
   Popconfirm,
-  Affix
+  Affix,
+  Spin,
 } from 'antd';
 
 const {  RangePicker } = DatePicker;
@@ -57,6 +58,7 @@ const { Title } = Typography;
 class EditPage extends PureComponent {
 
   state = {
+    loading:false,
     goodsId:false,
     fileList:false,
     previewImage:false,
@@ -68,6 +70,8 @@ class EditPage extends PureComponent {
 
     // 获得url参数
     const params = this.props.location.query;
+
+    this.setState({ loading: true });
 
     this.props.dispatch({
       type: 'form/info',
@@ -91,6 +95,9 @@ class EditPage extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
+
+      this.setState({ loading: true });
+
       values['file_list'] = this.state.fileList;
       values['goods_id'] = this.state.goodsId;
       // 验证正确提交表单
@@ -100,6 +107,11 @@ class EditPage extends PureComponent {
           payload: {
             actionUrl: 'admin/goods/imageSave',
             ...values,
+          },
+          callback: res => {
+            if (res) {
+              this.setState({ loading: false });
+            }
           },
         });
       }
@@ -151,6 +163,7 @@ class EditPage extends PureComponent {
           <Tabs defaultActiveKey="2" onChange={tabOnChange} tabBarExtraContent={<a href="javascript:history.go(-1)">返回上一页&nbsp;&nbsp;&nbsp;&nbsp;</a>}>
             <TabPane tab="编辑商品" key="1"></TabPane>
             <TabPane tab="编辑图片" key="2">
+            <Spin spinning={this.state.loading} tip="Loading...">
             <div className="steps-content" style={{width:'100%',margin:'20px'}}>
               <Form onSubmit={this.handleSubmit} style={{ marginTop: 8 }}>
                 <Form.Item
@@ -226,6 +239,7 @@ class EditPage extends PureComponent {
                 </Form.Item>
               </Form>
             </div>
+            </Spin>
             </TabPane>
           </Tabs>
         </div>
