@@ -522,7 +522,7 @@ class CreatePage extends PureComponent {
         dataSource.push(colValue);
       });
     } else {
-      checkedGoodsAttributeValues.map((descarteValue, index) => {
+      tempCheckedGoodsAttributeValues.map((descarteValue, index) => {
         if (descarteValue.length != undefined) {
           descarteValue.map(mapDescarteValue => {
             dataSourceLength = dataSourceLength + 1;
