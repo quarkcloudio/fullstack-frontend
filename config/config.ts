@@ -149,6 +149,20 @@ export default {
               name: 'myPublished',
               component: './Article/MyPublished',
             },
+            {
+              path: '/article/categoryIndex',
+              component: './Article/CategoryIndex',
+            },
+            {
+              path: '/article/categoryCreate',
+              component: './Article/CategoryCreate',
+              hideInMenu: true,
+            },
+            {
+              path: '/article/categoryEdit',
+              component: './Article/CategoryEdit',
+              hideInMenu: true,
+            },
           ],
         },
         {

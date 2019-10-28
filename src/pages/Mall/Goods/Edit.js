@@ -193,6 +193,8 @@ class CreatePage extends PureComponent {
     coverId: false,
     fileId: false,
     keys: [],
+    pcContent:'',
+    mobileContent:''
   };
 
   // 当挂在模板时，初始化数据
@@ -238,6 +240,8 @@ class CreatePage extends PureComponent {
             checkedGoodsAttributes: res.data.checkedGoodsAttributes,
             checkedGoodsAttributeValues: res.data.checkedGoodsAttributeValues,
             goodsSkus: res.data.goodsSkus,
+            pcContent:BraftEditor.createEditorState(res.data.pc_content),
+            mobileContent:BraftEditor.createEditorState(res.data.mobile_content),
           });
 
           id = res.data.keys.length;
@@ -282,8 +286,8 @@ class CreatePage extends PureComponent {
       })
 
       values['goods_skus'] = dataSource;
-      values['pc_content'] = values['pc_content'].toHTML();
-      values['mobile_content'] = values['mobile_content'].toHTML();
+      values['pc_content'] = this.state.pcContent.toHTML();
+      values['mobile_content'] = this.state.mobileContent.toHTML();
       values['cover_id'] = this.state.coverId;
       values['file_id'] = this.state.fileId;
       // 验证正确提交表单
@@ -821,6 +825,14 @@ class CreatePage extends PureComponent {
       keys: nextKeys,
     });
   };
+
+  handlePcEditorChange = (editorState) => {
+    this.setState({ pcContent:editorState })
+  }
+
+  handleMobileEditorChange = (editorState) => {
+    this.setState({ mobileContent:editorState })
+  }
 
   render() {
     const { getFieldDecorator, getFieldValue } = this.props.form;
@@ -1512,36 +1524,28 @@ class CreatePage extends PureComponent {
                       <Tabs defaultActiveKey="1">
                         <TabPane tab="电脑端" key="1">
                           <div style={{ border: '1px solid #ccc;' }}>
-                            {getFieldDecorator('pc_content', {
-                              initialValue: BraftEditor.createEditorState(
-                                this.state.data.pc_content,
-                              ),
-                            })(
                               <BraftEditor
                                 contentStyle={{
                                   height: 400,
                                   boxShadow: 'inset 0 1px 3px rgba(0,0,0,.1)',
                                 }}
+                                value={this.state.pcContent}
                                 media={{ uploadFn: handleEditorUpload }}
-                              />,
-                            )}
+                                onChange={this.handlePcEditorChange}
+                              />
                           </div>
                         </TabPane>
                         <TabPane tab="手机端" key="2">
                           <div style={{ border: '1px solid #ccc;' }}>
-                            {getFieldDecorator('mobile_content', {
-                              initialValue: BraftEditor.createEditorState(
-                                this.state.data.mobile_content,
-                              ),
-                            })(
                               <BraftEditor
                                 contentStyle={{
                                   height: 400,
                                   boxShadow: 'inset 0 1px 3px rgba(0,0,0,.1)',
                                 }}
+                                value={this.state.mobileContent}
                                 media={{ uploadFn: handleEditorUpload }}
-                              />,
-                            )}
+                                onChange={this.handleMobileEditorChange}
+                              />
                           </div>
                         </TabPane>
                       </Tabs>
