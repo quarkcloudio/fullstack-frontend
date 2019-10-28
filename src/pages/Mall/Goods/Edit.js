@@ -365,6 +365,7 @@ class CreatePage extends PureComponent {
 
     this.state.checkedGoodsAttributes.map(checkedGoodsAttribute => {
       let getCheckedGoodsAttributeValues = [];
+
       if (goodsAttributeId == checkedGoodsAttribute) {
         getCheckedGoodsAttributeValues['value'] = goodsAttributeValues;
       } else {
@@ -373,8 +374,11 @@ class CreatePage extends PureComponent {
         );
       }
 
-      getCheckedGoodsAttributeValues['id'] = checkedGoodsAttribute;
-      checkedGoodsAttributeValues.push(getCheckedGoodsAttributeValues);
+      if(getCheckedGoodsAttributeValues['value'] != undefined) {
+        getCheckedGoodsAttributeValues['id'] = checkedGoodsAttribute;
+        checkedGoodsAttributeValues.push(getCheckedGoodsAttributeValues);
+      }
+
     });
 
     let getColumns = [];
@@ -524,7 +528,7 @@ class CreatePage extends PureComponent {
     } else {
       tempCheckedGoodsAttributeValues.map((descarteValue, index) => {
         if (descarteValue.length != undefined) {
-          descarteValue.map(mapDescarteValue => {
+          descarteValue.sort().map(mapDescarteValue => {
             dataSourceLength = dataSourceLength + 1;
 
             let colValue = [];
@@ -532,11 +536,6 @@ class CreatePage extends PureComponent {
             colValue['key'] = dataSourceLength;
             colValue['status'] = 1;
             this.state.goodsSkus.map(goodsSku => {
-              console.log(
-                goodsSku.goods_attribute_info.sort().toString() +
-                  '==' +
-                  descarteValue.sort().toString(),
-              );
               if (
                 goodsSku.goods_attribute_info.sort().toString() == descarteValue.sort().toString()
               ) {
