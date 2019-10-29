@@ -21,6 +21,7 @@ import {
   Typography,
   Divider,
   Progress,
+  Spin,
 } from 'antd';
 
 const ButtonGroup = Button.Group;
@@ -49,23 +50,25 @@ class UpdatePage extends PureComponent {
 
   // 当挂在模板时，初始化数据
   componentDidMount() {
+    this.checkUpdate();
+  }
+
+  checkUpdate = () => {
     // loading
     this.setState({ loading: true });
 
-    // 调用model
     this.props.dispatch({
-      type: 'model/index',
+      type: 'form/info',
       payload: {
-        modelName: this.modelName,
+        actionUrl: 'admin/console/update',
       },
       callback: res => {
-        // 执行成功后，进行回调
         if (res) {
           this.setState({ ...res, loading: false });
         }
       },
     });
-  }
+  };
 
   showModal = () => {
     this.setState({
@@ -91,23 +94,33 @@ class UpdatePage extends PureComponent {
     const { getFieldDecorator } = this.props.form;
 
     return (
-      <div>
+      <Spin spinning={this.state.loading} tip="Loading...">
         <div className={styles.container}>
           <Row gutter={16}>
             <Col span={24}>
               <Card bordered={false}>
-                <div>当前版本AdminCMS 1.0.1</div>
+                <div>当前版本{this.state.data.app_version}</div>
                 <br></br>
-                <div>您的系统已经是最新版本了</div>
-                <Divider>1.0.2更新日志</Divider>
-                <div>
-                  1.修复数据库问题<br></br>
-                  2.修正程序bug
-                </div>
-                <div>
-                  <br></br>
-                  <Button onClick={this.showModal}>立即升级</Button>
-                </div>
+                {this.state.data.can_update ?
+                  <span>
+                    <Divider>{this.state.data.repository.name}更新日志</Divider>
+                    <div>
+                      {this.state.data.repository.body}
+                    </div>
+                    <div>
+                      <br></br>
+                      <Button type="primary" onClick={this.showModal}>立即升级</Button>
+                    </div>
+                  </span>
+                :
+                  <span>
+                    <div>您的系统已经是最新版本了</div>
+                    <br></br>
+                    <Button onClick={this.checkUpdate}>检查更新</Button>
+                  </span>
+                }
+
+
                 <Modal
                   title="系统升级"
                   visible={this.state.visible}
@@ -143,7 +156,7 @@ class UpdatePage extends PureComponent {
             </Col>
           </Row>
         </div>
-      </div>
+      </Spin>
     );
   }
 }

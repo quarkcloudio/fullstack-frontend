@@ -54,10 +54,12 @@ const Step = Steps.Step;
 @connect(({ model }) => ({
   model,
 }))
+
 @Form.create()
 class IndexPage extends PureComponent {
   // 定义要操作的模型名称
   modelName = 'console';
+  interval = undefined;
 
   state = {
     msg: '',
@@ -67,6 +69,7 @@ class IndexPage extends PureComponent {
     pagination: {},
     visible: false,
     loading: false,
+    canUpdate: false,
   };
 
   // 当挂在模板时，初始化数据
@@ -74,16 +77,34 @@ class IndexPage extends PureComponent {
     // loading
     this.setState({ loading: true });
 
-    // 调用model
     this.props.dispatch({
-      type: 'model/index',
+      type: 'form/info',
       payload: {
-        modelName: this.modelName,
+        actionUrl: 'admin/console/index',
       },
       callback: res => {
-        // 执行成功后，进行回调
         if (res) {
           this.setState({ ...res, loading: false });
+        }
+      },
+    });
+
+    this.interval = setInterval(() => this.checkUpdate(), 15000);
+  }
+
+  checkUpdate() {
+    // 调用model
+    this.props.dispatch({
+      type: 'form/info',
+      payload: {
+        actionUrl: 'admin/console/update',
+      },
+      callback: res => {
+        if (res) {
+          if(res.data.can_update) {
+            clearInterval(this.interval);
+          }
+          this.setState({canUpdate: res.data.can_update });
         }
       },
     });
@@ -235,14 +256,20 @@ class IndexPage extends PureComponent {
                   </Col>
                   <Col span={8}>
                     <div className={styles.gutterBoxNoBottom}>
-                      <div className={styles.gutterTitle}>当前系统版本</div>
+                      <div className={styles.gutterTitle}>系统版本</div>
                       <div className={styles.gutterNum}>
-                        <Badge dot>
-                          <a className={styles.updateSystem} href="#/console/update">
-                            1.0.2
+                      {this.state.canUpdate ? 
+                          <Badge dot>
+                            <a className={styles.updateSystem} href="#/console/update">
+                              {this.state.data.app_version}
+                            </a>
                             <Icon type="arrow-up" />
+                          </Badge>
+                        : 
+                          <a className={styles.updateSystem} href="#/console/update">
+                            {this.state.data.app_version}
                           </a>
-                        </Badge>
+                        }
                       </div>
                     </div>
                   </Col>
