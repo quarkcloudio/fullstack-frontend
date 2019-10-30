@@ -55,6 +55,7 @@ class UpdatePage extends PureComponent {
     updateFileLoading:false,
     updateDatabaseLoading:false,
     clearCacheLoading:false,
+    finishLoading:false
   };
 
   // 当挂在模板时，初始化数据
@@ -190,8 +191,25 @@ class UpdatePage extends PureComponent {
   };
 
   finish = () => {
-    this.setState({ percent:100, current:6 ,actionStatus:'恭喜您升级完成，系统重启中...'});
-    setInterval(() => location.reload(), 3000);
+
+    this.setState({ finishLoading: true,actionStatus:'正在清理缓存...' });
+
+    this.props.dispatch({
+      type: 'form/info',
+      payload: {
+        actionUrl: 'admin/console/finish',
+        version:this.state.data.repository.name,
+      },
+      callback: res => {
+        if (res.status == 'success') {
+          this.setState({ percent:100, finishLoading: false, current:6 ,actionStatus:'恭喜您升级完成，系统重启中...'});
+          //setInterval(() => location.reload(), 3000);
+        } else {
+          this.setState({ finishLoading: false ,actionStatus:'更新失败！'});
+        }
+      },
+    });
+
   };
 
   showModal = () => {
@@ -231,20 +249,18 @@ class UpdatePage extends PureComponent {
                 {this.state.data.can_update ?
                   <span>
                     <Divider>{this.state.data.repository.name}更新日志</Divider>
-                    <div>
+                    <pre>
                       {this.state.data.repository.body}
-                    </div>
-                    <div>
-                      <br></br>
-                      <Popconfirm
-                        title="请确认您是否已对系统进行了备份！"
-                        onConfirm={this.showModal}
-                        okText="是"
-                        cancelText="否"
-                      >
-                        <Button type="primary">立即升级</Button>
-                      </Popconfirm>
-                    </div>
+                    </pre>
+                    <br></br>
+                    <Popconfirm
+                      title="已经对系统进行了备份？"
+                      onConfirm={this.showModal}
+                      okText="是"
+                      cancelText="否"
+                    >
+                      <Button type="primary">立即升级</Button>
+                    </Popconfirm>
                   </span>
                 :
                   <span>
@@ -269,10 +285,10 @@ class UpdatePage extends PureComponent {
                     <Steps size="small" current={this.state.current}>
                       <Step title="下载文件" icon={ this.state.downloadLoading ? <Icon type="loading" /> : false} />
                       <Step title="解压文件" icon={ this.state.extractLoading ? <Icon type="loading" /> : false} />
-                      <Step title="更新程序" icon={ this.state.updateFileLoading ? <Icon type="loading" /> : false}/>
+                      <Step title="更新程序" icon={ this.state.updateFileLoading ? <Icon type="loading" /> : false} />
                       <Step title="更新数据库" icon={ this.state.updateDatabaseLoading ? <Icon type="loading" /> : false} />
-                      <Step title="清除缓存" icon={ this.state.clearCacheLoading ? <Icon type="loading" /> : false}/>
-                      <Step title="升级完成" />
+                      <Step title="清除缓存" icon={ this.state.clearCacheLoading ? <Icon type="loading" /> : false} />
+                      <Step title="升级完成" icon={ this.state.finishLoading ? <Icon type="loading" /> : false}/>
                     </Steps>
                   </div>
                   <br></br>
