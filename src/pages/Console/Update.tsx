@@ -203,7 +203,7 @@ class UpdatePage extends PureComponent {
       callback: res => {
         if (res.status == 'success') {
           this.setState({ percent:100, finishLoading: false, current:6 ,actionStatus:'恭喜您升级完成，系统重启中...'});
-          //setInterval(() => location.reload(), 3000);
+          setInterval(() => location.reload(), 3000);
         } else {
           this.setState({ finishLoading: false ,actionStatus:'更新失败！'});
         }
