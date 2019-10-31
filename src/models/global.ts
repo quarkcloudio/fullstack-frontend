@@ -43,6 +43,34 @@ const GlobalModel: GlobalModelType = {
     notices: [],
   },
 
+  subscriptions: {
+    setup({ dispatch, history }): void {
+      // Subscribe history(url) change, trigger `load` action if pathname is `/`
+      history.listen(({ pathname, search }): void => {
+
+        let historyUrl = sessionStorage.getItem('historyUrl')
+        if(pathname !== historyUrl || !sessionStorage['token']) {
+          sessionStorage.setItem('historyUrl', pathname);
+          dispatch({
+            type: 'form/resetState',
+          });
+          dispatch({
+            type: 'list/resetState',
+          });
+        }
+
+        // 未登录用户，进行登录
+        if (!sessionStorage['token'] && pathname !== '/login') {
+          router.push('/login');
+        }
+
+        if (typeof (window as any).ga !== 'undefined') {
+          (window as any).ga('send', 'pageview', pathname + search);
+        }
+      });
+    },
+  },
+
   effects: {
     *fetchNotices(_, { call, put, select }) {
       const data = yield call(getNotices);
@@ -144,34 +172,6 @@ const GlobalModel: GlobalModelType = {
         ...state,
         ...action.payload,
       };
-    },
-  },
-
-  subscriptions: {
-    setup({ dispatch, history }): void {
-      // Subscribe history(url) change, trigger `load` action if pathname is `/`
-      history.listen(({ pathname, search }): void => {
-
-        let historyUrl = sessionStorage.getItem('historyUrl')
-        if(pathname !== historyUrl || !sessionStorage['token']) {
-          sessionStorage.setItem('historyUrl', pathname);
-          dispatch({
-            type: 'form/resetState',
-          });
-          dispatch({
-            type: 'list/resetState',
-          });
-        }
-
-        // 未登录用户，进行登录
-        if (!sessionStorage['token'] && pathname !== '/login') {
-          router.push('/login');
-        }
-
-        if (typeof (window as any).ga !== 'undefined') {
-          (window as any).ga('send', 'pageview', pathname + search);
-        }
-      });
     },
   },
 };

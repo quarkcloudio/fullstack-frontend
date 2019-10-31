@@ -1,55 +1,23 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import router from 'umi/router';
 import styles from './Index.less';
-import { routerRedux } from 'dva/router';
-import { stringify } from 'qs';
 import {
-  G2,
   Chart,
   Geom,
   Axis,
   Tooltip,
-  Coord,
-  Label,
-  Legend,
-  View,
-  Guide,
-  Shape,
-  Facet,
-  Util,
 } from 'bizcharts';
-
-import DataSet from '@antv/data-set';
 
 import {
   Row,
   Col,
   Icon,
-  Select,
-  Input,
   Form,
-  Button,
-  Tag,
-  Modal,
-  message,
-  Table,
   Divider,
-  Popconfirm,
-  DatePicker,
-  TimePicker,
   Statistic,
   Badge,
   Card,
-  Steps,
 } from 'antd';
-
-const Search = Input.Search;
-const { RangePicker } = DatePicker;
-const ButtonGroup = Button.Group;
-const confirm = Modal.confirm;
-const Option = Select.Option;
-const Step = Steps.Step;
 
 @connect(({ model }) => ({
   model,
@@ -89,7 +57,9 @@ class IndexPage extends PureComponent {
       },
     });
 
-    this.interval = setInterval(() => this.checkUpdate(), 15000);
+    this.checkUpdate();
+
+    // this.interval = setInterval(() => this.checkUpdate(), 15000);
   }
 
   checkUpdate() {
@@ -101,9 +71,9 @@ class IndexPage extends PureComponent {
       },
       callback: res => {
         if (res) {
-          if(res.data.can_update) {
-            clearInterval(this.interval);
-          }
+          // if(res.data.can_update) {
+          //   clearInterval(this.interval);
+          // }
           this.setState({canUpdate: res.data.can_update });
         }
       },
@@ -131,7 +101,6 @@ class IndexPage extends PureComponent {
   };
 
   render() {
-    const { getFieldDecorator } = this.props.form;
 
     return (
       <div>
