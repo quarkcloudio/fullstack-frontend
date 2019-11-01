@@ -31,7 +31,8 @@ import {
   Table,
   Badge,
   Menu,
-  Dropdown
+  Dropdown,
+  Divider
 } from 'antd';
 
 const { TextArea } = Input;
@@ -140,6 +141,66 @@ class IndexPage extends PureComponent {
     return (
       <PageHeaderWrapper title={false}>
         <div className={styles.container}>
+          <div className={styles.tableHeader}>
+            <Row type="flex" justify="start">
+              <Col span={12}>
+                <h5 className={styles.tableHeaderTitle}>商品订单</h5>
+              </Col>
+              <Col span={12}>
+                <div className={styles.floatRight}>
+                  <Form layout="inline">
+                    <Form.Item
+                    >
+                      <Button
+                      >
+                        名称
+                      </Button>
+                    </Form.Item>
+                  </Form>
+                </div>
+              </Col>
+            </Row>
+          </div>
+
+          <Divider style={{ marginBottom: 10,marginTop: 10 }} />
+          <div className={styles.tableToolBar}>
+            <Row type="flex" justify="start">
+              <Col span={8}>
+                <Form layout="inline">
+                  <Form.Item >
+                    <Button>
+                      确定
+                    </Button>
+                  </Form.Item>
+                </Form>
+              </Col>
+              <Col span={16}>
+                <div className={styles.floatRight}>
+                  <Form layout="inline">
+
+                    <Form.Item >
+                      {getFieldDecorator('input',{
+
+                      })(<Input />)}
+                    </Form.Item>
+
+                    <Form.Item>
+                      <Button>
+                      搜索
+                      </Button>
+                    </Form.Item>
+
+                    <Form.Item style={{ marginRight: 10 }}>
+                      <a style={{ fontSize: 12 }} >
+                        高级搜索 <Icon type={'up'} />
+                      </a>
+                    </Form.Item>
+                  </Form>
+                </div>
+              </Col>
+            </Row>
+          </div>
+
           <div className={styles.tableData}>
             <Table
               className="components-table-demo-nested"
