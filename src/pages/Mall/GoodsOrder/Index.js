@@ -53,7 +53,7 @@ class IndexPage extends PureComponent {
     status: '',
     loading: false,
     selected: '0',
-    keys: [],
+    advancedSearchExpand: false,
   };
 
   // 当挂在模板时，初始化数据
@@ -82,6 +82,13 @@ class IndexPage extends PureComponent {
   render() {
 
     const { getFieldDecorator, getFieldValue } = this.props.form;
+
+    // 展开或收缩高级搜索
+    const toggle = () => {
+      this.setState({
+        advancedSearchExpand: !this.state.advancedSearchExpand
+      });
+    };
 
     const expandedRowRender = () => {
       const columns = [
@@ -151,9 +158,8 @@ class IndexPage extends PureComponent {
                   <Form layout="inline">
                     <Form.Item
                     >
-                      <Button
-                      >
-                        名称
+                      <Button>
+                        刷新
                       </Button>
                     </Form.Item>
                   </Form>
@@ -191,8 +197,8 @@ class IndexPage extends PureComponent {
                     </Form.Item>
 
                     <Form.Item style={{ marginRight: 10 }}>
-                      <a style={{ fontSize: 12 }} >
-                        高级搜索 <Icon type={'up'} />
+                      <a style={{ fontSize: 12 }} onClick={toggle}>
+                        高级搜索 <Icon type={this.state.advancedSearchExpand ? 'up' : 'down'} />
                       </a>
                     </Form.Item>
                   </Form>
@@ -200,6 +206,23 @@ class IndexPage extends PureComponent {
               </Col>
             </Row>
           </div>
+      <div
+        className={styles.tableAdvancedSearchBar}
+        style={{ display: this.state.advancedSearchExpand ? 'block' : 'none' }}
+      >
+        <Row>
+          <Col span={24}>
+            <Form layout="inline">
+              <Form.Item >
+                <Input />
+              </Form.Item>
+              <Form.Item >
+                <Button>搜索</Button>
+              </Form.Item>
+            </Form>
+          </Col>
+        </Row>
+      </div>
 
           <div className={styles.tableData}>
             <Table
