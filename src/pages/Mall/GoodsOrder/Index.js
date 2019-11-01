@@ -39,6 +39,7 @@ const { TextArea } = Input;
 const TabPane = Tabs.TabPane;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
+const { RangePicker } = DatePicker;
 
 @connect(({ model }) => ({
   model,
@@ -150,19 +151,25 @@ class IndexPage extends PureComponent {
         <div className={styles.container}>
           <div className={styles.tableHeader}>
             <Row type="flex" justify="start">
-              <Col span={12}>
-                <h5 className={styles.tableHeaderTitle}>商品订单</h5>
+              <Col span={2}>
+                <h5 className={styles.tableHeaderTitle}>订单列表</h5>
               </Col>
-              <Col span={12}>
+              <Col span={22}>
                 <div className={styles.floatRight}>
-                  <Form layout="inline">
-                    <Form.Item
-                    >
-                      <Button>
-                        刷新
-                      </Button>
-                    </Form.Item>
-                  </Form>
+                <Form layout="inline">
+                  <Form.Item >
+                    <Radio.Group>
+                      <Radio.Button value="large">全部订单(10)</Radio.Button>
+                      <Radio.Button value="default">等待付款(10)</Radio.Button>
+                      <Radio.Button value="small">待发货(10)</Radio.Button>
+                      <Radio.Button value="small">发货中(10)</Radio.Button>
+                      <Radio.Button value="small">已发货(10)</Radio.Button>
+                      <Radio.Button value="small">已完成(10)</Radio.Button>
+                      <Radio.Button value="small">已关闭(10)</Radio.Button>
+                      <Radio.Button value="small">退款中(10)</Radio.Button>
+                    </Radio.Group>
+                  </Form.Item>
+                </Form>
                 </div>
               </Col>
             </Row>
@@ -171,31 +178,34 @@ class IndexPage extends PureComponent {
           <Divider style={{ marginBottom: 10,marginTop: 10 }} />
           <div className={styles.tableToolBar}>
             <Row type="flex" justify="start">
-              <Col span={8}>
-                <Form layout="inline">
-                  <Form.Item >
-                    <Button>
-                      确定
-                    </Button>
-                  </Form.Item>
-                </Form>
+              <Col span={2}>
+                <Tag color="#2db7f5" style={{ marginTop:2,paddingBottom:5,paddingTop:5,paddingLeft:10,paddingRight:10 }}>订单金额：2000.00元</Tag>
               </Col>
-              <Col span={16}>
+              <Col span={22}>
                 <div className={styles.floatRight}>
                   <Form layout="inline">
-
-                    <Form.Item >
-                      {getFieldDecorator('input',{
-
-                      })(<Input />)}
-                    </Form.Item>
-
                     <Form.Item>
-                      <Button>
-                      搜索
-                      </Button>
+                      <Input style={{ width: 220 }} placeholder="商品名称/订单编号/买家账号" />
                     </Form.Item>
-
+                    <Form.Item>
+                      <RangePicker style={{ width: 220 }}  />
+                    </Form.Item>
+                    <Form.Item>
+                      <Select defaultValue="全部" style={{ width: 120 }}>
+                        <Option value="jack">Jack</Option>
+                        <Option value="lucy">Lucy</Option>
+                        <Option value="disabled" disabled>
+                          Disabled
+                        </Option>
+                        <Option value="Yiminghe">yiminghe</Option>
+                      </Select>
+                    </Form.Item>
+                    <Form.Item>
+                      <Button>搜索</Button>
+                    </Form.Item>
+                    <Form.Item>
+                      <Button type="primary">导出</Button>
+                    </Form.Item>
                     <Form.Item style={{ marginRight: 10 }}>
                       <a style={{ fontSize: 12 }} onClick={toggle}>
                         高级搜索 <Icon type={this.state.advancedSearchExpand ? 'up' : 'down'} />
