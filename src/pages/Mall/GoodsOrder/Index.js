@@ -32,7 +32,9 @@ import {
   Badge,
   Menu,
   Dropdown,
-  Divider
+  Divider,
+  List,
+  Avatar
 } from 'antd';
 
 const { TextArea } = Input;
@@ -49,6 +51,7 @@ const { RangePicker } = DatePicker;
 
 class IndexPage extends PureComponent {
   state = {
+    data:[],
     msg: '',
     url: '',
     status: '',
@@ -66,7 +69,7 @@ class IndexPage extends PureComponent {
     this.setState({ loading: true });
 
     this.props.dispatch({
-      type: 'form/info',
+      type: 'list/info',
       payload: {
         actionUrl: 'admin/goodsOrder/index' + stringify(params),
       },
@@ -91,60 +94,64 @@ class IndexPage extends PureComponent {
       });
     };
 
-    const expandedRowRender = () => {
-      const columns = [
-        { title: '商品封面', dataIndex: 'date', key: 'date' },
-        { title: '商品名称', dataIndex: 'date', key: 'date' },
-        { title: '单价', dataIndex: 'name', key: 'name' },
-        { title: '数量', dataIndex: 'name', key: 'name' },
-        {
-          title: '操作',
-          dataIndex: 'operation',
-          key: 'operation',
-          render: () => (
-            <span className="table-operation">
-              <a>查看商品</a>
-            </span>
-          ),
-        },
-      ];
-  
-      const data = [];
-      for (let i = 0; i < 3; ++i) {
-        data.push({
-          key: i,
-          date: '2014-12-24 23:12:00',
-          name: 'This is production name',
-          upgradeNum: 'Upgraded: 56',
-        });
-      }
-      return <Table columns={columns} dataSource={data} pagination={false} />;
+    const expandedRowRender = (record, index) => {
+      // const columns = [
+      //   { 
+      //     title: '商品封面',
+      //     dataIndex: 'cover_id',
+      //     key: 'cover_id',
+      //     render: (text, row) => (
+      //       <img src={text} width={40} height={40}></img>
+      //     )
+      //   },
+      //   { title: '商品名称', dataIndex: 'goods_name', key: 'goods_name' },
+      //   { title: '单价', dataIndex: 'goods_price', key: 'goods_price' },
+      //   { title: '数量', dataIndex: 'num', key: 'num' },
+      //   {
+      //     title: '操作',
+      //     dataIndex: 'operation',
+      //     key: 'operation',
+      //     render: () => (
+      //       <span>
+      //         <a>查看商品</a>
+      //       </span>
+      //     ),
+      //   },
+      // ];
+      // return <Table columns={columns} dataSource={record.goods_order_details} pagination={false} />;
+
+      return <List
+        size="large"
+        dataSource={record.goods_order_details}
+        renderItem={item => (
+          <List.Item
+            actions={[<a href={"#/admin/mall/goods/edit?id="+item.goods_id}>编辑商品</a>]}
+          >
+            <List.Item.Meta
+              avatar={
+                <Avatar src={item.cover_id} shape="square" size="large" />
+              }
+              title={<a href={"#/admin/mall/goods/edit?id="+item.goods_id}>{item.goods_name} {item.goods_property_names}</a>}
+              description={item.description}
+            />
+            {<span>￥{item.goods_price} x {item.num}</span>}
+          </List.Item>
+        )}
+      />;
+
     };
 
     const columns = [
-      { title: 'ID', dataIndex: 'name', key: 'name' },
-      { title: '订单号', dataIndex: 'platform', key: 'platform' },
-      { title: '联系人', dataIndex: 'version', key: 'version' },
-      { title: '电话', dataIndex: 'upgradeNum', key: 'upgradeNum' },
-      { title: '支付方式', dataIndex: 'creator', key: 'creator' },
-      { title: '价格', dataIndex: 'createdAt', key: 'createdAt' },
-      { title: '状态', dataIndex: 'createdAt', key: 'createdAt' },
-      { title: '支付时间', dataIndex: 'createdAt', key: 'createdAt' },
+      { title: 'ID', dataIndex: 'id', key: 'id' },
+      { title: '订单号', dataIndex: 'order_no', key: 'order_no' },
+      { title: '买家', dataIndex: 'username', key: 'username' },
+      { title: '电话', dataIndex: 'phone', key: 'phone' },
+      { title: '支付方式', dataIndex: 'pay_type', key: 'pay_type' },
+      { title: '价格', dataIndex: 'amount', key: 'amount' },
+      { title: '状态', dataIndex: 'status', key: 'status' },
+      { title: '创建时间', dataIndex: 'created_at', key: 'created_at' },
       { title: '操作', key: 'operation', render: () => <span><a>发货</a> <a>退款</a> <a>查看详情</a></span> },
     ];
-  
-    const data = [];
-    for (let i = 0; i < 3; ++i) {
-      data.push({
-        key: i,
-        name: 'Screem',
-        platform: 'iOS',
-        version: '10.3.4.5654',
-        upgradeNum: 500,
-        creator: 'Jack',
-        createdAt: '2014-12-24 23:12:00',
-      });
-    }
 
     return (
       <PageHeaderWrapper title={false}>
@@ -223,8 +230,37 @@ class IndexPage extends PureComponent {
         <Row>
           <Col span={24}>
             <Form layout="inline">
-              <Form.Item >
-                <Input />
+              <Form.Item>
+                <Select defaultValue="付款方式" style={{ width: 120 }}>
+                  <Option value="jack">Jack</Option>
+                  <Option value="lucy">Lucy</Option>
+                  <Option value="disabled" disabled>
+                    Disabled
+                  </Option>
+                  <Option value="Yiminghe">yiminghe</Option>
+                </Select>
+              </Form.Item>
+              <Form.Item>
+                <Select defaultValue="订单类型" style={{ width: 120 }}>
+                  <Option value="jack">Jack</Option>
+                  <Option value="lucy">Lucy</Option>
+                  <Option value="disabled" disabled>
+                    Disabled
+                  </Option>
+                  <Option value="Yiminghe">yiminghe</Option>
+                </Select>
+              </Form.Item>
+              <Form.Item>
+                <Input style={{ width: 140 }} placeholder="会员绑定手机号" />
+              </Form.Item>
+              <Form.Item>
+                <Input style={{ width: 140 }} placeholder="收货人姓名" />
+              </Form.Item>
+              <Form.Item>
+                <Input style={{ width: 140 }} placeholder="收货人手机号" />
+              </Form.Item>
+              <Form.Item>
+                <Input style={{ width: 180 }} placeholder="收货人地址" />
               </Form.Item>
               <Form.Item >
                 <Button>搜索</Button>
@@ -236,10 +272,9 @@ class IndexPage extends PureComponent {
 
           <div className={styles.tableData}>
             <Table
-              className="components-table-demo-nested"
               columns={columns}
               expandedRowRender={expandedRowRender}
-              dataSource={data}
+              dataSource={this.state.data}
             />
           </div>
         </div>
