@@ -8,7 +8,7 @@ import { FormModelState } from './form';
 import { ListModelState } from './list';
 import { AccountModelState } from './account';
 
-export { GlobalModelState, SettingModelState,FormModelState, ListModelState };
+export { GlobalModelState, SettingModelState,FormModelState, ListModelState,AccountModelState };
 
 export interface Loading {
   global: boolean;

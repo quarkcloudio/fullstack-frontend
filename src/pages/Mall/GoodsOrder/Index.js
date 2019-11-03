@@ -69,7 +69,7 @@ class IndexPage extends PureComponent {
     this.setState({ loading: true });
 
     this.props.dispatch({
-      type: 'list/info',
+      type: 'action/get',
       payload: {
         actionUrl: 'admin/goodsOrder/index' + stringify(params),
       },

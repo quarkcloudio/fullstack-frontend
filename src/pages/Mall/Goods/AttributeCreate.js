@@ -61,7 +61,7 @@ class CreatePage extends PureComponent {
     this.setState({ loading: true });
 
     this.props.dispatch({
-      type: 'form/info',
+      type: 'action/get',
       payload: {
         actionUrl: 'admin/goods/attributeCreate',
       },
@@ -110,7 +110,7 @@ class CreatePage extends PureComponent {
       // 验证正确提交表单
       if (!err) {
         this.props.dispatch({
-          type: 'form/submit',
+          type: 'action/post',
           payload: {
             actionUrl: 'admin/goods/attributeStore',
             ...values,

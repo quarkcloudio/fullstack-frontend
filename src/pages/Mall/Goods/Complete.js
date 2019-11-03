@@ -41,7 +41,7 @@ class CreatePage extends PureComponent {
     const params = this.props.location.query;
 
     this.props.dispatch({
-      type: 'form/info',
+      type: 'action/get',
       payload: {
         actionUrl: 'admin/goods/complete?id='+params.id,
       },

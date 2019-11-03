@@ -1,34 +1,19 @@
 import request from '@/utils/request';
 import { stringify } from 'qs';
 
-export async function index(params: any) {
-  return request(`../../api/admin/${params.modelName}/index?${stringify(params)}`);
+export async function get(params: any) {
+  let actionUrl = '';
+  if(params.actionUrl.indexOf("?") != -1) {
+    actionUrl = `../../api/${params.actionUrl}&${stringify(params)}`;
+  } else {
+    actionUrl = `../../api/${params.actionUrl}?${stringify(params)}`;
+  }
+  
+  return request(actionUrl);
 }
 
-export async function changeStatus(params: any) {
-  return request(`../../api/admin/${params.modelName}/changeStatus`, {
-    method: 'post',
-    data: params,
-  });
-}
-
-export async function create(params: any) {
-  return request(`../../api/admin/${params.modelName}/create?${stringify(params)}`);
-}
-
-export async function store(params: any) {
-  return request(`../../api/admin/${params.modelName}/store`, {
-    method: 'post',
-    data: params,
-  });
-}
-
-export async function edit(params: any) {
-  return request(`../../api/admin/${params.modelName}/edit?${stringify(params)}`);
-}
-
-export async function save(params: any) {
-  return request(`../../api/admin/${params.modelName}/save`, {
+export async function post(params: any) {
+  return request(`../../api/${params.actionUrl}`, {
     method: 'post',
     data: params,
   });

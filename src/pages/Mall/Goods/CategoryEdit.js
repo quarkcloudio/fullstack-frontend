@@ -76,7 +76,7 @@ class EditPage extends PureComponent {
     this.setState({ loading: true });
 
     this.props.dispatch({
-      type: 'form/info',
+      type: 'action/get',
       payload: {
         actionUrl: 'admin/goods/categoryEdit?id=' + params.id,
       },
@@ -102,7 +102,7 @@ class EditPage extends PureComponent {
           specificationId = res.data.specificationSelectedKeys.length;
 
           this.props.dispatch({
-            type: 'list/data',
+            type: 'action/get',
             payload: {
               actionUrl: 'admin/goods/attributeIndex',
               attributeSelectedIds: this.state.attributeSelectedIds,
@@ -115,7 +115,7 @@ class EditPage extends PureComponent {
           });
 
           this.props.dispatch({
-            type: 'list/data',
+            type: 'action/get',
             payload: {
               actionUrl: 'admin/goods/specificationIndex',
               specificationSelectedIds: this.state.specificationSelectedIds,
@@ -146,7 +146,7 @@ class EditPage extends PureComponent {
   // 分页切换
   attributeChangePagination = (pagination, filters, sorter) => {
     this.props.dispatch({
-      type: 'list/data',
+      type: 'action/get',
       payload: {
         actionUrl: 'admin/goods/attributeIndex',
         pageSize: pagination.pageSize, // 分页数量
@@ -172,7 +172,7 @@ class EditPage extends PureComponent {
         values['name'] = values['attributeName'];
         values['goodsTypeId'] = values['attributeGoodsTypeId'];
         this.props.dispatch({
-          type: 'list/data',
+          type: 'action/get',
           payload: {
             actionUrl: 'admin/goods/attributeIndex',
             ...this.state.attributeTable.pagination,
@@ -209,7 +209,7 @@ class EditPage extends PureComponent {
     });
 
     this.props.dispatch({
-      type: 'list/data',
+      type: 'action/get',
       payload: {
         actionUrl: 'admin/goods/attributeIndex',
         ...this.state.attributeTable.pagination,
@@ -242,7 +242,7 @@ class EditPage extends PureComponent {
     });
 
     this.props.dispatch({
-      type: 'list/data',
+      type: 'action/get',
       payload: {
         actionUrl: 'admin/goods/attributeIndex',
         ...this.state.attributeTable.pagination,
@@ -278,7 +278,7 @@ class EditPage extends PureComponent {
   // 分页切换
   specificationChangePagination = (pagination, filters, sorter) => {
     this.props.dispatch({
-      type: 'list/data',
+      type: 'action/get',
       payload: {
         actionUrl: 'admin/goods/specificationIndex',
         pageSize: pagination.pageSize, // 分页数量
@@ -304,7 +304,7 @@ class EditPage extends PureComponent {
         values['name'] = values['specificationName'];
         values['goodsTypeId'] = values['specificationGoodsTypeId'];
         this.props.dispatch({
-          type: 'list/data',
+          type: 'action/get',
           payload: {
             actionUrl: 'admin/goods/specificationIndex',
             ...this.state.specificationTable.pagination,
@@ -341,7 +341,7 @@ class EditPage extends PureComponent {
     });
 
     this.props.dispatch({
-      type: 'list/data',
+      type: 'action/get',
       payload: {
         actionUrl: 'admin/goods/specificationIndex',
         ...this.state.specificationTable.pagination,
@@ -376,7 +376,7 @@ class EditPage extends PureComponent {
     });
 
     this.props.dispatch({
-      type: 'list/data',
+      type: 'action/get',
       payload: {
         actionUrl: 'admin/goods/specificationIndex',
         ...this.state.specificationTable.pagination,
@@ -405,7 +405,7 @@ class EditPage extends PureComponent {
       // 验证正确提交表单
       if (!err) {
         this.props.dispatch({
-          type: 'form/submit',
+          type: 'action/post',
           payload: {
             actionUrl: 'admin/goods/categorySave',
             ...values,

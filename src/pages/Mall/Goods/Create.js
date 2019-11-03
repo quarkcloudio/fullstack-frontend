@@ -217,7 +217,7 @@ class CreatePage extends PureComponent {
     this.setState({ loading: true });
 
     this.props.dispatch({
-      type: 'form/info',
+      type: 'action/get',
       payload: {
         actionUrl: 'admin/goods/create',
       },
@@ -234,7 +234,7 @@ class CreatePage extends PureComponent {
     this.setState({ unitLoading: true,layoutLoading:true });
 
     this.props.dispatch({
-      type: 'form/info',
+      type: 'action/get',
       payload: {
         actionUrl: 'admin/goods/create',
       },
@@ -257,7 +257,7 @@ class CreatePage extends PureComponent {
       // 验证正确提交表单
       if (!err) {
         this.props.dispatch({
-          type: 'form/submit',
+          type: 'action/post',
           payload: {
             actionUrl: 'admin/goods/store',
             ...values,
@@ -299,7 +299,7 @@ class CreatePage extends PureComponent {
     });
 
     this.props.dispatch({
-      type: 'form/info',
+      type: 'action/get',
       payload: {
         actionUrl: 'admin/goods/attribute',
         categoryId: value[value.length-1],

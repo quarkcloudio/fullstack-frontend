@@ -5,7 +5,7 @@ import { message } from 'antd';
 import { 
   get,
   post,
-} from '@/services/builder';
+} from '@/services/action';
 
 export interface ListModelState {
   pageTitle:string;

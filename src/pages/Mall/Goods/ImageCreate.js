@@ -81,7 +81,7 @@ class CreatePage extends PureComponent {
       // 验证正确提交表单
       if (!err) {
         this.props.dispatch({
-          type: 'form/submit',
+          type: 'action/post',
           payload: {
             actionUrl: 'admin/goods/imageStore',
             ...values,

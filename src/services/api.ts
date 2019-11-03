@@ -55,16 +55,3 @@ export async function recharge(params: any) {
 export async function getAccountMenus() {
   return request('/api/admin/account/menus');
 }
-
-// 获取网站设置
-export async function getWebsiteConfig(params: any) {
-  return request(`/api/admin/config/website?${stringify(params)}`);
-}
-
-// 保存网站设置
-export async function saveWebsiteConfig(params: any) {
-  return request(`/api/admin/config/saveWebsite`, {
-    method: 'POST',
-    data: params,
-  });
-}

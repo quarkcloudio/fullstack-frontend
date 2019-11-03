@@ -74,7 +74,7 @@ class CreatePage extends PureComponent {
     this.setState({ loading: true });
 
     this.props.dispatch({
-      type: 'form/info',
+      type: 'action/get',
       payload: {
         actionUrl: 'admin/goods/categoryCreate',
       },
@@ -86,7 +86,7 @@ class CreatePage extends PureComponent {
     });
 
     this.props.dispatch({
-      type: 'list/info',
+      type: 'action/get',
       payload: {
         actionUrl: 'admin/goods/attributeIndex',
         attributeSelectedIds: this.state.attributeSelectedIds,
@@ -99,7 +99,7 @@ class CreatePage extends PureComponent {
     });
 
     this.props.dispatch({
-      type: 'list/info',
+      type: 'action/get',
       payload: {
         actionUrl: 'admin/goods/specificationIndex',
         specificationSelectedIds: this.state.specificationSelectedIds,
@@ -127,7 +127,7 @@ class CreatePage extends PureComponent {
   // 分页切换
   attributeChangePagination = (pagination, filters, sorter) => {
     this.props.dispatch({
-      type: 'list/data',
+      type: 'action/get',
       payload: {
         actionUrl: 'admin/goods/attributeIndex',
         pageSize: pagination.pageSize, // 分页数量
@@ -154,7 +154,7 @@ class CreatePage extends PureComponent {
         values['goodsTypeId'] = values['attributeGoodsTypeId'];
 
         this.props.dispatch({
-          type: 'list/data',
+          type: 'action/get',
           payload: {
             actionUrl: 'admin/goods/attributeIndex',
             ...this.state.attributeTable.pagination,
@@ -191,7 +191,7 @@ class CreatePage extends PureComponent {
     });
 
     this.props.dispatch({
-      type: 'list/data',
+      type: 'action/get',
       payload: {
         actionUrl: 'admin/goods/attributeIndex',
         ...this.state.attributeTable.pagination,
@@ -224,7 +224,7 @@ class CreatePage extends PureComponent {
     });
 
     this.props.dispatch({
-      type: 'list/data',
+      type: 'action/get',
       payload: {
         actionUrl: 'admin/goods/attributeIndex',
         ...this.state.attributeTable.pagination,
@@ -260,7 +260,7 @@ class CreatePage extends PureComponent {
   // 分页切换
   specificationChangePagination = (pagination, filters, sorter) => {
     this.props.dispatch({
-      type: 'list/data',
+      type: 'action/get',
       payload: {
         actionUrl: 'admin/goods/specificationIndex',
         pageSize: pagination.pageSize, // 分页数量
@@ -287,7 +287,7 @@ class CreatePage extends PureComponent {
 
       if (!err) {
         this.props.dispatch({
-          type: 'list/data',
+          type: 'action/get',
           payload: {
             actionUrl: 'admin/goods/specificationIndex',
             ...this.state.specificationTable.pagination,
@@ -324,7 +324,7 @@ class CreatePage extends PureComponent {
     });
 
     this.props.dispatch({
-      type: 'list/data',
+      type: 'action/get',
       payload: {
         actionUrl: 'admin/goods/specificationIndex',
         ...this.state.specificationTable.pagination,
@@ -359,7 +359,7 @@ class CreatePage extends PureComponent {
     });
 
     this.props.dispatch({
-      type: 'list/data',
+      type: 'action/get',
       payload: {
         actionUrl: 'admin/goods/specificationIndex',
         ...this.state.specificationTable.pagination,
@@ -388,7 +388,7 @@ class CreatePage extends PureComponent {
       // 验证正确提交表单
       if (!err) {
         this.props.dispatch({
-          type: 'form/submit',
+          type: 'action/post',
           payload: {
             actionUrl: 'admin/goods/categoryStore',
             ...values,
