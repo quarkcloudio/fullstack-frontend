@@ -150,8 +150,8 @@ var id = 0;
 class CreatePage extends PureComponent {
   handleChangeStatus = key => {
     let dataSource = [...this.state.dataSource];
-    dataSource[key-1]['status'] = dataSource[key-1]['status']==0 ? 1 :0 ;
-    this.setState({ dataSource: dataSource});
+    dataSource[key - 1]['status'] = dataSource[key - 1]['status'] == 0 ? 1 : 0;
+    this.setState({ dataSource: dataSource });
   };
 
   handleSave = row => {
@@ -193,8 +193,8 @@ class CreatePage extends PureComponent {
     coverId: false,
     fileId: false,
     keys: [],
-    pcContent:'',
-    mobileContent:''
+    pcContent: '',
+    mobileContent: '',
   };
 
   // 当挂在模板时，初始化数据
@@ -240,8 +240,8 @@ class CreatePage extends PureComponent {
             checkedGoodsAttributes: res.data.checkedGoodsAttributes,
             checkedGoodsAttributeValues: res.data.checkedGoodsAttributeValues,
             goodsSkus: res.data.goodsSkus,
-            pcContent:BraftEditor.createEditorState(res.data.pc_content),
-            mobileContent:BraftEditor.createEditorState(res.data.mobile_content),
+            pcContent: BraftEditor.createEditorState(res.data.pc_content),
+            mobileContent: BraftEditor.createEditorState(res.data.mobile_content),
           });
 
           id = res.data.keys.length;
@@ -279,11 +279,11 @@ class CreatePage extends PureComponent {
 
       const params = this.props.location.query;
 
-      let dataSource = []
+      let dataSource = [];
       this.state.dataSource.map(row => {
-        let getRow = {...row};
-        dataSource.push(getRow)
-      })
+        let getRow = { ...row };
+        dataSource.push(getRow);
+      });
 
       values['goods_skus'] = dataSource;
       values['pc_content'] = this.state.pcContent.toHTML();
@@ -378,11 +378,10 @@ class CreatePage extends PureComponent {
         );
       }
 
-      if(getCheckedGoodsAttributeValues['value'] != undefined) {
+      if (getCheckedGoodsAttributeValues['value'] != undefined) {
         getCheckedGoodsAttributeValues['id'] = checkedGoodsAttribute;
         checkedGoodsAttributeValues.push(getCheckedGoodsAttributeValues);
       }
-
     });
 
     let getColumns = [];
@@ -398,7 +397,7 @@ class CreatePage extends PureComponent {
     if (this.state.checkedGoodsAttributes) {
       this.state.goodsAttributes.map(value => {
         if (this.state.checkedGoodsAttributes.indexOf(value.id) != -1) {
-          console.log(checkedGoodsAttributeValues)
+          console.log(checkedGoodsAttributeValues);
           checkedGoodsAttributeValues.map((value1, index) => {
             if (value.id == value1['id'] && value1['value'].length != 0) {
               col = {
@@ -448,12 +447,18 @@ class CreatePage extends PureComponent {
         title: '操作',
         dataIndex: 'status',
         render: (text, record) =>
-        text != 0 ? (
-            <Popconfirm title="确定要禁用吗？" onConfirm={() => this.handleChangeStatus(record.key)}>
+          text != 0 ? (
+            <Popconfirm
+              title="确定要禁用吗？"
+              onConfirm={() => this.handleChangeStatus(record.key)}
+            >
               <a>禁用</a>
             </Popconfirm>
           ) : (
-            <Popconfirm title="确定要启用吗？" onConfirm={() => this.handleChangeStatus(record.key)}>
+            <Popconfirm
+              title="确定要启用吗？"
+              onConfirm={() => this.handleChangeStatus(record.key)}
+            >
               <a>启用</a>
             </Popconfirm>
           ),
@@ -638,12 +643,18 @@ class CreatePage extends PureComponent {
         title: '操作',
         dataIndex: 'status',
         render: (text, record) =>
-        text != 0 ? (
-            <Popconfirm title="确定要禁用吗？" onConfirm={() => this.handleChangeStatus(record.key)}>
+          text != 0 ? (
+            <Popconfirm
+              title="确定要禁用吗？"
+              onConfirm={() => this.handleChangeStatus(record.key)}
+            >
               <a>禁用</a>
             </Popconfirm>
           ) : (
-            <Popconfirm title="确定要启用吗？" onConfirm={() => this.handleChangeStatus(record.key)}>
+            <Popconfirm
+              title="确定要启用吗？"
+              onConfirm={() => this.handleChangeStatus(record.key)}
+            >
               <a>启用</a>
             </Popconfirm>
           ),
@@ -718,45 +729,49 @@ class CreatePage extends PureComponent {
         dataSource.push(colValue);
       });
     } else {
-      checkedGoodsAttributeValues.map((descarteValue, index) => {
-        if (descarteValue.length != undefined) {
-          descarteValue.map(mapDescarteValue => {
-            dataSourceLength = dataSourceLength + 1;
+      console.log('mmmmmmmm');
+      console.log(checkedGoodsAttributeValues);
+      if (checkedGoodsAttributeValues != undefined) {
+        checkedGoodsAttributeValues.map((descarteValue, index) => {
+          if (descarteValue.length != undefined) {
+            descarteValue.map(mapDescarteValue => {
+              dataSourceLength = dataSourceLength + 1;
 
-            let colValue = [];
-            colValue['id'] = dataSourceLength;
-            colValue['key'] = dataSourceLength;
+              let colValue = [];
+              colValue['id'] = dataSourceLength;
+              colValue['key'] = dataSourceLength;
 
-            this.state.goodsSkus.map(goodsSku => {
-              console.log(
-                goodsSku.goods_attribute_info.sort().toString() +
-                  '==' +
-                  descarteValue.sort().toString(),
-              );
-              if (
-                goodsSku.goods_attribute_info.sort().toString() == descarteValue.sort().toString()
-              ) {
-                colValue['market_price'] = goodsSku['market_price'];
-                colValue['cost_price'] = goodsSku['cost_price'];
-                colValue['goods_price'] = goodsSku['goods_price'];
-                colValue['stock_num'] = goodsSku['stock_num'];
-                colValue['goods_sn'] = goodsSku['goods_sn'];
-                colValue['goods_barcode'] = goodsSku['goods_barcode'];
-                colValue['status'] = goodsSku['status'];
-              }
-            });
-
-            this.state.goodsAttributes.map(goodsAttribute => {
-              goodsAttribute.vname.map(vname => {
-                if (vname.id == mapDescarteValue) {
-                  colValue[goodsAttribute.id] = vname.vname;
-                  dataSource.push(colValue);
+              this.state.goodsSkus.map(goodsSku => {
+                console.log(
+                  goodsSku.goods_attribute_info.sort().toString() +
+                    '==' +
+                    descarteValue.sort().toString(),
+                );
+                if (
+                  goodsSku.goods_attribute_info.sort().toString() == descarteValue.sort().toString()
+                ) {
+                  colValue['market_price'] = goodsSku['market_price'];
+                  colValue['cost_price'] = goodsSku['cost_price'];
+                  colValue['goods_price'] = goodsSku['goods_price'];
+                  colValue['stock_num'] = goodsSku['stock_num'];
+                  colValue['goods_sn'] = goodsSku['goods_sn'];
+                  colValue['goods_barcode'] = goodsSku['goods_barcode'];
+                  colValue['status'] = goodsSku['status'];
                 }
               });
+
+              this.state.goodsAttributes.map(goodsAttribute => {
+                goodsAttribute.vname.map(vname => {
+                  if (vname.id == mapDescarteValue) {
+                    colValue[goodsAttribute.id] = vname.vname;
+                    dataSource.push(colValue);
+                  }
+                });
+              });
             });
-          });
-        }
-      });
+          }
+        });
+      }
     }
 
     this.setState({
@@ -792,7 +807,7 @@ class CreatePage extends PureComponent {
   // todo
   getCheckedGoodsAttributeValues = goodsAttributeId => {
     var getCheckedGoodsAttributeValue = undefined;
-    if(this.state.checkedGoodsAttributeValues) {
+    if (this.state.checkedGoodsAttributeValues) {
       this.state.checkedGoodsAttributeValues.map(checkedGoodsAttributeValue => {
         if (checkedGoodsAttributeValue['id'] == goodsAttributeId) {
           getCheckedGoodsAttributeValue = checkedGoodsAttributeValue['value'];
@@ -826,13 +841,13 @@ class CreatePage extends PureComponent {
     });
   };
 
-  handlePcEditorChange = (editorState) => {
-    this.setState({ pcContent:editorState })
-  }
+  handlePcEditorChange = editorState => {
+    this.setState({ pcContent: editorState });
+  };
 
-  handleMobileEditorChange = (editorState) => {
-    this.setState({ mobileContent:editorState })
-  }
+  handleMobileEditorChange = editorState => {
+    this.setState({ mobileContent: editorState });
+  };
 
   render() {
     const { getFieldDecorator, getFieldValue } = this.props.form;
@@ -1524,28 +1539,28 @@ class CreatePage extends PureComponent {
                       <Tabs defaultActiveKey="1">
                         <TabPane tab="电脑端" key="1">
                           <div style={{ border: '1px solid #ccc;' }}>
-                              <BraftEditor
-                                contentStyle={{
-                                  height: 400,
-                                  boxShadow: 'inset 0 1px 3px rgba(0,0,0,.1)',
-                                }}
-                                value={this.state.pcContent}
-                                media={{ uploadFn: handleEditorUpload }}
-                                onChange={this.handlePcEditorChange}
-                              />
+                            <BraftEditor
+                              contentStyle={{
+                                height: 400,
+                                boxShadow: 'inset 0 1px 3px rgba(0,0,0,.1)',
+                              }}
+                              value={this.state.pcContent}
+                              media={{ uploadFn: handleEditorUpload }}
+                              onChange={this.handlePcEditorChange}
+                            />
                           </div>
                         </TabPane>
                         <TabPane tab="手机端" key="2">
                           <div style={{ border: '1px solid #ccc;' }}>
-                              <BraftEditor
-                                contentStyle={{
-                                  height: 400,
-                                  boxShadow: 'inset 0 1px 3px rgba(0,0,0,.1)',
-                                }}
-                                value={this.state.mobileContent}
-                                media={{ uploadFn: handleEditorUpload }}
-                                onChange={this.handleMobileEditorChange}
-                              />
+                            <BraftEditor
+                              contentStyle={{
+                                height: 400,
+                                boxShadow: 'inset 0 1px 3px rgba(0,0,0,.1)',
+                              }}
+                              value={this.state.mobileContent}
+                              media={{ uploadFn: handleEditorUpload }}
+                              onChange={this.handleMobileEditorChange}
+                            />
                           </div>
                         </TabPane>
                       </Tabs>
