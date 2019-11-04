@@ -729,8 +729,6 @@ class CreatePage extends PureComponent {
         dataSource.push(colValue);
       });
     } else {
-      console.log('mmmmmmmm');
-      console.log(checkedGoodsAttributeValues);
       if (checkedGoodsAttributeValues != undefined) {
         checkedGoodsAttributeValues.map((descarteValue, index) => {
           if (descarteValue.length != undefined) {
@@ -742,11 +740,6 @@ class CreatePage extends PureComponent {
               colValue['key'] = dataSourceLength;
 
               this.state.goodsSkus.map(goodsSku => {
-                console.log(
-                  goodsSku.goods_attribute_info.sort().toString() +
-                    '==' +
-                    descarteValue.sort().toString(),
-                );
                 if (
                   goodsSku.goods_attribute_info.sort().toString() == descarteValue.sort().toString()
                 ) {
@@ -1351,7 +1344,7 @@ class CreatePage extends PureComponent {
                             })}
                         </div>
 
-                        {this.state.dataSource ? (
+                        {this.state.dataSource && this.state.goodsAttributes ? (
                           <div style={{ marginTop: '20px', background: '#fff' }}>
                             <Table
                               components={components}

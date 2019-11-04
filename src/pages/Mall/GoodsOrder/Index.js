@@ -95,31 +95,6 @@ class IndexPage extends PureComponent {
     };
 
     const expandedRowRender = (record, index) => {
-      // const columns = [
-      //   { 
-      //     title: '商品封面',
-      //     dataIndex: 'cover_id',
-      //     key: 'cover_id',
-      //     render: (text, row) => (
-      //       <img src={text} width={40} height={40}></img>
-      //     )
-      //   },
-      //   { title: '商品名称', dataIndex: 'goods_name', key: 'goods_name' },
-      //   { title: '单价', dataIndex: 'goods_price', key: 'goods_price' },
-      //   { title: '数量', dataIndex: 'num', key: 'num' },
-      //   {
-      //     title: '操作',
-      //     dataIndex: 'operation',
-      //     key: 'operation',
-      //     render: () => (
-      //       <span>
-      //         <a>查看商品</a>
-      //       </span>
-      //     ),
-      //   },
-      // ];
-      // return <Table columns={columns} dataSource={record.goods_order_details} pagination={false} />;
-
       return <List
         size="large"
         dataSource={record.goods_order_details}
@@ -138,7 +113,6 @@ class IndexPage extends PureComponent {
           </List.Item>
         )}
       />;
-
     };
 
     const columns = [
@@ -166,14 +140,13 @@ class IndexPage extends PureComponent {
                 <Form layout="inline">
                   <Form.Item >
                     <Radio.Group>
-                      <Radio.Button value="large">全部订单(10)</Radio.Button>
-                      <Radio.Button value="default">等待付款(10)</Radio.Button>
-                      <Radio.Button value="small">待发货(10)</Radio.Button>
-                      <Radio.Button value="small">发货中(10)</Radio.Button>
-                      <Radio.Button value="small">已发货(10)</Radio.Button>
-                      <Radio.Button value="small">已完成(10)</Radio.Button>
-                      <Radio.Button value="small">已关闭(10)</Radio.Button>
-                      <Radio.Button value="small">退款中(10)</Radio.Button>
+                      <Radio.Button value="ALL">全部订单({this.state.data.totalNum})</Radio.Button>
+                      <Radio.Button value="NOT_PAID">等待付款({this.state.data.notPaidNum})</Radio.Button>
+                      <Radio.Button value="PAID">待发货({this.state.data.paidNum})</Radio.Button>
+                      <Radio.Button value="SEND">已发货({this.state.data.sendNum})</Radio.Button>
+                      <Radio.Button value="SUCCESS">已完成({this.state.data.successNum})</Radio.Button>
+                      <Radio.Button value="CLOSE">已关闭({this.state.data.closeNum})</Radio.Button>
+                      <Radio.Button value="REFUND">退款中({this.state.data.refundNum})</Radio.Button>
                     </Radio.Group>
                   </Form.Item>
                 </Form>
@@ -186,7 +159,7 @@ class IndexPage extends PureComponent {
           <div className={styles.tableToolBar}>
             <Row type="flex" justify="start">
               <Col span={2}>
-                <Tag color="#2db7f5" style={{ marginTop:2,paddingBottom:5,paddingTop:5,paddingLeft:10,paddingRight:10 }}>订单金额：2000.00元</Tag>
+                <Tag color="#2db7f5" style={{ marginTop:2,paddingBottom:5,paddingTop:5,paddingLeft:10,paddingRight:10 }}>订单金额：{this.state.data.totalMoney}元</Tag>
               </Col>
               <Col span={22}>
                 <div className={styles.floatRight}>
@@ -199,12 +172,13 @@ class IndexPage extends PureComponent {
                     </Form.Item>
                     <Form.Item>
                       <Select defaultValue="全部" style={{ width: 120 }}>
-                        <Option value="jack">Jack</Option>
-                        <Option value="lucy">Lucy</Option>
-                        <Option value="disabled" disabled>
-                          Disabled
-                        </Option>
-                        <Option value="Yiminghe">yiminghe</Option>
+                        <Option value="ALL">全部订单</Option>
+                        <Option value="NOT_PAID">等待付款</Option>
+                        <Option value="PAID">待发货</Option>
+                        <Option value="SEND">已发货</Option>
+                        <Option value="SUCCESS">已完成</Option>
+                        <Option value="CLOSE">已关闭</Option>
+                        <Option value="REFUND">退款中</Option>
                       </Select>
                     </Form.Item>
                     <Form.Item>
@@ -223,58 +197,54 @@ class IndexPage extends PureComponent {
               </Col>
             </Row>
           </div>
-      <div
-        className={styles.tableAdvancedSearchBar}
-        style={{ display: this.state.advancedSearchExpand ? 'block' : 'none' }}
-      >
-        <Row>
-          <Col span={24}>
-            <Form layout="inline">
-              <Form.Item>
-                <Select defaultValue="付款方式" style={{ width: 120 }}>
-                  <Option value="jack">Jack</Option>
-                  <Option value="lucy">Lucy</Option>
-                  <Option value="disabled" disabled>
-                    Disabled
-                  </Option>
-                  <Option value="Yiminghe">yiminghe</Option>
-                </Select>
-              </Form.Item>
-              <Form.Item>
-                <Select defaultValue="订单类型" style={{ width: 120 }}>
-                  <Option value="jack">Jack</Option>
-                  <Option value="lucy">Lucy</Option>
-                  <Option value="disabled" disabled>
-                    Disabled
-                  </Option>
-                  <Option value="Yiminghe">yiminghe</Option>
-                </Select>
-              </Form.Item>
-              <Form.Item>
-                <Input style={{ width: 140 }} placeholder="会员绑定手机号" />
-              </Form.Item>
-              <Form.Item>
-                <Input style={{ width: 140 }} placeholder="收货人姓名" />
-              </Form.Item>
-              <Form.Item>
-                <Input style={{ width: 140 }} placeholder="收货人手机号" />
-              </Form.Item>
-              <Form.Item>
-                <Input style={{ width: 180 }} placeholder="收货人地址" />
-              </Form.Item>
-              <Form.Item >
-                <Button>搜索</Button>
-              </Form.Item>
-            </Form>
-          </Col>
-        </Row>
-      </div>
-
+          <div
+            className={styles.tableAdvancedSearchBar}
+            style={{ display: this.state.advancedSearchExpand ? 'block' : 'none' }}
+          >
+            <Row>
+              <Col span={24}>
+                <Form layout="inline">
+                  <Form.Item>
+                    <Select defaultValue="付款方式" style={{ width: 180 }}>
+                      <Option value="WECHAT_APP">微信APP支付</Option>
+                      <Option value="WECHAT_JSAPI">微信公众号支付</Option>
+                      <Option value="WECHAT_NATIVE">微信电脑网站支付</Option>
+                      <Option value="ALIPAY_PAGE">支付宝电脑网站支付</Option>
+                      <Option value="ALIPAY_APP">支付宝APP支付</Option>
+                      <Option value="ALIPAY_WAP">支付宝手机网站支付</Option>
+                      <Option value="ALIPAY_F2F">支付宝当面付</Option>
+                      <Option value="ALIPAY_JS">支付宝JSAPI</Option>
+                    </Select>
+                  </Form.Item>
+                  <Form.Item>
+                    <Select defaultValue="订单类型" style={{ width: 120 }}>
+                      <Option value="MALL">普通订单</Option>
+                    </Select>
+                  </Form.Item>
+                  <Form.Item>
+                    <Input style={{ width: 140 }} placeholder="会员绑定手机号" />
+                  </Form.Item>
+                  <Form.Item>
+                    <Input style={{ width: 140 }} placeholder="收货人姓名" />
+                  </Form.Item>
+                  <Form.Item>
+                    <Input style={{ width: 140 }} placeholder="收货人手机号" />
+                  </Form.Item>
+                  <Form.Item>
+                    <Input style={{ width: 180 }} placeholder="收货人地址" />
+                  </Form.Item>
+                  <Form.Item >
+                    <Button>搜索</Button>
+                  </Form.Item>
+                </Form>
+              </Col>
+            </Row>
+          </div>
           <div className={styles.tableData}>
             <Table
               columns={columns}
               expandedRowRender={expandedRowRender}
-              dataSource={this.state.data}
+              dataSource={this.state.data.lists}
             />
           </div>
         </div>
