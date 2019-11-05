@@ -58,6 +58,9 @@ class IndexPage extends PureComponent {
     loading: false,
     selected: '0',
     advancedSearchExpand: false,
+    search:[],
+    pagination:[],
+    tableLoading:false
   };
 
   // 当挂在模板时，初始化数据
@@ -76,6 +79,8 @@ class IndexPage extends PureComponent {
       callback: res => {
         if (res) {
           this.setState({
+            search: res.data.search,
+            pagination: res.data.pagination,
             data: res.data,
           });
         }
@@ -127,6 +132,75 @@ class IndexPage extends PureComponent {
       { title: '操作', key: 'operation', render: () => <span><a>发货</a> <a>退款</a> <a>查看详情</a></span> },
     ];
 
+    // 分页切换
+    const changePagination = (pagination, filters, sorter) => {
+
+      this.setState({
+        tableLoading: true
+      });
+
+      dispatch({
+        type: 'action/get',
+        payload: {
+          actionUrl: 'admin/goodsOrder/index' + stringify(params),
+          pageSize: pagination.pageSize, // 分页数量
+          current: pagination.current, // 当前页码
+          sortField: sorter.field, // 排序字段
+          sortOrder: sorter.order, // 排序规则
+          ...filters, // 筛选
+          search: this.state.search,
+        },
+        callback : res => {
+          if (res) {
+            this.setState({
+              search: res.data.search,
+              pagination: res.data.pagination,
+              data:res.data,
+              tableLoading: true
+            });
+          }
+        }
+      });
+    };
+
+    // 搜索
+    const onSearch = () => {
+      form.validateFields((err, values) => {
+        if (values['dateRange'][0] && values['dateRange'][1]) {
+          // 时间标准化
+          let dateStart = values['dateRange'][0].format('YYYY-MM-DD HH:mm:ss');
+          let dateEnd = values['dateRange'][1].format('YYYY-MM-DD HH:mm:ss');
+          // 先清空对象
+          values['dateRange'] = [];
+          // 重新赋值对象
+          values['dateRange'] = [dateStart, dateEnd];
+        }
+        if (!err) {
+          this.setState({
+            tableLoading: true
+          });
+          dispatch({
+            type: 'action/get',
+            payload: {
+              actionUrl: 'admin/goodsOrder/index' + stringify(params),
+              ...this.state.pagination,
+              search: values,
+            },
+            callback : res => {
+              if (res) {
+                this.setState({
+                  search: res.data.search,
+                  pagination: res.data.pagination,
+                  data:res.data,
+                  tableLoading: true
+                });
+              }
+            }
+          });
+        }
+      });
+    };
+
     return (
       <PageHeaderWrapper title={false}>
         <div className={styles.container}>
@@ -165,24 +239,29 @@ class IndexPage extends PureComponent {
                 <div className={styles.floatRight}>
                   <Form layout="inline">
                     <Form.Item>
-                      <Input style={{ width: 220 }} placeholder="商品名称/订单编号/买家账号" />
+                      {getFieldDecorator(`title`, {
+                        initialValue: ''
+                      })(
+                        <Input style={{ width: 220 }} placeholder="商品名称/订单编号/买家账号" />,
+                      )}
                     </Form.Item>
                     <Form.Item>
-                      <RangePicker style={{ width: 220 }}  />
+                      {getFieldDecorator(`status`, {
+                        initialValue: 'ALL'
+                      })(
+                        <Select style={{ width: 120 }}>
+                          <Option value="ALL">全部订单</Option>
+                          <Option value="NOT_PAID">等待付款</Option>
+                          <Option value="PAID">待发货</Option>
+                          <Option value="SEND">已发货</Option>
+                          <Option value="SUCCESS">已完成</Option>
+                          <Option value="CLOSE">已关闭</Option>
+                          <Option value="REFUND">退款中</Option>
+                        </Select>
+                      )}
                     </Form.Item>
                     <Form.Item>
-                      <Select defaultValue="全部" style={{ width: 120 }}>
-                        <Option value="ALL">全部订单</Option>
-                        <Option value="NOT_PAID">等待付款</Option>
-                        <Option value="PAID">待发货</Option>
-                        <Option value="SEND">已发货</Option>
-                        <Option value="SUCCESS">已完成</Option>
-                        <Option value="CLOSE">已关闭</Option>
-                        <Option value="REFUND">退款中</Option>
-                      </Select>
-                    </Form.Item>
-                    <Form.Item>
-                      <Button>搜索</Button>
+                      <Button  onClick={() => onSearch()}>搜索</Button>
                     </Form.Item>
                     <Form.Item>
                       <Button type="primary">导出</Button>
@@ -205,33 +284,67 @@ class IndexPage extends PureComponent {
               <Col span={24}>
                 <Form layout="inline">
                   <Form.Item>
-                    <Select defaultValue="付款方式" style={{ width: 180 }}>
-                      <Option value="WECHAT_APP">微信APP支付</Option>
-                      <Option value="WECHAT_JSAPI">微信公众号支付</Option>
-                      <Option value="WECHAT_NATIVE">微信电脑网站支付</Option>
-                      <Option value="ALIPAY_PAGE">支付宝电脑网站支付</Option>
-                      <Option value="ALIPAY_APP">支付宝APP支付</Option>
-                      <Option value="ALIPAY_WAP">支付宝手机网站支付</Option>
-                      <Option value="ALIPAY_F2F">支付宝当面付</Option>
-                      <Option value="ALIPAY_JS">支付宝JSAPI</Option>
-                    </Select>
+                    {getFieldDecorator(`payType`, {
+                      initialValue: '0'
+                    })(
+                      <Select style={{ width: 180 }}>
+                        <Option value="0">请选择付款方式</Option>
+                        <Option value="WECHAT_APP">微信APP支付</Option>
+                        <Option value="WECHAT_JSAPI">微信公众号支付</Option>
+                        <Option value="WECHAT_NATIVE">微信电脑网站支付</Option>
+                        <Option value="ALIPAY_PAGE">支付宝电脑网站支付</Option>
+                        <Option value="ALIPAY_APP">支付宝APP支付</Option>
+                        <Option value="ALIPAY_WAP">支付宝手机网站支付</Option>
+                        <Option value="ALIPAY_F2F">支付宝当面付</Option>
+                        <Option value="ALIPAY_JS">支付宝JSAPI</Option>
+                      </Select>
+                    )}
                   </Form.Item>
                   <Form.Item>
-                    <Select defaultValue="订单类型" style={{ width: 120 }}>
-                      <Option value="MALL">普通订单</Option>
-                    </Select>
+                    {getFieldDecorator(`payType`, {
+                      initialValue: '0'
+                    })(
+                      <Select style={{ width: 180 }}>
+                        <Option value="0">请选择订单类型</Option>
+                        <Option value="MALL">普通订单</Option>
+                      </Select>
+                    )}
                   </Form.Item>
                   <Form.Item>
-                    <Input style={{ width: 140 }} placeholder="会员绑定手机号" />
+                    {getFieldDecorator(`dateRange`)(
+                      <RangePicker
+                        showTime={true}
+                        style={{ width: 360 }}
+                      />
+                    )}
                   </Form.Item>
                   <Form.Item>
-                    <Input style={{ width: 140 }} placeholder="收货人姓名" />
+                    {getFieldDecorator(`phone`, {
+                      initialValue: ''
+                    })(
+                      <Input style={{ width: 180 }} placeholder="会员绑定手机号" />,
+                    )}
                   </Form.Item>
                   <Form.Item>
-                    <Input style={{ width: 140 }} placeholder="收货人手机号" />
+                    {getFieldDecorator(`consignee`, {
+                      initialValue: ''
+                    })(
+                      <Input style={{ width: 180 }} placeholder="收货人姓名" />
+                    )}
                   </Form.Item>
                   <Form.Item>
-                    <Input style={{ width: 180 }} placeholder="收货人地址" />
+                    {getFieldDecorator(`phone`, {
+                      initialValue: ''
+                    })(
+                      <Input style={{ width: 180 }} placeholder="收货人手机号" />
+                    )}
+                  </Form.Item>
+                  <Form.Item>
+                    {getFieldDecorator(`address`, {
+                      initialValue: ''
+                    })(
+                      <Input style={{ width: 260 }} placeholder="收货人地址" />
+                    )}
                   </Form.Item>
                   <Form.Item >
                     <Button>搜索</Button>
@@ -245,6 +358,9 @@ class IndexPage extends PureComponent {
               columns={columns}
               expandedRowRender={expandedRowRender}
               dataSource={this.state.data.lists}
+              pagination={this.state.pagination}
+              loading={this.state.tableLoading}
+              onChange={changePagination}
             />
           </div>
         </div>
