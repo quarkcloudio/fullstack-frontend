@@ -51,7 +51,7 @@ const { RangePicker } = DatePicker;
 
 class IndexPage extends PureComponent {
   state = {
-    data:[],
+    data:false,
     msg: '',
     url: '',
     status: '',
@@ -60,7 +60,8 @@ class IndexPage extends PureComponent {
     advancedSearchExpand: false,
     search:[],
     pagination:[],
-    tableLoading:false
+    tableLoading:false,
+    exportUrl:''
   };
 
   // 当挂在模板时，初始化数据
@@ -82,6 +83,7 @@ class IndexPage extends PureComponent {
             search: res.data.search,
             pagination: res.data.pagination,
             data: res.data,
+            exportUrl:res.data.exportUrl
           });
         }
       },
@@ -104,18 +106,29 @@ class IndexPage extends PureComponent {
         size="large"
         dataSource={record.goods_order_details}
         renderItem={item => (
-          <List.Item
-            actions={[<a href={"#/admin/mall/goods/edit?id="+item.goods_id}>编辑商品</a>]}
-          >
-            <List.Item.Meta
-              avatar={
-                <Avatar src={item.cover_id} shape="square" size="large" />
-              }
-              title={<a href={"#/admin/mall/goods/edit?id="+item.goods_id}>{item.goods_name} {item.goods_property_names}</a>}
-              description={item.description}
-            />
-            {<span>￥{item.goods_price} x {item.num}</span>}
-          </List.Item>
+          <span>
+            <List.Item>
+              <List.Item.Meta
+                avatar={
+                  <Avatar src={item.cover_id} shape="square" size="large" />
+                }
+                title={<a href={"#/admin/mall/goods/edit?id="+item.goods_id}>{item.goods_name} {item.goods_property_names}</a>}
+                description={item.description}
+              />
+              {<span style={{'marginRight':150,'float':'left'}}>￥{item.goods_price} x {item.num}</span>}
+              {<span>￥{item.goods_price * item.num}</span>}
+            </List.Item>
+            <List.Item>
+              <List.Item.Meta
+                title={<p style={{'textAlign':'right'}}>商品总金额： ￥311.00 + 运费： ￥50.00 - 店铺红包： ￥0.00 - 平台红包： ￥0.00 - 积分抵扣： ￥0.00 - 卖家优惠： ￥0.00 = 订单总金额： ￥361.00</p>}
+              />
+            </List.Item>
+            <List.Item>
+              <List.Item.Meta
+                title={<p style={{'textAlign':'right'}}>[ 已支付 ] ￥361.00</p>}
+              />
+            </List.Item>
+          </span>
         )}
       />;
     };
@@ -126,20 +139,22 @@ class IndexPage extends PureComponent {
       { title: '买家', dataIndex: 'username', key: 'username' },
       { title: '电话', dataIndex: 'phone', key: 'phone' },
       { title: '支付方式', dataIndex: 'pay_type', key: 'pay_type' },
-      { title: '价格', dataIndex: 'amount', key: 'amount' },
-      { title: '状态', dataIndex: 'status', key: 'status' },
+      { title: '状态', dataIndex: 'goods_order_status', key: 'goods_order_status' },
       { title: '创建时间', dataIndex: 'created_at', key: 'created_at' },
-      { title: '操作', key: 'operation', render: () => <span><a>发货</a> <a>退款</a> <a>查看详情</a></span> },
+      { title: '操作', key: 'operation', render: () => <span><Button type="link">拆单发货</Button><Button type="link">订单详情</Button></span> },
     ];
 
     // 分页切换
     const changePagination = (pagination, filters, sorter) => {
 
+      // 获得url参数
+      const params = this.props.location.query;
+
       this.setState({
         tableLoading: true
       });
 
-      dispatch({
+      this.props.dispatch({
         type: 'action/get',
         payload: {
           actionUrl: 'admin/goodsOrder/index' + stringify(params),
@@ -156,30 +171,40 @@ class IndexPage extends PureComponent {
               search: res.data.search,
               pagination: res.data.pagination,
               data:res.data,
-              tableLoading: true
+              tableLoading: false
             });
           }
         }
       });
     };
 
-    // 搜索
-    const onSearch = () => {
-      form.validateFields((err, values) => {
-        if (values['dateRange'][0] && values['dateRange'][1]) {
-          // 时间标准化
-          let dateStart = values['dateRange'][0].format('YYYY-MM-DD HH:mm:ss');
-          let dateEnd = values['dateRange'][1].format('YYYY-MM-DD HH:mm:ss');
-          // 先清空对象
-          values['dateRange'] = [];
-          // 重新赋值对象
-          values['dateRange'] = [dateStart, dateEnd];
+    // 不同状态不同数据
+    const getStatusLists = (e) => {
+
+      // 获得url参数
+      const params = this.props.location.query;
+
+      this.props.form.validateFields((err, values) => {
+
+        if (values['dateRange'] && values['dateRange']) {
+          if (values['dateRange'][0] && values['dateRange'][1]) {
+            // 时间标准化
+            let dateStart = values['dateRange'][0].format('YYYY-MM-DD HH:mm:ss');
+            let dateEnd = values['dateRange'][1].format('YYYY-MM-DD HH:mm:ss');
+            // 先清空对象
+            values['dateRange'] = [];
+            // 重新赋值对象
+            values['dateRange'] = [dateStart, dateEnd];
+          }
         }
+
+        values['status'] = e.target.value;
+
         if (!err) {
           this.setState({
             tableLoading: true
           });
-          dispatch({
+          this.props.dispatch({
             type: 'action/get',
             payload: {
               actionUrl: 'admin/goodsOrder/index' + stringify(params),
@@ -192,7 +217,53 @@ class IndexPage extends PureComponent {
                   search: res.data.search,
                   pagination: res.data.pagination,
                   data:res.data,
-                  tableLoading: true
+                  tableLoading: false
+                });
+              }
+            }
+          });
+        }
+      });
+    };
+
+    // 搜索
+    const onSearch = () => {
+
+      // 获得url参数
+      const params = this.props.location.query;
+
+      this.props.form.validateFields((err, values) => {
+
+        if (values['dateRange'] && values['dateRange']) {
+          if (values['dateRange'][0] && values['dateRange'][1]) {
+            // 时间标准化
+            let dateStart = values['dateRange'][0].format('YYYY-MM-DD HH:mm:ss');
+            let dateEnd = values['dateRange'][1].format('YYYY-MM-DD HH:mm:ss');
+            // 先清空对象
+            values['dateRange'] = [];
+            // 重新赋值对象
+            values['dateRange'] = [dateStart, dateEnd];
+          }
+        }
+
+        if (!err) {
+          this.setState({
+            tableLoading: true
+          });
+          this.props.dispatch({
+            type: 'action/get',
+            payload: {
+              actionUrl: 'admin/goodsOrder/index' + stringify(params),
+              ...this.state.pagination,
+              search: values,
+            },
+            callback : res => {
+              if (res) {
+                this.setState({
+                  search: res.data.search,
+                  pagination: res.data.pagination,
+                  data:res.data,
+                  tableLoading: false
                 });
               }
             }
@@ -213,7 +284,7 @@ class IndexPage extends PureComponent {
                 <div className={styles.floatRight}>
                 <Form layout="inline">
                   <Form.Item >
-                    <Radio.Group>
+                    <Radio.Group onChange={getStatusLists}>
                       <Radio.Button value="ALL">全部订单({this.state.data.totalNum})</Radio.Button>
                       <Radio.Button value="NOT_PAID">等待付款({this.state.data.notPaidNum})</Radio.Button>
                       <Radio.Button value="PAID">待发货({this.state.data.paidNum})</Radio.Button>
@@ -242,7 +313,7 @@ class IndexPage extends PureComponent {
                       {getFieldDecorator(`title`, {
                         initialValue: ''
                       })(
-                        <Input style={{ width: 220 }} placeholder="商品名称/订单编号/买家账号" />,
+                        <Input style={{ width: 220 }} placeholder="订单编号/买家账号/买家手机号" />,
                       )}
                     </Form.Item>
                     <Form.Item>
@@ -261,10 +332,10 @@ class IndexPage extends PureComponent {
                       )}
                     </Form.Item>
                     <Form.Item>
-                      <Button  onClick={() => onSearch()}>搜索</Button>
+                      <Button onClick={() => onSearch()}>搜索</Button>
                     </Form.Item>
                     <Form.Item>
-                      <Button type="primary">导出</Button>
+                      <Button href={this.state.exportUrl} target="_blank" type="primary">导出</Button>
                     </Form.Item>
                     <Form.Item style={{ marginRight: 10 }}>
                       <a style={{ fontSize: 12 }} onClick={toggle}>
@@ -319,13 +390,6 @@ class IndexPage extends PureComponent {
                     )}
                   </Form.Item>
                   <Form.Item>
-                    {getFieldDecorator(`phone`, {
-                      initialValue: ''
-                    })(
-                      <Input style={{ width: 180 }} placeholder="会员绑定手机号" />,
-                    )}
-                  </Form.Item>
-                  <Form.Item>
                     {getFieldDecorator(`consignee`, {
                       initialValue: ''
                     })(
@@ -355,6 +419,9 @@ class IndexPage extends PureComponent {
           </div>
           <div className={styles.tableData}>
             <Table
+              rowKey="id"
+              key={`table-${this.state.data.lists && this.state.data.lists.length}`}
+              defaultExpandAllRows={true}
               columns={columns}
               expandedRowRender={expandedRowRender}
               dataSource={this.state.data.lists}
