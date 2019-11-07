@@ -102,11 +102,21 @@ class IndexPage extends PureComponent {
     };
 
     const expandedRowRender = (record, index) => {
-      return <List
-        size="large"
-        dataSource={record.goods_order_details}
-        renderItem={item => (
-          <span>
+      return <div style={{'backgroundColor':'#ffffff','padding':'0px 10px'}}>
+        <p style={{'textAlign':'left','margin':0,'borderBottom':'1px solid #e8e8e8','padding':'20px 0px'}}>
+          <span style={{'color':'#22BAA0'}}>温馨提示：</span>
+          {record.status == '未支付' ? '如果商品被恶意拍下了，您可以关闭订单。' : null}
+          {record.status == '支付成功' ? '交易已成功，如果买家提出售后要求，需卖家与买家协商，做好售后服务。' : null}
+          {record.status == '转入退款' ? '买家提出退款，请与买家联系。' : null}
+          {record.status == '交易关闭' ? '此订单交易已关闭。' : null}
+          {record.status == '支付失败' ? '支付失败，您可以关闭订单。' : null}
+        </p>
+        <p style={{'textAlign':'left','margin':0,'borderBottom':'1px solid #e8e8e8','padding':'10px 0px'}}>收货信息：{record.consignee} ，{record.goods_order_phone} ，{record.address}</p>
+        <p style={{'textAlign':'left','margin':0,'borderBottom':'1px solid #e8e8e8','padding':'10px 0px'}}>配送状态：<span style={{'color':'#5bb85d'}}>{record.goods_order_status}</span></p>
+        <List
+          size="large"
+          dataSource={record.goods_order_details}
+          renderItem={item => (
             <List.Item>
               <List.Item.Meta
                 avatar={
@@ -115,33 +125,32 @@ class IndexPage extends PureComponent {
                 title={<a href={"#/admin/mall/goods/edit?id="+item.goods_id}>{item.goods_name} {item.goods_property_names}</a>}
                 description={item.description}
               />
-              {<span style={{'marginRight':150,'float':'left'}}>￥{item.goods_price} x {item.num}</span>}
+              {<span style={{'marginRight':150,'float':'left'}}>￥{item.goods_price}</span>}
+              {<span style={{'marginRight':150,'float':'left','color':'#ff3535'}}>x {item.num}</span>}
               {<span>￥{item.goods_price * item.num}</span>}
             </List.Item>
-            <List.Item>
-              <List.Item.Meta
-                title={<p style={{'textAlign':'right'}}>商品总金额： ￥311.00 + 运费： ￥50.00 - 店铺红包： ￥0.00 - 平台红包： ￥0.00 - 积分抵扣： ￥0.00 - 卖家优惠： ￥0.00 = 订单总金额： ￥361.00</p>}
-              />
-            </List.Item>
-            <List.Item>
-              <List.Item.Meta
-                title={<p style={{'textAlign':'right'}}>[ 已支付 ] ￥361.00</p>}
-              />
-            </List.Item>
-          </span>
-        )}
-      />;
+          )}
+        />
+        <p style={{'textAlign':'right','margin':0,'borderBottom':'1px solid #e8e8e8','borderTop':'1px solid #e8e8e8','padding':'10px 0px'}}><span>￥{record.buyer_pay_amount}（商品总金额） + ￥{record.freight_amount}（运费） - ￥{record.mdiscount_amount}（店铺优惠） - ￥{record.discount_amount}（平台优惠） -  ￥{record.point_amount}（积分抵扣） = ￥{record.total_amount}</span></p>
+        <p style={{'textAlign':'right','margin':0,'borderBottom':'1px solid #e8e8e8','padding':'10px 0px'}}>
+          <span style={{'color':record.status == '支付成功'?'#5bb85d':'#ff3535'}}>[ {record.status} ]</span>
+          ￥{record.total_amount}
+        </p>
+        <p style={{'textAlign':'right','marginTop':0,'borderBottom':'1px solid #e8e8e8','padding':'10px 0px'}}><strong>订单总金额：</strong><strong style={{'color':'#ff3535'}}>￥{record.total_amount}</strong></p>
+        <p style={{'textAlign':'right','margin':0,'height':40}}>
+          <span style={{'float':'left'}}><Button>打印订单</Button></span>
+          <span style={{'float':'right'}}><Button>一键发货</Button> <Button href={"#/admin/mall/goodsOrder/Info?id="+record.id} type="primary">订单详情</Button></span>
+        </p>
+      </div>;
     };
 
     const columns = [
       { title: 'ID', dataIndex: 'id', key: 'id' },
       { title: '订单号', dataIndex: 'order_no', key: 'order_no' },
       { title: '买家', dataIndex: 'username', key: 'username' },
-      { title: '电话', dataIndex: 'phone', key: 'phone' },
+      { title: '联系方式', dataIndex: 'phone', key: 'phone' },
       { title: '支付方式', dataIndex: 'pay_type', key: 'pay_type' },
-      { title: '状态', dataIndex: 'goods_order_status', key: 'goods_order_status' },
-      { title: '创建时间', dataIndex: 'created_at', key: 'created_at' },
-      { title: '操作', key: 'operation', render: () => <span><Button type="link">拆单发货</Button><Button type="link">订单详情</Button></span> },
+      { title: '下单时间', dataIndex: 'created_at', key: 'created_at' },
     ];
 
     // 分页切换

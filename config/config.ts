@@ -430,9 +430,9 @@ export default {
                   component: './Mall/GoodsOrder/Index',
                 },
                 {
-                  path: '/mall/goodsOrder/edit',
-                  name: 'edit',
-                  component: './Mall/GoodsOrder/Edit',
+                  path: '/mall/goodsOrder/info',
+                  name: 'info',
+                  component: './Mall/GoodsOrder/Info',
                 },
                 {
                   path: '/mall/goodsOrder/afterSaleIndex',
