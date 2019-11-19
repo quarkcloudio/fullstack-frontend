@@ -769,6 +769,11 @@ export default {
                   component: './System/Sms/Index',
                   hideInMenu: true,
                 },
+                {
+                  path: '/system/sms/create',
+                  component: './System/Sms/Create',
+                  hideInMenu: true,
+                },
               ],
             },
             {

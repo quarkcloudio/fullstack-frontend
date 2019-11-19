@@ -175,6 +175,13 @@ const List: ModelType = {
           callback(response); // 返回结果
         }
       } else {
+
+        const data = { tableLoading:false};
+        yield put({
+          type: 'tableLoading',
+          payload: data,
+        });
+
         message.error(response.msg, 3);
       }
     },
