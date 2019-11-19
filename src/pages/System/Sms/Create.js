@@ -66,22 +66,6 @@ class CreatePage extends PureComponent {
     // 获得url参数
     const params = this.props.location.query;
 
-    // loading
-    this.setState({ loading: true });
-
-    this.props.dispatch({
-      type: 'action/get',
-      payload: {
-        actionUrl: 'admin/training/create' + stringify(params),
-      },
-      callback: res => {
-        if (res) {
-          this.setState({
-            data: res.data,
-          });
-        }
-      },
-    });
   }
 
   handleSubmit = e => {
