@@ -525,7 +525,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
                           {getFieldDecorator(control.name,{
                             initialValue: control.value,
                             rules: control.rules
-                          })(<Input size={control.size} style={control.style} placeholder={control.placeholder} />)}
+                          })(<Input onPressEnter={() => onSearch('')} size={control.size} style={control.style} placeholder={control.placeholder} />)}
                         </Form.Item>
                       );
                     }
@@ -659,7 +659,7 @@ const BasicList: React.SFC<BasicListProps> = props => {
                       {getFieldDecorator(control.name,{
                         initialValue: control.value,
                         rules: control.rules
-                      })(<Input size={control.size} style={control.style} placeholder={control.placeholder} />)}
+                      })(<Input onPressEnter={() => onSearch('')} size={control.size} style={control.style} placeholder={control.placeholder} />)}
                     </Form.Item>
                   );
                 }
