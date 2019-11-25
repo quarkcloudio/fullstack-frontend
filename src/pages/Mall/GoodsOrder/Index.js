@@ -111,7 +111,7 @@ class IndexPage extends PureComponent {
           {record.status == '交易关闭' ? '此订单交易已关闭。' : null}
           {record.status == '支付失败' ? '支付失败，您可以关闭订单。' : null}
         </p>
-        <p style={{'textAlign':'left','margin':0,'borderBottom':'1px solid #e8e8e8','padding':'10px 0px'}}>收货信息：{record.consignee} ，{record.goods_order_phone} ，{record.address}</p>
+        <p style={{'textAlign':'left','margin':0,'borderBottom':'1px solid #e8e8e8','padding':'10px 0px'}}>收货信息：{record.consignee_name} ，{record.consignee_phone} ，{record.consignee_address}</p>
         <p style={{'textAlign':'left','margin':0,'borderBottom':'1px solid #e8e8e8','padding':'10px 0px'}}>配送状态：<span style={{'color':'#5bb85d'}}>{record.goods_order_status}</span></p>
         <List
           size="large"

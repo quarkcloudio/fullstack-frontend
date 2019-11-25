@@ -41,7 +41,8 @@ class InfoPage extends PureComponent {
     msg: '',
     url: '',
     status: '',
-    loading: false
+    loading: false,
+    current:0
   };
 
   // 当挂在模板时，初始化数据
@@ -59,8 +60,28 @@ class InfoPage extends PureComponent {
       },
       callback: res => {
         if (res) {
+
+          let current = 0;
+
+          if(res.data.goods_order_status == 'NOT_PAID') {
+            current = 1;
+          }
+
+          if(res.data.goods_order_status == 'PAID') {
+            current = 2;
+          }
+
+          if(res.data.goods_order_status == 'SEND') {
+            current = 3;
+          }
+
+          if(res.data.goods_order_status == 'SUCCESS') {
+            current = 4;
+          }
+
           this.setState({
             data: res.data,
+            current :current
           });
         }
       },
@@ -128,28 +149,109 @@ class InfoPage extends PureComponent {
           <Row>
             <Col span={24}>
               <div style={{'width':800,'margin':'50px auto'}}>
-                <Steps current={3} size="small">
-                  <Step title="下单时间" description={this.state.data.created_at} />
-                  <Step title="买家付款" description="2019-11-07 09:11:30" />
-                  <Step title="商家发货" description="2019-11-07 09:11:30" />
-                  <Step title="确认收货" description="2019-11-07 09:11:30" />
-                </Steps>
+                {this.state.current ? 
+                  <Steps current={this.state.current} size="small">
+                    <Step title="拍下商品" description={this.state.data.create_time} />
+                    <Step title="买家付款" description={this.state.data.pay_time} />
+                    <Step title="商家发货" description={this.state.data.send_time} />
+                    <Step title="交易成功" description={this.state.data.finish_time} />
+                  </Steps>
+                : 
+                <Steps current={this.state.goodsOrderStatusRecordCount} size="small">
+                  {this.state.data.goodsOrderStatusRecords.map(option => {
+                    switch (option.status) {
+                      case 'NOT_PAID':
+                        return <Step title="拍下商品" description={option.created_at} />;
+                        break;
+                      case 'PAID':
+                        return <Step title="买家付款" description={option.created_at} />;
+                        break;
+                      case 'SEND':
+                        return <Step title="商家发货" description={option.created_at} />;
+                        break;
+                      case 'SUCCESS':
+                        return <Step title="交易成功" description={option.created_at} />;
+                        break;
+                      case 'CLOSED':
+                        return <Step title="交易关闭" description={option.created_at} />;
+                        break;
+                      case 'REFUND':
+                        return <Step title="退款中" description={option.created_at} />;
+                        break;
+                      default:
+                        break;
+                    }
+                  })}
+                  </Steps>
+                }
               </div>
             </Col>
           </Row>
           <Row gutter={[16, 16]}>
             <Col span={16}>
-              <Card size="small" title={'当前订单状态：'+this.state.data.goods_order_status}>
-                <p>关闭类型：买家取消订单</p>
-                <p>关闭原因：我不想买了</p>
-                <p>关闭原因：我不想买了</p>
+              <Card size="small" title={'当前订单状态：' + this.state.data.goods_order_status_title}>
+                {this.state.data.goods_order_status == 'NOT_PAID' ? <p>已拍下订单，等待买家付款</p> : null}
+                {this.state.data.goods_order_status == 'PAID' ? 
+                  <span>
+                    <p><Button>关闭订单</Button> <Button>一键发货</Button> <Button>修改收货人信息</Button></p>
+                    <p>1、买家已付款，请尽快发货，否则买家有权申请退款。</p>
+                    <p>2、如果无法发货，请及时与买家联系并说明情况。</p>
+                    <p>3、买家申请退款后，卖家须征得买家同意后再操作发货，否则买家有权拒收货物。</p>
+                  </span> 
+                : null}
+                {this.state.data.goods_order_status == 'SEND' ? 
+                  <span>
+                    <p>买家（{this.state.data.username}{this.state.data.phone}）最晚于{this.state.data.timeout_receipt}来完成本次交易的“确认收货”。如果期间买家（{this.state.data.username}{this.state.data.phone}）没有“确认收货”，也没有“申请退款”，本交易将自动结束。</p>
+                    <p>如果买家表示未收到货或者收到的货物有问题，请及时联系买家积极处理，友好协商。</p>
+                  </span> 
+                : null}
+                {this.state.data.goods_order_status == 'SUCCESS' ? 
+                  <span>
+                    <p>交易已成功，如果买家提出售后要求，需卖家与买家协商，做好售后服务。</p>
+                  </span> 
+                : null}
+                {this.state.data.goods_order_status == 'REFUND' ? 
+                  <span>
+                    <p><Button>查看退款详情</Button></p>
+                    <p>买家申请退款，请尽快处理。</p>
+                  </span> 
+                : null}
+                {this.state.data.goods_order_status == 'CLOSED' ? 
+                  <span>
+                    <p>关闭类型：{this.state.data.close_type}</p>
+                    <p>关闭原因：{this.state.data.close_reason}</p>
+                  </span> 
+                : null}
               </Card>
             </Col>
             <Col span={8}>
               <Card size="small" title={'商家：'+this.state.data.shop_title}>
                 <p>订单编号：{this.state.data.order_no}</p>
-                <p>下单时间：{this.state.data.created_at}</p>
-                <p>关闭时间：2019-11-07 08:56:35</p>
+                {!!this.state.data &&
+                  this.state.data.goodsOrderStatusRecords.map(option => {
+                    switch (option.status) {
+                      case 'NOT_PAID':
+                        return <p>拍下商品：{option.created_at}</p>;
+                        break;
+                      case 'PAID':
+                        return <p>买家付款：{option.created_at}</p>;
+                        break;
+                      case 'SEND':
+                        return <p>商家发货：{option.created_at}</p>;
+                        break;
+                      case 'SUCCESS':
+                        return <p>交易成功：{option.created_at}</p>;
+                        break;
+                      case 'CLOSED':
+                        return <p>交易关闭：{option.created_at}</p>;
+                        break;
+                      case 'REFUND':
+                        return <p>退款中：{option.created_at}</p>;
+                        break;
+                      default:
+                        break;
+                    }
+                  })}
               </Card>
             </Col>
           </Row>
@@ -159,7 +261,6 @@ class InfoPage extends PureComponent {
                 <p>收 货 人： {this.state.data.consignee}，{this.state.data.goods_order_phone}</p>
                 <p>收货地址： {this.state.data.address}</p>
                 <p>支付方式： {this.state.data.pay_type}</p>
-                <p>配送时间： 立即配送</p>
                 <p>买家留言： {this.state.data.remark}</p>
               </Card>
             </Col>
@@ -180,17 +281,24 @@ class InfoPage extends PureComponent {
               />
             </Col>
           </Row>
+          {this.state.data.goods_order_status == 'SEND' || this.state.data.goods_order_status == 'SUCCESS' ||this.state.data.goods_order_status == 'REFUND' ? 
           <Row gutter={[16, 16]}>
             <Col span={24}>
-              <Card size="small" title="发货单物流">
-                <p>订单商品： 测试商品</p>
-                <p>物流方式： 第三方物流</p>
-                <p>物流公司： 申通快递</p>
-                <p>物流编号： 20190812092373001</p>
-                <p>运单号码： 41325523534</p>
-              </Card>
+              {!!this.state.data &&
+                this.state.data.goodsOrderDeliveries.map(option => {
+                  <Card size="small" title="发货单物流">
+                    <p>订单商品： {option.goods.map(option1 => {
+                      return option1.goods_name
+                    })}</p>
+                    <p>物流方式： {option.express_type}</p>
+                    <p>物流公司： {option.express_name}</p>
+                    <p>物流编号： {option.delivery_no}</p>
+                    <p>运单号码： {option.express_no}</p>
+                  </Card>
+                })}
             </Col>
           </Row>
+          : null}
         </div>
       </PageHeaderWrapper>
     );
