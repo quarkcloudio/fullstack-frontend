@@ -158,7 +158,7 @@ class InfoPage extends PureComponent {
                   </Steps>
                 : 
                 <Steps current={this.state.goodsOrderStatusRecordCount} size="small">
-                  {this.state.data.goodsOrderStatusRecords.map(option => {
+                  {!!this.state.data && this.state.data.goodsOrderStatusRecords.map(option => {
                     switch (option.status) {
                       case 'NOT_PAID':
                         return <Step title="拍下商品" description={option.created_at} />;
@@ -258,8 +258,8 @@ class InfoPage extends PureComponent {
           <Row gutter={[16, 16]}>
             <Col span={24}>
               <Card size="small" title="订单信息">
-                <p>收 货 人： {this.state.data.consignee}，{this.state.data.goods_order_phone}</p>
-                <p>收货地址： {this.state.data.address}</p>
+                <p>收 货 人： {this.state.data.consignee_name}，{this.state.data.consignee_phone}</p>
+                <p>收货地址： {this.state.data.consignee_address}</p>
                 <p>支付方式： {this.state.data.pay_type}</p>
                 <p>买家留言： {this.state.data.remark}</p>
               </Card>
