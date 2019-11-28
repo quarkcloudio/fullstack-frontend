@@ -189,11 +189,11 @@ class InfoPage extends PureComponent {
           </Row>
           <Row gutter={[16, 16]}>
             <Col span={16}>
-              <Card size="small" title={'当前订单状态：' + this.state.data.goods_order_status_title}>
+              <Card size="small" style={{minHeight:'260px'}} title={'当前订单状态：' + this.state.data.goods_order_status_title}>
                 {this.state.data.goods_order_status == 'NOT_PAID' ? <p>已拍下订单，等待买家付款</p> : null}
                 {this.state.data.goods_order_status == 'PAID' ? 
                   <span>
-                    <p><Button>关闭订单</Button> <Button>一键发货</Button> <Button>修改收货人信息</Button></p>
+                    <p><Button>关闭订单</Button> <Button>修改收货人信息</Button> <Button href={"#/admin/mall/goodsOrder/quickDelivery?id="+this.state.data.id} type="primary">一键发货</Button></p>
                     <p>1、买家已付款，请尽快发货，否则买家有权申请退款。</p>
                     <p>2、如果无法发货，请及时与买家联系并说明情况。</p>
                     <p>3、买家申请退款后，卖家须征得买家同意后再操作发货，否则买家有权拒收货物。</p>
@@ -201,7 +201,8 @@ class InfoPage extends PureComponent {
                 : null}
                 {this.state.data.goods_order_status == 'SEND' ? 
                   <span>
-                    <p>买家（{this.state.data.username}{this.state.data.phone}）最晚于{this.state.data.timeout_receipt}来完成本次交易的“确认收货”。如果期间买家（{this.state.data.username}{this.state.data.phone}）没有“确认收货”，也没有“申请退款”，本交易将自动结束。</p>
+                    <p>买家（{this.state.data.username}，{this.state.data.phone}）最晚于{this.state.data.timeout_receipt}来完成本次交易的“确认收货”。</p>
+                    <p>如果期间买家没有“确认收货”，也没有“申请退款”，本交易将自动结束。</p>
                     <p>如果买家表示未收到货或者收到的货物有问题，请及时联系买家积极处理，友好协商。</p>
                   </span> 
                 : null}
@@ -225,7 +226,7 @@ class InfoPage extends PureComponent {
               </Card>
             </Col>
             <Col span={8}>
-              <Card size="small" title={'商家：'+this.state.data.shop_title}>
+              <Card size="small" style={{minHeight:'260px'}} title={'商家：'+this.state.data.shop_title}>
                 <p>订单编号：{this.state.data.order_no}</p>
                 {!!this.state.data &&
                   this.state.data.goodsOrderStatusRecords.map(option => {
@@ -284,18 +285,22 @@ class InfoPage extends PureComponent {
           {this.state.data.goods_order_status == 'SEND' || this.state.data.goods_order_status == 'SUCCESS' ||this.state.data.goods_order_status == 'REFUND' ? 
           <Row gutter={[16, 16]}>
             <Col span={24}>
+              <Card size="small" title="物流发货单">
               {!!this.state.data &&
                 this.state.data.goodsOrderDeliveries.map(option => {
-                  <Card size="small" title="发货单物流">
-                    <p>订单商品： {option.goods.map(option1 => {
-                      return option1.goods_name
-                    })}</p>
-                    <p>物流方式： {option.express_type}</p>
-                    <p>物流公司： {option.express_name}</p>
-                    <p>物流编号： {option.delivery_no}</p>
-                    <p>运单号码： {option.express_no}</p>
-                  </Card>
+                  return (
+                    <div style={{float:'left',marginLeft:'30px'}}>
+                      <p>订单商品： {!!option.goodsOrderDetails && option.goodsOrderDetails.map(option1 => {
+                        return option1.goods_name
+                      })}</p>
+                      <p>物流方式： {option.express_type}</p>
+                      <p>物流公司： {option.express_name}</p>
+                      <p>物流编号： {option.delivery_no}</p>
+                      <p>运单号码： {option.express_no}</p>
+                    </div>
+                  );
                 })}
+                </Card>
             </Col>
           </Row>
           : null}

@@ -435,6 +435,11 @@ export default {
                   component: './Mall/GoodsOrder/Info',
                 },
                 {
+                  path: '/mall/goodsOrder/quickDelivery',
+                  name: 'quickDelivery',
+                  component: './Mall/GoodsOrder/quickDelivery',
+                },
+                {
                   path: '/mall/goodsOrder/afterSaleIndex',
                   name: 'afterSaleIndex',
                   component: './Mall/GoodsOrder/AfterSaleIndex',

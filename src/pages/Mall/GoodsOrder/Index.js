@@ -139,7 +139,7 @@ class IndexPage extends PureComponent {
         <p style={{'textAlign':'right','marginTop':0,'borderBottom':'1px solid #e8e8e8','padding':'10px 0px'}}><strong>订单总金额：</strong><strong style={{'color':'#ff3535'}}>￥{record.total_amount}</strong></p>
         <p style={{'textAlign':'right','margin':0,'height':40}}>
           <span style={{'float':'left'}}><Button>打印订单</Button></span>
-          <span style={{'float':'right'}}><Button>一键发货</Button> <Button href={"#/admin/mall/goodsOrder/Info?id="+record.id} type="primary">订单详情</Button></span>
+          <span style={{'float':'right'}}>{record.goods_order_status=='待发货'?<Button href={"#/admin/mall/goodsOrder/quickDelivery?id="+record.id}>一键发货</Button> : null} <Button href={"#/admin/mall/goodsOrder/Info?id="+record.id} type="primary">订单详情</Button></span>
         </p>
       </div>;
     };
