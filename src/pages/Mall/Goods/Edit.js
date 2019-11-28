@@ -562,6 +562,15 @@ class CreatePage extends PureComponent {
               goodsAttribute.vname.map(vname => {
                 if (vname.id == mapDescarteValue) {
                   colValue[goodsAttribute.id] = vname.vname;
+                  colValue['goodsAttribute_' + goodsAttribute.id] =
+                  'goodsAttribute_id:' +
+                  goodsAttribute.id +
+                  ';goodsAttribute_name:' +
+                  goodsAttribute.name +
+                  ';goodsAttribute_value_id:' +
+                  vname.id +
+                  ';goodsAttribute_value_name:' +
+                  vname.vname;
                   dataSource.push(colValue);
                 }
               });
@@ -730,9 +739,12 @@ class CreatePage extends PureComponent {
       });
     } else {
       if (checkedGoodsAttributeValues != undefined) {
-        checkedGoodsAttributeValues.map((descarteValue, index) => {
+
+        tempCheckedGoodsAttributeValues.map((descarteValue, index) => {
+
           if (descarteValue.length != undefined) {
-            descarteValue.map(mapDescarteValue => {
+
+            descarteValue.sort().map(mapDescarteValue => {
               dataSourceLength = dataSourceLength + 1;
 
               let colValue = [];
@@ -741,7 +753,7 @@ class CreatePage extends PureComponent {
 
               this.state.goodsSkus.map(goodsSku => {
                 if (
-                  goodsSku.goods_attribute_info.sort().toString() == descarteValue.sort().toString()
+                  goodsSku.goods_attribute_info.sort().toString() == mapDescarteValue.toString()
                 ) {
                   colValue['market_price'] = goodsSku['market_price'];
                   colValue['cost_price'] = goodsSku['cost_price'];
@@ -757,6 +769,15 @@ class CreatePage extends PureComponent {
                 goodsAttribute.vname.map(vname => {
                   if (vname.id == mapDescarteValue) {
                     colValue[goodsAttribute.id] = vname.vname;
+                    colValue['goodsAttribute_' + goodsAttribute.id] =
+                    'goodsAttribute_id:' +
+                    goodsAttribute.id +
+                    ';goodsAttribute_name:' +
+                    goodsAttribute.name +
+                    ';goodsAttribute_value_id:' +
+                    vname.id +
+                    ';goodsAttribute_value_name:' +
+                    vname.vname;
                     dataSource.push(colValue);
                   }
                 });

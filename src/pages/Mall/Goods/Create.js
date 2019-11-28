@@ -481,6 +481,7 @@ class CreatePage extends PureComponent {
               goodsAttribute.vname.map((vname) => {
                 if(vname.id == mapDescarteValue) {
                   colValue[goodsAttribute.id] = vname.vname;
+                  colValue['goodsAttribute_'+goodsAttribute.id] = 'goodsAttribute_id:'+goodsAttribute.id+';goodsAttribute_name:'+goodsAttribute.name+';goodsAttribute_value_id:'+vname.id+';goodsAttribute_value_name:'+vname.vname;
                   dataSource.push(colValue);
                 }
               });
