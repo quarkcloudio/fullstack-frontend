@@ -293,7 +293,7 @@ class InfoPage extends PureComponent {
                       <p>订单商品： {!!option.goodsOrderDetails && option.goodsOrderDetails.map(option1 => {
                         return option1.goods_name
                       })}</p>
-                      <p>物流方式： {option.express_type}</p>
+                      <p>物流方式： {option.express_type==1 ? '无需配送' : '第三方物流'}</p>
                       <p>物流公司： {option.express_name}</p>
                       <p>物流编号： {option.delivery_no}</p>
                       <p>运单号码： {option.express_no}</p>

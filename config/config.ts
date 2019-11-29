@@ -440,6 +440,21 @@ export default {
                   component: './Mall/GoodsOrder/quickDelivery',
                 },
                 {
+                  path: '/mall/goodsOrder/virtualOrderIndex',
+                  name: 'virtualOrderIndex',
+                  component: './Mall/GoodsOrder/VirtualOrderIndex',
+                },
+                {
+                  path: '/mall/goodsOrder/deliveryIndex',
+                  name: 'deliveryIndex',
+                  component: './Mall/GoodsOrder/DeliveryIndex',
+                },
+                {
+                  path: '/mall/goodsOrder/deliveryInfo',
+                  name: 'deliveryInfo',
+                  component: './Mall/GoodsOrder/DeliveryInfo',
+                },
+                {
                   path: '/mall/goodsOrder/afterSaleIndex',
                   name: 'afterSaleIndex',
                   component: './Mall/GoodsOrder/AfterSaleIndex',

@@ -190,7 +190,7 @@ class InfoPage extends PureComponent {
                           initialValue: this.state.data.id,
                         })(<Input style={{ display: 'none' }} />)}
                         {getFieldDecorator('express_type', {
-                          initialValue: '1',
+                          initialValue: '2',
                         })(<Input style={{ display: 'none' }} />)}
                         {getFieldDecorator('express_id', {
                           initialValue: '0',
