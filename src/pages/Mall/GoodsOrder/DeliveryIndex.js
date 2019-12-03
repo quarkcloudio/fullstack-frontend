@@ -125,7 +125,7 @@ class IndexPage extends PureComponent {
         <p style={{'textAlign':'right','marginTop':0,'borderBottom':'1px solid #e8e8e8','borderTop':'1px solid #e8e8e8','padding':'10px 0px'}}>购买账号：{record.username}（{record.phone}）</p>
         <p style={{'textAlign':'right','margin':0,'height':40}}>
           <span style={{'float':'left'}}><Button>打印发货单</Button></span>
-          <span style={{'float':'right'}}><Button href={"#/admin/mall/goodsOrder/Info?id="+record.id}>发货单详情</Button> {record.status ==1 ? <Button type="primary" href={"#/admin/mall/goodsOrder/quickDelivery?id="+record.id}>去发货</Button> : <Button type="primary" href={"#/admin/mall/goodsOrder/quickDelivery?id="+record.id}>修改运单</Button>}</span>
+          <span style={{'float':'right'}}><Button href={"#/admin/mall/goodsOrder/deliveryInfo?id="+record.id}>发货单详情</Button> {record.status ==1 ? <Button type="primary" href={"#/admin/mall/goodsOrder/quickDelivery?id="+record.id}>去发货</Button> : <Button type="primary" href={"#/admin/mall/goodsOrder/quickDelivery?id="+record.id}>修改运单</Button>}</span>
         </p>
       </div>;
     };
@@ -318,13 +318,13 @@ class IndexPage extends PureComponent {
                       )}
                     </Form.Item>
                     <Form.Item>
-                      {getFieldDecorator(`status`, {
+                      {getFieldDecorator(`expressType`, {
                         initialValue: 'ALL'
                       })(
                         <Select style={{ width: 120 }}>
                           <Option value="ALL">全部配送方式</Option>
-                          <Option value="NOT_PAID">无需物流</Option>
-                          <Option value="PAID">第三方物流</Option>
+                          <Option value="1">无需物流</Option>
+                          <Option value="2">第三方物流</Option>
                         </Select>
                       )}
                     </Form.Item>
