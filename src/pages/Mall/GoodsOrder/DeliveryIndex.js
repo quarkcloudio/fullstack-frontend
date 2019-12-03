@@ -75,7 +75,7 @@ class IndexPage extends PureComponent {
     this.props.dispatch({
       type: 'action/get',
       payload: {
-        actionUrl: 'admin/goodsOrder/virtualOrderIndex' + stringify(params),
+        actionUrl: 'admin/goodsOrder/deliveryIndex' + stringify(params),
       },
       callback: res => {
         if (res) {
@@ -103,15 +103,8 @@ class IndexPage extends PureComponent {
 
     const expandedRowRender = (record, index) => {
       return <div style={{'backgroundColor':'#ffffff','padding':'0px 10px'}}>
-        <p style={{'textAlign':'left','margin':0,'borderBottom':'1px solid #e8e8e8','padding':'20px 0px'}}>
-          <span style={{'color':'#22BAA0'}}>温馨提示：</span>
-          {record.status == '未支付' ? '如果商品被恶意拍下了，您可以关闭订单。' : null}
-          {record.status == '支付成功' ? '支付成功，如果买家提出售后要求，需卖家与买家协商，做好售后服务。' : null}
-          {record.status == '转入退款' ? '买家提出退款，请与买家联系。' : null}
-          {record.status == '交易关闭' ? '此订单交易已关闭。' : null}
-          {record.status == '支付失败' ? '支付失败，您可以关闭订单。' : null}
-        </p>
-        <p style={{'textAlign':'left','margin':0,'borderBottom':'1px solid #e8e8e8','padding':'10px 0px'}}>核验状态：<span style={{'color':'#5bb85d'}}>{record.goods_order_status}</span></p>
+        <p style={{'textAlign':'left','margin':0,'borderBottom':'1px solid #e8e8e8','padding':'10px 0px'}}>收货信息：{record.consignee_name} ，{record.consignee_phone} ，{record.consignee_address}</p>
+        <p style={{'textAlign':'left','margin':0,'borderBottom':'1px solid #e8e8e8','padding':'10px 0px'}}>发货单状态：<span style={{'color':'#5bb85d'}}>{record.status ==1 ? '待发货' : '已发货'}</span></p>
         <List
           size="large"
           dataSource={record.goods_order_details}
@@ -126,29 +119,23 @@ class IndexPage extends PureComponent {
               />
               {<span style={{'marginRight':150,'float':'left'}}>￥{item.goods_price}</span>}
               {<span style={{'marginRight':150,'float':'left','color':'#ff3535'}}>x {item.num}</span>}
-              {<span>￥{item.goods_price * item.num}</span>}
             </List.Item>
           )}
         />
-        <p style={{'textAlign':'right','margin':0,'borderBottom':'1px solid #e8e8e8','borderTop':'1px solid #e8e8e8','padding':'10px 0px'}}><span>￥{record.buyer_pay_amount}（商品总金额） + ￥{record.freight_amount}（运费） - ￥{record.mdiscount_amount}（店铺优惠） - ￥{record.discount_amount}（平台优惠） -  ￥{record.point_amount}（积分抵扣） = ￥{record.total_amount}</span></p>
-        <p style={{'textAlign':'right','margin':0,'borderBottom':'1px solid #e8e8e8','padding':'10px 0px'}}>
-          <span style={{'color':record.status == '支付成功'?'#5bb85d':'#ff3535'}}>[ {record.status} ]</span>
-          ￥{record.total_amount}
-        </p>
-        <p style={{'textAlign':'right','marginTop':0,'borderBottom':'1px solid #e8e8e8','padding':'10px 0px'}}><strong>订单总金额：</strong><strong style={{'color':'#ff3535'}}>￥{record.total_amount}</strong></p>
+        <p style={{'textAlign':'right','marginTop':0,'borderBottom':'1px solid #e8e8e8','borderTop':'1px solid #e8e8e8','padding':'10px 0px'}}>购买账号：{record.username}（{record.phone}）</p>
         <p style={{'textAlign':'right','margin':0,'height':40}}>
-          <span style={{'float':'left'}}><Button>打印订单</Button></span>
-          <span style={{'float':'right'}}>{record.goods_order_status=='待核验'?<Button href={"#/admin/mall/goodsOrder/quickDelivery?id="+record.id}>一键核验</Button> : null} <Button href={"#/admin/mall/goodsOrder/Info?id="+record.id} type="primary">订单详情</Button></span>
+          <span style={{'float':'left'}}><Button>打印发货单</Button></span>
+          <span style={{'float':'right'}}><Button href={"#/admin/mall/goodsOrder/Info?id="+record.id}>发货单详情</Button> {record.status ==1 ? <Button type="primary" href={"#/admin/mall/goodsOrder/quickDelivery?id="+record.id}>去发货</Button> : <Button type="primary" href={"#/admin/mall/goodsOrder/quickDelivery?id="+record.id}>修改运单</Button>}</span>
         </p>
       </div>;
     };
 
     const columns = [
       { title: 'ID', dataIndex: 'id', key: 'id' },
-      { title: '发货单号', dataIndex: 'order_no', key: 'order_no' },
-      { title: '发货时间', dataIndex: 'username', key: 'username' },
-      { title: '订单编号', dataIndex: 'phone', key: 'phone' },
-      { title: '下单时间', dataIndex: 'created_at', key: 'created_at' },
+      { title: '发货单号', dataIndex: 'delivery_no', key: 'delivery_no' },
+      { title: '发货时间', dataIndex: 'express_send_at', key: 'express_send_at' },
+      { title: '订单编号', dataIndex: 'order_no', key: 'order_no' },
+      { title: '下单时间', dataIndex: 'paid_at', key: 'paid_at' },
     ];
 
     // 分页切换
@@ -164,7 +151,7 @@ class IndexPage extends PureComponent {
       this.props.dispatch({
         type: 'action/get',
         payload: {
-          actionUrl: 'admin/goodsOrder/virtualOrderIndex' + stringify(params),
+          actionUrl: 'admin/goodsOrder/deliveryIndex' + stringify(params),
           pageSize: pagination.pageSize, // 分页数量
           current: pagination.current, // 当前页码
           sortField: sorter.field, // 排序字段
@@ -214,7 +201,7 @@ class IndexPage extends PureComponent {
           this.props.dispatch({
             type: 'action/get',
             payload: {
-              actionUrl: 'admin/goodsOrder/virtualOrderIndex' + stringify(params),
+              actionUrl: 'admin/goodsOrder/deliveryIndex' + stringify(params),
               ...this.state.pagination,
               search: values,
             },
@@ -260,7 +247,7 @@ class IndexPage extends PureComponent {
           this.props.dispatch({
             type: 'action/get',
             payload: {
-              actionUrl: 'admin/goodsOrder/virtualOrderIndex' + stringify(params),
+              actionUrl: 'admin/goodsOrder/deliveryIndex' + stringify(params),
               ...this.state.pagination,
               search: values,
             },
@@ -293,8 +280,8 @@ class IndexPage extends PureComponent {
                   <Form.Item >
                     <Radio.Group onChange={getStatusLists}>
                       <Radio.Button value="ALL">全部发货单({this.state.data.totalNum})</Radio.Button>
-                      <Radio.Button value="NOT_PAID">等待发货({this.state.data.notPaidNum})</Radio.Button>
-                      <Radio.Button value="SUCCESS">已发货({this.state.data.successNum})</Radio.Button>
+                      <Radio.Button value="1">等待发货({this.state.data.waitSendNum})</Radio.Button>
+                      <Radio.Button value="2">已发货({this.state.data.sendNum})</Radio.Button>
                     </Radio.Group>
                   </Form.Item>
                 </Form>
@@ -307,7 +294,7 @@ class IndexPage extends PureComponent {
           <div className={styles.tableToolBar}>
             <Row type="flex" justify="start">
               <Col span={2}>
-                <Tag color="#2db7f5" style={{ marginTop:2,paddingBottom:5,paddingTop:5,paddingLeft:10,paddingRight:10 }}>发货单统计：1000</Tag>
+                <Tag color="#2db7f5" style={{ marginTop:2,paddingBottom:5,paddingTop:5,paddingLeft:10,paddingRight:10 }}>发货单统计：{this.state.data.totalNum}</Tag>
               </Col>
               <Col span={22}>
                 <div className={styles.floatRight}>
@@ -325,8 +312,8 @@ class IndexPage extends PureComponent {
                       })(
                         <Select style={{ width: 120 }}>
                           <Option value="ALL">全部发货单</Option>
-                          <Option value="NOT_PAID">等待发货</Option>
-                          <Option value="PAID">已发货</Option>
+                          <Option value="1">等待发货</Option>
+                          <Option value="2">已发货</Option>
                         </Select>
                       )}
                     </Form.Item>
