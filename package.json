@@ -46,6 +46,7 @@
   "dependencies": {
     "@ant-design/pro-layout": "^4.5.7",
     "@antv/data-set": "^0.10.2",
+    "@tinymce/tinymce-react": "^3.3.2",
     "antd": "^3.19.1",
     "bizcharts": "^3.5.4",
     "braft-editor": "^2.3.7",
