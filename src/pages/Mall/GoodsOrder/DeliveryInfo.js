@@ -39,7 +39,11 @@ const { Step } = Steps;
 
 class InfoPage extends PureComponent {
   state = {
-    data:false,
+    data:{
+      goodsOrderDeliveryInfo:false,
+      goodsOrderDeliveryDetails:false,
+      goodsOrderInfo:false,
+    },
     msg: '',
     url: '',
     status: '',
@@ -58,7 +62,7 @@ class InfoPage extends PureComponent {
     this.props.dispatch({
       type: 'action/get',
       payload: {
-        actionUrl: 'admin/goodsOrder/quickDelivery?' + stringify(params),
+        actionUrl: 'admin/goodsOrder/deliveryInfo?' + stringify(params),
       },
       callback: res => {
         if (res) {
@@ -69,27 +73,6 @@ class InfoPage extends PureComponent {
       },
     });
   }
-
-  handleSubmit = e => {
-    e.preventDefault();
-    this.props.form.validateFields((err, values) => {
-      // 验证正确提交表单
-      if (!err) {
-        this.props.dispatch({
-          type: 'action/post',
-          payload: {
-            actionUrl: 'admin/goodsOrder/send',
-            ...values,
-          },
-          callback: res => {
-            if (res.status == 'success') {
-              location.reload();
-            }
-          },
-        });
-      }
-    });
-  };
 
   render() {
 
@@ -118,7 +101,7 @@ class InfoPage extends PureComponent {
         key: 'goods_price',
       },
       {
-        title: '数量',
+        title: '发货数量',
         dataIndex: 'num',
         key: 'num',
       },
@@ -145,8 +128,13 @@ class InfoPage extends PureComponent {
         <div className={styles.container}>
           <Row gutter={[16, 16]}>
             <Col span={24}>
+              发货单编号：{this.state.data.goodsOrderDeliveryInfo.delivery_no}
+            </Col>
+          </Row>
+          <Row gutter={[16, 16]}>
+            <Col span={24}>
               <Table
-                dataSource={this.state.data.goods_order_details}
+                dataSource={this.state.data.goodsOrderDeliveryDetails}
                 columns={columns}
                 pagination={false}
                 bordered
@@ -156,28 +144,26 @@ class InfoPage extends PureComponent {
           <Row gutter={[16, 16]}>
             <Col span={24}>
               <Card size="small" title="收货信息">
-                <p>收 货 人： {this.state.data.consignee_name}，{this.state.data.consignee_phone}</p>
-                <p>收货地址： {this.state.data.consignee_address}</p>
-                <p>支付方式： {this.state.data.pay_type}</p>
-                <p>买家留言： {this.state.data.remark}</p>
+                <p>收 货 人： {this.state.data.goodsOrderInfo.consignee_name}，{this.state.data.goodsOrderInfo.consignee_phone}</p>
+                <p>收货地址： {this.state.data.goodsOrderInfo.consignee_address}</p>
+                <p>支付方式： {this.state.data.goodsOrderInfo.pay_type}</p>
+                <p>买家留言： {this.state.data.goodsOrderInfo.remark}</p>
               </Card>
             </Col>
           </Row>
-          {this.state.data.goods_order_status == 'SEND' || this.state.data.goods_order_status == 'SUCCESS' ||this.state.data.goods_order_status == 'REFUND' ? 
           <Row gutter={[16, 16]}>
             <Col span={24}>
-              <Card size="small" title="物流发货单">
-                <p>订单商品： {!!option.goodsOrderDetails && option.goodsOrderDetails.map(option1 => {
-                  return option1.goods_name
-                })}</p>
-                <p>物流方式： {option.express_type}</p>
-                <p>物流公司： {option.express_name}</p>
-                <p>物流编号： {option.delivery_no}</p>
-                <p>运单号码： {option.express_no}</p>
+              <Card size="small" title="物流信息">
+                <p>物流方式： {this.state.data.goodsOrderDeliveryInfo.express_type == 1 ? '无需配送' : '第三方物流'}</p>
+                {this.state.data.goodsOrderDeliveryInfo.express_type == 2 && (
+                  <span>
+                    <p>物流公司： {this.state.data.goodsOrderDeliveryInfo.express_name}</p>
+                    <p>运单号码： {this.state.data.goodsOrderDeliveryInfo.express_no}</p>
+                  </span>
+                )}
               </Card>
             </Col>
           </Row>
-          : null}
         </div>
       </PageHeaderWrapper>
     );

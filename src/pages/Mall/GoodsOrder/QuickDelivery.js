@@ -44,7 +44,7 @@ class InfoPage extends PureComponent {
     url: '',
     status: '',
     loading: false,
-    current:0
+    expressType:1
   };
 
   // 当挂在模板时，初始化数据
@@ -75,21 +75,26 @@ class InfoPage extends PureComponent {
     this.props.form.validateFields((err, values) => {
       // 验证正确提交表单
       if (!err) {
+
+        // 配送类型
+        values['express_type'] = this.state.expressType
+
         this.props.dispatch({
           type: 'action/post',
           payload: {
             actionUrl: 'admin/goodsOrder/send',
             ...values,
-          },
-          callback: res => {
-            if (res.status == 'success') {
-              location.reload();
-            }
-          },
+          }
         });
       }
     });
   };
+
+  onTabChange = (key) => {
+    this.setState({
+      expressType:key
+    })
+  }
 
   render() {
 
@@ -166,7 +171,7 @@ class InfoPage extends PureComponent {
           <Row gutter={[16, 16]}>
             <Col span={24}>
               <Card size="small" title="选择物流服务">
-                <Tabs defaultActiveKey="1">
+                <Tabs defaultActiveKey="1" onChange={this.onTabChange}>
                   <TabPane tab="无需物流" key="1">
                     <Form onSubmit={this.handleSubmit} style={{ marginTop: 8 }}>
                       <Form.Item {...formItemLayout} label="注意">
@@ -175,9 +180,6 @@ class InfoPage extends PureComponent {
                       <Form.Item wrapperCol={{ span: 12, offset: 2 }}>
                         {getFieldDecorator('order_id', {
                           initialValue: this.state.data.id,
-                        })(<Input style={{ display: 'none' }} />)}
-                        {getFieldDecorator('express_type', {
-                          initialValue: '1',
                         })(<Input style={{ display: 'none' }} />)}
                         <Button type="primary" htmlType="submit">确认发货</Button>
                       </Form.Item>
@@ -188,9 +190,6 @@ class InfoPage extends PureComponent {
                       <Form.Item {...formItemLayout} label="物流公司">
                         {getFieldDecorator('order_id', {
                           initialValue: this.state.data.id,
-                        })(<Input style={{ display: 'none' }} />)}
-                        {getFieldDecorator('express_type', {
-                          initialValue: '2',
                         })(<Input style={{ display: 'none' }} />)}
                         {getFieldDecorator('express_id', {
                           initialValue: '0',

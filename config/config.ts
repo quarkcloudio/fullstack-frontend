@@ -455,6 +455,11 @@ export default {
                   component: './Mall/GoodsOrder/DeliveryInfo',
                 },
                 {
+                  path: '/mall/goodsOrder/deliveryEdit',
+                  name: 'deliveryEdit',
+                  component: './Mall/GoodsOrder/deliveryEdit',
+                },
+                {
                   path: '/mall/goodsOrder/afterSaleIndex',
                   name: 'afterSaleIndex',
                   component: './Mall/GoodsOrder/AfterSaleIndex',

@@ -279,7 +279,7 @@ class IndexPage extends PureComponent {
                 <Form layout="inline">
                   <Form.Item >
                     <Radio.Group onChange={getStatusLists}>
-                      <Radio.Button value="ALL">全部发货单({this.state.data.totalNum})</Radio.Button>
+                      <Radio.Button value="0">全部发货单({this.state.data.totalNum})</Radio.Button>
                       <Radio.Button value="1">等待发货({this.state.data.waitSendNum})</Radio.Button>
                       <Radio.Button value="2">已发货({this.state.data.sendNum})</Radio.Button>
                     </Radio.Group>
@@ -308,10 +308,10 @@ class IndexPage extends PureComponent {
                     </Form.Item>
                     <Form.Item>
                       {getFieldDecorator(`status`, {
-                        initialValue: 'ALL'
+                        initialValue: '0'
                       })(
                         <Select style={{ width: 120 }}>
-                          <Option value="ALL">全部发货单</Option>
+                          <Option value="0">全部发货单</Option>
                           <Option value="1">等待发货</Option>
                           <Option value="2">已发货</Option>
                         </Select>
@@ -319,10 +319,10 @@ class IndexPage extends PureComponent {
                     </Form.Item>
                     <Form.Item>
                       {getFieldDecorator(`expressType`, {
-                        initialValue: 'ALL'
+                        initialValue: '0'
                       })(
                         <Select style={{ width: 120 }}>
-                          <Option value="ALL">全部配送方式</Option>
+                          <Option value="0">全部配送方式</Option>
                           <Option value="1">无需物流</Option>
                           <Option value="2">第三方物流</Option>
                         </Select>

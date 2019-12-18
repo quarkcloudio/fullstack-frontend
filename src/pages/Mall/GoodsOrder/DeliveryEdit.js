@@ -39,12 +39,16 @@ const { Step } = Steps;
 
 class InfoPage extends PureComponent {
   state = {
-    data:false,
+    data:{
+      goodsOrderDeliveryInfo:false,
+      goodsOrderDeliveryDetails:false,
+      goodsOrderInfo:false,
+    },
     msg: '',
     url: '',
     status: '',
     loading: false,
-    current:0
+    expressType:1
   };
 
   // 当挂在模板时，初始化数据
@@ -75,21 +79,26 @@ class InfoPage extends PureComponent {
     this.props.form.validateFields((err, values) => {
       // 验证正确提交表单
       if (!err) {
+
+        // 配送类型
+        values['express_type'] = this.state.expressType
+
         this.props.dispatch({
           type: 'action/post',
           payload: {
             actionUrl: 'admin/goodsOrder/deliverySave',
             ...values,
-          },
-          callback: res => {
-            if (res.status == 'success') {
-              location.reload();
-            }
-          },
+          }
         });
       }
     });
   };
+ 
+  onTabChange = (key) => {
+    this.setState({
+      expressType:key
+    })
+  }
 
   render() {
 
@@ -118,7 +127,7 @@ class InfoPage extends PureComponent {
         key: 'goods_price',
       },
       {
-        title: '数量',
+        title: '发货数量',
         dataIndex: 'num',
         key: 'num',
       },
@@ -145,8 +154,13 @@ class InfoPage extends PureComponent {
         <div className={styles.container}>
           <Row gutter={[16, 16]}>
             <Col span={24}>
+              发货单编号：{this.state.data.goodsOrderDeliveryInfo.delivery_no}
+            </Col>
+          </Row>
+          <Row gutter={[16, 16]}>
+            <Col span={24}>
               <Table
-                dataSource={this.state.data.goods_order_details}
+                dataSource={this.state.data.goodsOrderDeliveryDetails}
                 columns={columns}
                 pagination={false}
                 bordered
@@ -156,28 +170,66 @@ class InfoPage extends PureComponent {
           <Row gutter={[16, 16]}>
             <Col span={24}>
               <Card size="small" title="收货信息">
-                <p>收 货 人： {this.state.data.consignee_name}，{this.state.data.consignee_phone}</p>
-                <p>收货地址： {this.state.data.consignee_address}</p>
-                <p>支付方式： {this.state.data.pay_type}</p>
-                <p>买家留言： {this.state.data.remark}</p>
+                <p>收 货 人： {this.state.data.goodsOrderInfo.consignee_name}，{this.state.data.goodsOrderInfo.consignee_phone}</p>
+                <p>收货地址： {this.state.data.goodsOrderInfo.consignee_address}</p>
+                <p>支付方式： {this.state.data.goodsOrderInfo.pay_type}</p>
+                <p>买家留言： {this.state.data.goodsOrderInfo.remark}</p>
               </Card>
             </Col>
           </Row>
-          {this.state.data.goods_order_status == 'SEND' || this.state.data.goods_order_status == 'SUCCESS' ||this.state.data.goods_order_status == 'REFUND' ? 
           <Row gutter={[16, 16]}>
             <Col span={24}>
-              <Card size="small" title="物流发货单">
-                <p>订单商品： {!!option.goodsOrderDetails && option.goodsOrderDetails.map(option1 => {
-                  return option1.goods_name
-                })}</p>
-                <p>物流方式： {option.express_type}</p>
-                <p>物流公司： {option.express_name}</p>
-                <p>物流编号： {option.delivery_no}</p>
-                <p>运单号码： {option.express_no}</p>
+              {!!this.state.data.goodsOrderDeliveryInfo && (
+              <Card size="small" title="选择物流服务">
+                <Tabs defaultActiveKey={this.state.data.goodsOrderDeliveryInfo ? this.state.data.goodsOrderDeliveryInfo.express_type.toString() : '1'} onChange={this.onTabChange}>
+                  <TabPane tab="无需物流" key="1">
+                    <Form onSubmit={this.handleSubmit} style={{ marginTop: 8 }}>
+                      <Form.Item {...formItemLayout} label="注意">
+                        <span className="ant-form-text">如果订单中的商品无需物流运送，您可以直接点击确认发货！</span>
+                      </Form.Item>
+                      <Form.Item wrapperCol={{ span: 12, offset: 2 }}>
+                        {getFieldDecorator('id', {
+                          initialValue: this.state.data.goodsOrderDeliveryInfo.id,
+                        })(<Input style={{ display: 'none' }} />)}
+                        <Button type="primary" htmlType="submit">确认修改</Button>
+                      </Form.Item>
+                    </Form>
+                  </TabPane>
+                  <TabPane tab="第三方物流" key="2">
+                    <Form onSubmit={this.handleSubmit} style={{ marginTop: 8 }}>
+                      <Form.Item {...formItemLayout} label="物流公司">
+                        {getFieldDecorator('id', {
+                          initialValue: this.state.data.goodsOrderDeliveryInfo.id,
+                        })(<Input style={{ display: 'none' }} />)}
+                        {getFieldDecorator('express_id', {
+                          initialValue: this.state.data.goodsOrderDeliveryInfo ? this.state.data.goodsOrderDeliveryInfo.goods_express_id.toString() : '0',
+                        })(
+                          <Select style={{ width: 200 }}>
+                            <Option key={'0'}>{'请选择物流公司'}</Option>
+                            {!!this.state.data.goodsExpresses &&
+                              this.state.data.goodsExpresses.map(option => {
+                                return <Option key={option.id.toString()}>{option.name}</Option>;
+                              })}
+                          </Select>,
+                        )}
+                      </Form.Item>
+                      <Form.Item {...formItemLayout} label="物流单号">
+                        {getFieldDecorator('express_no', {
+                          initialValue: this.state.data.goodsOrderDeliveryInfo.express_no,
+                        })(<Input style={{ width: 200 }} placeholder="请输入物流单号" />)}
+                      </Form.Item>
+                      <Form.Item wrapperCol={{ span: 12, offset: 2 }}>
+                        <Button type="primary" htmlType="submit">
+                          确认修改
+                        </Button>
+                      </Form.Item>
+                    </Form>
+                  </TabPane>
+                </Tabs>
               </Card>
+              )}
             </Col>
           </Row>
-          : null}
         </div>
       </PageHeaderWrapper>
     );
