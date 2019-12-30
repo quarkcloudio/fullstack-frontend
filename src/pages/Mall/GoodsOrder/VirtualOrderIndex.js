@@ -284,143 +284,145 @@ class IndexPage extends PureComponent {
       <PageHeaderWrapper title={false}>
       <Tabs type="card">
         <TabPane tab="虚拟订单列表" key="1">
-            <div className={styles.container}>
-              <div className={styles.tableHeader}>
-                <Row type="flex" justify="start">
-                  <Col span={2}>
-                    <h5 className={styles.tableHeaderTitle}>订单列表</h5>
-                  </Col>
-                  <Col span={22}>
-                    <div className={styles.floatRight}>
-                    <Form layout="inline">
-                      <Form.Item >
-                        <Radio.Group onChange={getStatusLists}>
-                          <Radio.Button value="ALL">全部订单({this.state.data.totalNum})</Radio.Button>
-                          <Radio.Button value="NOT_PAID">等待付款({this.state.data.notPaidNum})</Radio.Button>
-                          <Radio.Button value="PAID">待核验({this.state.data.paidNum})</Radio.Button>
-                          <Radio.Button value="SUCCESS">已完成({this.state.data.successNum})</Radio.Button>
-                          <Radio.Button value="CLOSE">已关闭({this.state.data.closeNum})</Radio.Button>
-                          <Radio.Button value="REFUND">退款中({this.state.data.refundNum})</Radio.Button>
-                        </Radio.Group>
-                      </Form.Item>
-                    </Form>
-                    </div>
-                  </Col>
-                </Row>
-              </div>
-
-              <Divider style={{ marginBottom: 10,marginTop: 10 }} />
-              <div className={styles.tableToolBar}>
-                <Row type="flex" justify="start">
-                  <Col span={2}>
-                    <Tag color="#2db7f5" style={{ marginTop:2,paddingBottom:5,paddingTop:5,paddingLeft:10,paddingRight:10 }}>订单金额：{this.state.data.totalMoney}元</Tag>
-                  </Col>
-                  <Col span={22}>
-                    <div className={styles.floatRight}>
-                      <Form layout="inline">
-                        <Form.Item>
-                          {getFieldDecorator(`title`, {
-                            initialValue: ''
-                          })(
-                            <Input style={{ width: 220 }} placeholder="订单编号/买家账号/买家手机号" />,
-                          )}
-                        </Form.Item>
-                        <Form.Item>
-                          {getFieldDecorator(`status`, {
-                            initialValue: 'ALL'
-                          })(
-                            <Select style={{ width: 120 }}>
-                              <Option value="ALL">全部订单</Option>
-                              <Option value="NOT_PAID">等待付款</Option>
-                              <Option value="PAID">待核验</Option>
-                              <Option value="SUCCESS">已完成</Option>
-                              <Option value="CLOSE">已关闭</Option>
-                              <Option value="REFUND">退款中</Option>
-                            </Select>
-                          )}
-                        </Form.Item>
-                        <Form.Item>
-                          <Button onClick={() => onSearch()}>搜索</Button>
-                        </Form.Item>
-                        <Form.Item>
-                          <Button href={this.state.exportUrl} target="_blank" type="primary">导出</Button>
-                        </Form.Item>
-                        <Form.Item style={{ marginRight: 10 }}>
-                          <a style={{ fontSize: 12 }} onClick={toggle}>
-                            高级搜索 <Icon type={this.state.advancedSearchExpand ? 'up' : 'down'} />
-                          </a>
-                        </Form.Item>
-                      </Form>
-                    </div>
-                  </Col>
-                </Row>
-              </div>
-              <div
-                className={styles.tableAdvancedSearchBar}
-                style={{ display: this.state.advancedSearchExpand ? 'block' : 'none' }}
-              >
-                <Row>
-                  <Col span={24}>
-                    <Form layout="inline">
-                      <Form.Item>
-                        {getFieldDecorator(`payType`, {
-                          initialValue: '0'
-                        })(
-                          <Select style={{ width: 180 }}>
-                            <Option value="0">请选择付款方式</Option>
-                            <Option value="WECHAT_APP">微信APP支付</Option>
-                            <Option value="WECHAT_JSAPI">微信公众号支付</Option>
-                            <Option value="WECHAT_NATIVE">微信电脑网站支付</Option>
-                            <Option value="ALIPAY_PAGE">支付宝电脑网站支付</Option>
-                            <Option value="ALIPAY_APP">支付宝APP支付</Option>
-                            <Option value="ALIPAY_WAP">支付宝手机网站支付</Option>
-                            <Option value="ALIPAY_F2F">支付宝当面付</Option>
-                            <Option value="ALIPAY_JS">支付宝JSAPI</Option>
-                          </Select>
-                        )}
-                      </Form.Item>
-                      <Form.Item>
-                        {getFieldDecorator(`payType`, {
-                          initialValue: '0'
-                        })(
-                          <Select style={{ width: 180 }}>
-                            <Option value="0">请选择订单类型</Option>
-                            <Option value="MALL">普通订单</Option>
-                          </Select>
-                        )}
-                      </Form.Item>
-                      <Form.Item>
-                        {getFieldDecorator(`dateRange`)(
-                          <RangePicker
-                            showTime={true}
-                            style={{ width: 360 }}
-                          />
-                        )}
-                      </Form.Item>
-                      <Form.Item >
-                        <Button>搜索</Button>
-                      </Form.Item>
-                    </Form>
-                  </Col>
-                </Row>
-              </div>
-              <div className={styles.tableData}>
-                <Table
-                  rowKey="id"
-                  key={`table-${this.state.data.lists && this.state.data.lists.length}`}
-                  defaultExpandAllRows={true}
-                  columns={columns}
-                  expandedRowRender={expandedRowRender}
-                  dataSource={this.state.data.lists}
-                  pagination={this.state.pagination}
-                  loading={this.state.tableLoading}
-                  onChange={changePagination}
-                />
-              </div>
+          <div className={styles.container}>
+            <div className={styles.tableHeader}>
+              <Row type="flex" justify="start">
+                <Col span={2}>
+                  <h5 className={styles.tableHeaderTitle}>订单列表</h5>
+                </Col>
+                <Col span={22}>
+                  <div className={styles.floatRight}>
+                  <Form layout="inline">
+                    <Form.Item >
+                      <Radio.Group onChange={getStatusLists}>
+                        <Radio.Button value="ALL">全部订单({this.state.data.totalNum})</Radio.Button>
+                        <Radio.Button value="NOT_PAID">等待付款({this.state.data.notPaidNum})</Radio.Button>
+                        <Radio.Button value="PAID">待核验({this.state.data.paidNum})</Radio.Button>
+                        <Radio.Button value="SUCCESS">已完成({this.state.data.successNum})</Radio.Button>
+                        <Radio.Button value="CLOSE">已关闭({this.state.data.closeNum})</Radio.Button>
+                        <Radio.Button value="REFUND">退款中({this.state.data.refundNum})</Radio.Button>
+                      </Radio.Group>
+                    </Form.Item>
+                  </Form>
+                  </div>
+                </Col>
+              </Row>
             </div>
+
+            <Divider style={{ marginBottom: 10,marginTop: 10 }} />
+            <div className={styles.tableToolBar}>
+              <Row type="flex" justify="start">
+                <Col span={2}>
+                  <Tag color="#2db7f5" style={{ marginTop:2,paddingBottom:5,paddingTop:5,paddingLeft:10,paddingRight:10 }}>订单金额：{this.state.data.totalMoney}元</Tag>
+                </Col>
+                <Col span={22}>
+                  <div className={styles.floatRight}>
+                    <Form layout="inline">
+                      <Form.Item>
+                        {getFieldDecorator(`title`, {
+                          initialValue: ''
+                        })(
+                          <Input style={{ width: 220 }} placeholder="订单编号/买家账号/买家手机号" />,
+                        )}
+                      </Form.Item>
+                      <Form.Item>
+                        {getFieldDecorator(`status`, {
+                          initialValue: 'ALL'
+                        })(
+                          <Select style={{ width: 120 }}>
+                            <Option value="ALL">全部订单</Option>
+                            <Option value="NOT_PAID">等待付款</Option>
+                            <Option value="PAID">待核验</Option>
+                            <Option value="SUCCESS">已完成</Option>
+                            <Option value="CLOSE">已关闭</Option>
+                            <Option value="REFUND">退款中</Option>
+                          </Select>
+                        )}
+                      </Form.Item>
+                      <Form.Item>
+                        <Button onClick={() => onSearch()}>搜索</Button>
+                      </Form.Item>
+                      <Form.Item>
+                        <Button href={this.state.exportUrl} target="_blank" type="primary">导出</Button>
+                      </Form.Item>
+                      <Form.Item style={{ marginRight: 10 }}>
+                        <a style={{ fontSize: 12 }} onClick={toggle}>
+                          高级搜索 <Icon type={this.state.advancedSearchExpand ? 'up' : 'down'} />
+                        </a>
+                      </Form.Item>
+                    </Form>
+                  </div>
+                </Col>
+              </Row>
+            </div>
+            <div
+              className={styles.tableAdvancedSearchBar}
+              style={{ display: this.state.advancedSearchExpand ? 'block' : 'none' }}
+            >
+              <Row>
+                <Col span={24}>
+                  <Form layout="inline">
+                    <Form.Item>
+                      {getFieldDecorator(`payType`, {
+                        initialValue: '0'
+                      })(
+                        <Select style={{ width: 180 }}>
+                          <Option value="0">请选择付款方式</Option>
+                          <Option value="WECHAT_APP">微信APP支付</Option>
+                          <Option value="WECHAT_JSAPI">微信公众号支付</Option>
+                          <Option value="WECHAT_NATIVE">微信电脑网站支付</Option>
+                          <Option value="ALIPAY_PAGE">支付宝电脑网站支付</Option>
+                          <Option value="ALIPAY_APP">支付宝APP支付</Option>
+                          <Option value="ALIPAY_WAP">支付宝手机网站支付</Option>
+                          <Option value="ALIPAY_F2F">支付宝当面付</Option>
+                          <Option value="ALIPAY_JS">支付宝JSAPI</Option>
+                        </Select>
+                      )}
+                    </Form.Item>
+                    <Form.Item>
+                      {getFieldDecorator(`payType`, {
+                        initialValue: '0'
+                      })(
+                        <Select style={{ width: 180 }}>
+                          <Option value="0">请选择订单类型</Option>
+                          <Option value="MALL">普通订单</Option>
+                        </Select>
+                      )}
+                    </Form.Item>
+                    <Form.Item>
+                      {getFieldDecorator(`dateRange`)(
+                        <RangePicker
+                          showTime={true}
+                          style={{ width: 360 }}
+                        />
+                      )}
+                    </Form.Item>
+                    <Form.Item >
+                      <Button>搜索</Button>
+                    </Form.Item>
+                  </Form>
+                </Col>
+              </Row>
+            </div>
+            <div className={styles.tableData}>
+              <Table
+                rowKey="id"
+                key={`table-${this.state.data.lists && this.state.data.lists.length}`}
+                defaultExpandAllRows={true}
+                columns={columns}
+                expandedRowRender={expandedRowRender}
+                dataSource={this.state.data.lists}
+                pagination={this.state.pagination}
+                loading={this.state.tableLoading}
+                onChange={changePagination}
+              />
+            </div>
+          </div>
         </TabPane>
         <TabPane tab="核销" key="2">
-          Content of Tab Pane 2
+          <div className={styles.container}>
+            <Input placeholder="请输入核销码" />
+          </div>
         </TabPane>
         <TabPane tab="核销记录" key="3">
           Content of Tab Pane 3
