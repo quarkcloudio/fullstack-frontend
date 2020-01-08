@@ -879,6 +879,18 @@ export default {
           ],
         },
         {
+          path: '/planet',
+          name: 'planet',
+          icon: 'file-word',
+          routes: [
+            {
+              path: '/planet/index',
+              name: 'index',
+              component: './Planet/Index',
+            },
+          ],
+        },
+        {
           path: '/exception',
           name: 'exception',
           hideInMenu: true,
