@@ -1,108 +1,81 @@
-import { AnyAction, Reducer } from 'redux';
-import { parse, stringify } from 'qs';
-
-import { EffectsCommandMap } from 'dva';
 import { routerRedux } from 'dva/router';
-import { accountLogin } from '@/services/api';
+import { Reducer } from 'redux';
+import { Effect,Subscription } from 'dva';
+import router from 'umi/router';
 import { message } from 'antd';
-
-export function getPageQuery(): {
-  [key: string]: string;
-} {
-  return parse(window.location.href.split('?')[1]);
-}
-
-export type Effect = (
-  action: AnyAction,
-  effects: EffectsCommandMap & { select: <T>(func: (state: {}) => T) => T },
-) => void;
+import { 
+  get,
+  post,
+} from '@/services/action';
 
 export interface ModelType {
   namespace: string;
   state: {};
+  reducers: {
+    changeSubmitStatus: Reducer<{}>;
+  };
   effects: {
     login: Effect;
-    logout: Effect;
   };
-  reducers: {
-    changeLoginStatus: Reducer<{}>;
-  };
+  subscriptions:{ setup: Subscription };
 }
 
-const Model: ModelType = {
+const login : ModelType = {
   namespace: 'login',
-
   state: {
-    status: undefined,
+    submitting:false
   },
-
+  reducers: {
+    changeSubmitStatus(state, action) {
+      return {
+        submitting:action.payload,
+      };
+    }
+  },
   effects: {
-    *login({ payload,callback }, { call, put }) {
-      const response = yield call(accountLogin, payload);
+    *login({ payload, callback }, { call, put }) {
 
       yield put({
-        type: 'changeLoginStatus',
-        payload: response,
+        type: 'changeSubmitStatus',
+        payload: true,
       });
 
-      // Login successfully
+      const response = yield call(post, payload);
+      if(!response) {
+        return false;
+      }
+
+      // 提示信息
+      message.success(response.msg, 3);
+
+      // 操作成功
       if (response.status === 'success') {
         // 记录登录凭据
         sessionStorage.setItem('token', response.token);
-
-        const urlParams = new URL(window.location.href);
-        const params = getPageQuery();
-        let { redirect } = params;
-        if (redirect) {
-          const redirectUrlParams = new URL(redirect);
-          if (redirectUrlParams.origin === urlParams.origin) {
-            redirect = redirect.substr(urlParams.origin.length);
-            if (redirect.match(/^\/.*#/)) {
-              redirect = redirect.substr(redirect.indexOf('#') + 1);
-            }
-          } else {
-            window.location.href = redirect;
-            return;
-          }
-        }
-        yield put(routerRedux.replace(redirect || '/'));
-      } else {
-        message.error(response.msg, 3);
+        // 跳转到后台
+        router.push('/index');
       }
+
+      yield put({
+        type: 'changeSubmitStatus',
+        payload: false,
+      });
 
       if (callback && typeof callback === 'function') {
         callback(response); // 返回结果
       }
     },
-
-    *logout(_, { put }) {
-      // 注销登录凭据
-      sessionStorage.removeItem('token');
-
-      const { redirect } = getPageQuery();
-      // redirect
-      if (window.location.pathname !== '/login' && !redirect) {
-        yield put(
-          routerRedux.replace({
-            pathname: '/login',
-            search: stringify({
-              redirect: window.location.href,
-            }),
-          }),
-        );
-      }
-    },
   },
-
-  reducers: {
-    changeLoginStatus(state, { payload }) {
-      return {
-        ...state,
-        status: payload.status,
-        type: payload.type,
-      };
+  subscriptions: {
+    setup({ dispatch, history }) {
+      return history.listen(({ pathname }) => {
+        // 已登录，跳转到主页
+        if (sessionStorage['token'] && pathname == '/login') {
+          router.push('/index');
+        }
+      });
     },
   },
 };
 
-export default Model;
+export default login;

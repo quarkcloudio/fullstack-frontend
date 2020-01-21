@@ -1,49 +1,28 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { FormComponentProps } from 'antd/es/form';
 import { Dispatch } from 'redux';
 import styles from './Login.less';
 
-import { Form, Input, Button, Icon, Row, Col} from 'antd';
+import { Form, Input, Button, Row, Col} from 'antd';
+import { createFromIconfontCN } from '@ant-design/icons';
 
-interface IFormComponentProps extends FormComponentProps {
-  dispatch: Dispatch<any>;
+const Iconfont = createFromIconfontCN({
+  scriptUrl: '//at.alicdn.com/t/font_1615691_y9lfy84fltb.js', // 在 iconfont.cn 上生成
+});
+
+interface IProps {
+  dispatch:Dispatch<any>;
   submitting: boolean;
 }
 
-@connect(({ loading }: { loading: { effects: { [key: string]: string } } }) => ({
-  submitting: loading.effects['login/login'],
-}))
+class LoginPage extends Component<IProps> {
 
-class LoginPage extends Component<IFormComponentProps> {
+  formRef: React.RefObject<any> = React.createRef();
 
   state = {
-    captcha: '/api/admin/captcha',
+    captcha: '/api/admin/captcha'
   };
-
-  handleSubmit = (e: React.FormEvent) => {
-    const { dispatch, form } = this.props;
-    e.preventDefault();
-    form.validateFieldsAndScroll((err, values) => {
-      console.log(values);
-      if (!err) {
-        dispatch({
-          type: 'login/login',
-          payload: values,
-          callback: (res: any) => {
-            // 执行成功后，进行回调
-            if (res) {
-              // 接口得到数据，放到state里
-              if(res.status == 'error') {
-                this.handleGetCaptcha();
-              }
-            }
-          },
-        });
-      }
-    });
-  };
-
+  
   componentDidMount() {
     this.handleGetCaptcha();
   }
@@ -54,45 +33,61 @@ class LoginPage extends Component<IFormComponentProps> {
     });
   };
 
-  render() {
-    const { submitting } = this.props;
+  onFinish = (values:any) => {
+    this.props.dispatch({
+      type: 'login/login',
+      payload: {
+        actionUrl: 'admin/login',
+        ...values
+      },
+      callback: (res: any) => {
+        // 接口得到数据，放到state里
+        if(res.status == 'error') {
+          this.handleGetCaptcha();
+        }
+      },
+    });
+  };
 
-    const {
-      form: { getFieldDecorator },
-    } = this.props;
+  render() {
+
+    const {submitting} = this.props;
 
     return (
       <div className={styles.main}>
-        <Form onSubmit={this.handleSubmit}>
-          <Form.Item>
-            {getFieldDecorator('username')(
-              <Input
-                size="large"
-                prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />}
-                placeholder="用户名"
-              />,
-            )}
+        <Form ref={this.formRef} onFinish={this.onFinish}>
+          <Form.Item
+            name="username"
+            rules={[{ required: true, message: '用户名必须填写！' }]}
+          >
+            <Input
+              size="large"
+              prefix={<Iconfont type="icon-custom-user" style={{ color: 'rgba(0,0,0,.25)' }}/>}
+              placeholder="用户名"
+            />
           </Form.Item>
-          <Form.Item>
-            {getFieldDecorator('password')(
+          <Form.Item
+            name="password"
+            rules={[{ required: true, message: '密码必须填写！' }]}
+          >
               <Input
                 size="large"
-                prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
+                prefix={<Iconfont type="icon-password" style={{ color: 'rgba(0,0,0,.25)' }}/>}
                 type="password"
                 placeholder="密码"
-              />,
-            )}
+              />
           </Form.Item>
-          <Form.Item>
+          <Form.Item
+            name="captcha"
+            rules={[{ required: true, message: '验证码必须填写！' }]}
+          >
             <Row gutter={10}>
               <Col span={16}>
-                {getFieldDecorator('captcha')(
-                  <Input
-                    size="large"
-                    prefix={<Icon type="safety-certificate" style={{ color: 'rgba(0,0,0,.25)' }} />}
-                    placeholder="验证码"
-                  />
-                )}
+                <Input
+                  size="large"
+                  prefix={<Iconfont type="icon-yanzhengma" style={{ color: 'rgba(0,0,0,.25)' }}/>}
+                  placeholder="验证码"
+                />
               </Col>
               <Col span={8}>
                 {<img 
@@ -110,8 +105,8 @@ class LoginPage extends Component<IFormComponentProps> {
             <Button
               size="large"
               type="primary"
-              loading={submitting}
               htmlType="submit"
+              loading={submitting}
               className={styles.loginFormButton}
             >
               登录
@@ -123,4 +118,11 @@ class LoginPage extends Component<IFormComponentProps> {
   }
 }
 
-export default Form.create<IFormComponentProps>()(LoginPage);
+function mapStateToProps(state:any) {
+  const { submitting } = state.login;
+  return {
+    submitting
+  };
+}
+
+export default connect(mapStateToProps)(LoginPage);
