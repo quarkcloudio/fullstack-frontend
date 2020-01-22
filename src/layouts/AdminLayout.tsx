@@ -6,12 +6,20 @@ import DocumentTitle from 'react-document-title';
 import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
+  HomeOutlined,
+  FileWordOutlined,
+  FilePptOutlined,
+  UserAddOutlined,
+  UsergroupAddOutlined,
+  SnippetsOutlined,
+  SettingOutlined,
+  PaperClipOutlined,
   UserOutlined,
-  VideoCameraOutlined,
-  UploadOutlined,
+  ShopOutlined
 } from '@ant-design/icons';
 import styles from './AdminLayout.less';
 
+const { SubMenu } = Menu;
 const { Header, Sider, Content, Footer } = Layout;
 
 interface IProps {
@@ -38,11 +46,78 @@ class AdminLayout extends Component<IProps> {
     }
   };
 
-  handleMenuCollapse = () => {
+  onMenuCollapse = () => {
     this.setState({
       collapsed: !this.state.collapsed,
     });
   };
+
+  onMenuClick = (e:any) => {
+    const { menus } = this.props;
+    console.log(e)
+  };
+
+  menuIcon = (icon:string) =>{
+    if(icon == 'home' || icon == 'HomeOutlined') {
+      return(
+        <HomeOutlined />
+      )
+    }
+
+    if(icon == 'file-word' || icon == 'FileWordOutlined') {
+      return(
+        <FileWordOutlined />
+      )
+    }
+
+    if(icon == 'file-ppt' || icon == 'FilePptOutlined') {
+      return(
+        <FilePptOutlined />
+      )
+    }
+
+    if(icon == 'user-add' || icon == 'UserAddOutlined') {
+      return(
+        <UserAddOutlined />
+      )
+    }
+
+    if(icon == 'usergroup-add' || icon == 'UsergroupAddOutlined') {
+      return(
+        <UsergroupAddOutlined />
+      )
+    }
+
+    if(icon == 'snippets' || icon == 'SnippetsOutlined') {
+      return(
+        <SnippetsOutlined />
+      )
+    }
+
+    if(icon == 'setting' || icon == 'SettingOutlined') {
+      return(
+        <SettingOutlined />
+      )
+    }
+
+    if(icon == 'paper-clip' || icon == 'PaperClipOutlined') {
+      return(
+        <PaperClipOutlined />
+      )
+    }
+
+    if(icon == 'user' || icon == 'UserOutlined') {
+      return(
+        <UserOutlined />
+      )
+    }
+
+    if(icon == 'shop' || icon == 'ShopOutlined') {
+      return(
+        <ShopOutlined />
+      )
+    }
+  }
 
   render() {
 
@@ -82,12 +157,34 @@ class AdminLayout extends Component<IProps> {
             <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']}>
               {!!menus &&
                 menus.map((menu:any) => {
-                  return (
-                    <Menu.Item key={menu.id}>
-                      <UserOutlined />
-                      <span>{menu.name}</span>
-                    </Menu.Item>
-                  );
+                  if(menu.children) {
+                    return (
+                      <SubMenu key={menu.id}
+                        title={
+                          <span>
+                            {this.menuIcon(menu.icon)}
+                            <span>{menu.name}</span>
+                          </span>
+                        }
+                      >
+                        {!!menu.children && menu.children.map((child:any) => {
+                          return(
+                            <Menu.Item key={child.id} onClick={this.onMenuClick} >
+                              {this.menuIcon(child.icon)}
+                              <span>{child.name}</span>
+                            </Menu.Item>
+                          )
+                        })}
+                      </SubMenu>
+                    );
+                  } else {
+                    return (
+                      <Menu.Item key={menu.id}>
+                        {this.menuIcon(menu.icon)}
+                        <span>{menu.name}</span>
+                      </Menu.Item>
+                    );
+                  }
                 })
               }
             </Menu>
@@ -96,7 +193,7 @@ class AdminLayout extends Component<IProps> {
             <Header className={styles.siteLayoutBackground} style={{ padding: 0 }}>
               {React.createElement(this.state.collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
                 className: styles.trigger,
-                onClick: this.handleMenuCollapse,
+                onClick: this.onMenuCollapse,
               })}
               <div className={styles.right}>
                 {this.state.userInfo.nickname ? 
