@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'dva';
 import { Dispatch } from 'redux';
 import { Dropdown, Avatar, Layout, Menu, Spin } from 'antd';
+import router from 'umi/router';
 import DocumentTitle from 'react-document-title';
 import {
   MenuUnfoldOutlined,
@@ -15,7 +16,8 @@ import {
   SettingOutlined,
   PaperClipOutlined,
   UserOutlined,
-  ShopOutlined
+  ShopOutlined,
+  LogoutOutlined
 } from '@ant-design/icons';
 import styles from './AdminLayout.less';
 
@@ -54,7 +56,32 @@ class AdminLayout extends Component<IProps> {
 
   onMenuClick = (e:any) => {
     const { menus } = this.props;
-    console.log(e)
+
+    let path = '';
+
+    menus.map((menu:any) => {
+      if(menu.children) {
+        menu.children.map((child:any) => {
+          if(child.children) {
+            child.children.map((grandson:any) => {
+              if(e.key == grandson.id) {
+                path = grandson.path;
+              }
+            })
+          } else {
+            if(e.key == child.id) {
+              path = child.path;
+            }
+          }
+        })
+      } else {
+        if(e.key == menu.id) {
+          path = menu.path;
+        }
+      }
+    })
+
+    router.push(path);
   };
 
   menuIcon = (icon:string) =>{
@@ -127,17 +154,12 @@ class AdminLayout extends Component<IProps> {
       <Menu>
         <Menu.Item>
           <a target="_blank" rel="noopener noreferrer" href="http://www.alipay.com/">
-            1st menu item
+            <SettingOutlined /> 个人设置
           </a>
         </Menu.Item>
         <Menu.Item>
           <a target="_blank" rel="noopener noreferrer" href="http://www.taobao.com/">
-            2nd menu item
-          </a>
-        </Menu.Item>
-        <Menu.Item>
-          <a target="_blank" rel="noopener noreferrer" href="http://www.tmall.com/">
-            3rd menu item
+            <LogoutOutlined /> 退出登录
           </a>
         </Menu.Item>
       </Menu>
@@ -167,13 +189,35 @@ class AdminLayout extends Component<IProps> {
                           </span>
                         }
                       >
-                        {!!menu.children && menu.children.map((child:any) => {
-                          return(
-                            <Menu.Item key={child.id} onClick={this.onMenuClick} >
-                              {this.menuIcon(child.icon)}
-                              <span>{child.name}</span>
-                            </Menu.Item>
-                          )
+                        {!!menu.children && menu.children.map((grandson:any) => {
+                          if(grandson.children) {
+                            return (
+                              <SubMenu key={grandson.id}
+                                title={
+                                  <span>
+                                    {this.menuIcon(grandson.icon)}
+                                    <span>{grandson.name}</span>
+                                  </span>
+                                }
+                              >
+                                {!!grandson.children && grandson.children.map((grandsonItem:any) => {
+                                  return(
+                                    <Menu.Item key={grandsonItem.id} onClick={this.onMenuClick} >
+                                      {this.menuIcon(grandsonItem.icon)}
+                                      <span>{grandsonItem.name}</span>
+                                    </Menu.Item>
+                                  )
+                                })}
+                              </SubMenu>
+                            )
+                          } else {
+                            return (
+                              <Menu.Item key={grandson.id} onClick={this.onMenuClick} >
+                                {this.menuIcon(grandson.icon)}
+                                <span>{grandson.name}</span>
+                              </Menu.Item>
+                            )
+                          }
                         })}
                       </SubMenu>
                     );
@@ -218,7 +262,7 @@ class AdminLayout extends Component<IProps> {
             >
               {children}
             </Content>
-            <Footer style={{ textAlign: 'center' }}>Ant Design ©2018 Created by Ant UED</Footer>
+            <Footer style={{ textAlign: 'center' }}>FullStack ©2020</Footer>
           </Layout>
         </Layout>
       </DocumentTitle>
