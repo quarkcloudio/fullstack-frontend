@@ -14,7 +14,8 @@ const config: IConfig =  {
       component: '../layouts/AdminLayout',
       routes: [
         { path: '/', component: '../pages/Dashboard/Index' },
-        { path: '/index', component: '../pages/Dashboard/Index' }
+        { path: '/index', component: '../pages/Dashboard/Index' },
+        { path: '/dashboard/index', component: '../pages/Dashboard/Index' }
       ]
     }
   ],

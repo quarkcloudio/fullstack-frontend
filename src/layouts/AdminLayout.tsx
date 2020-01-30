@@ -172,7 +172,10 @@ class AdminLayout extends Component<IProps> {
         <Layout>
           <Sider trigger={null} collapsible collapsed={this.state.collapsed}
             style={{
+              overflow: 'auto',
               height: '100vh',
+              position: 'fixed',
+              left: 0,
             }}
           >
             <div className={styles.logo}>Logo</div>
@@ -233,8 +236,8 @@ class AdminLayout extends Component<IProps> {
               }
             </Menu>
           </Sider>
-          <Layout className={styles.siteLayout}>
-            <Header className={styles.siteLayoutBackground} style={{ padding: 0 }}>
+          <Layout className={styles.siteLayout} style={{ marginLeft: 200 }}>
+            <Header className={styles.siteLayoutBackground} style={{ padding: 0, position: 'fixed', zIndex: 1, width: '100%' }}>
               {React.createElement(this.state.collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
                 className: styles.trigger,
                 onClick: this.onMenuCollapse,
@@ -255,7 +258,10 @@ class AdminLayout extends Component<IProps> {
             <Content
               className={styles.siteLayoutBackground}
               style={{
-                margin: '24px 16px',
+                marginTop:80,
+                marginBottom:24,
+                marginLeft:16,
+                marginRight:16,
                 padding: 24,
                 overflow: 'initial'
               }}
