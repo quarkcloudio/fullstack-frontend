@@ -8,8 +8,10 @@
     "precommit": "lint-staged"
   },
   "dependencies": {
+    "@ant-design/pro-layout": "^5.0.0",
     "@types/react-document-title": "^2.0.3",
     "antd": "^4.0.0-rc.1",
+    "bizcharts": "^3.5.6",
     "dva": "^2.6.0-beta.6",
     "qs": "^6.9.1",
     "react": "^16.8.6",
