@@ -26,7 +26,7 @@ const config: IConfig =  {
       dva: true,
       dynamicImport: false,
       title: 'fullstack-frontend',
-      dll: true,
+      dll: false,
       
       routes: {
         exclude: [

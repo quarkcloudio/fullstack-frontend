@@ -47,8 +47,27 @@ class AdminLayout extends Component<IProps> {
     },
   };
 
-  onMenuClick = (e:any) => {
-    router.push(e.key);
+  onMenuClick = (event:any) => {
+    router.push(event.key);
+  };
+
+  onAvatarMenuClick = (event:any) => {
+    const { key } = event;
+
+    if (key === 'logout') {
+      const { dispatch } = this.props;
+      if (dispatch) {
+        dispatch({
+          type: 'login/logout',
+        });
+      }
+      return;
+    }
+
+    if (key === 'settings') {
+      router.push('/account/settings/info');
+      return;
+    }
   };
 
   render() {
@@ -56,16 +75,12 @@ class AdminLayout extends Component<IProps> {
     const { menus,children } = this.props;
 
     const menu = (
-      <Menu>
-        <Menu.Item>
-          <a target="_blank" rel="noopener noreferrer" href="http://www.alipay.com/">
-            <SettingOutlined /> 个人设置
-          </a>
+      <Menu onClick={this.onAvatarMenuClick}>
+        <Menu.Item key="settings">
+          <SettingOutlined /> 个人设置
         </Menu.Item>
-        <Menu.Item>
-          <a target="_blank" rel="noopener noreferrer" href="http://www.taobao.com/">
-            <LogoutOutlined /> 退出登录
-          </a>
+        <Menu.Item key="logout">
+          <LogoutOutlined /> 退出登录
         </Menu.Item>
       </Menu>
     );
@@ -80,9 +95,6 @@ class AdminLayout extends Component<IProps> {
         <ProLayout
           style={{
             height:'100vh',
-          }}
-          location={{
-            pathname: '/console/index?id=1',
           }}
           menuDataRender={() => menus}
           fixedHeader={true}

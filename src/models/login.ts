@@ -16,6 +16,7 @@ export interface ModelType {
   };
   effects: {
     login: Effect;
+    logout: Effect;
   };
   subscriptions:{ setup: Subscription };
 }
@@ -63,6 +64,15 @@ const login : ModelType = {
 
       if (callback && typeof callback === 'function') {
         callback(response); // 返回结果
+      }
+    },
+    *logout(_, { put }) {
+      // 注销登录凭据
+      sessionStorage.removeItem('token');
+
+      if (window.location.pathname !== '/login') {
+        // 跳转到登录页面
+        router.push('/login');
       }
     },
   },

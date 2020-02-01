@@ -46,7 +46,7 @@ const global : ModelType = {
       });
 
       if (callback && typeof callback === 'function') {
-        callback(response); // 返回结果
+        callback(response);
       }
     },
   },
