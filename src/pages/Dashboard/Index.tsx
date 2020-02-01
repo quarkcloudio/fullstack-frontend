@@ -13,7 +13,6 @@ import {
 } from 'bizcharts';
 
 import {
-  createFromIconfontCN,
   ArrowUpOutlined,
   EditOutlined,
   MoneyCollectOutlined,
@@ -24,10 +23,6 @@ import {
   BarsOutlined,
   PaperClipOutlined
 } from '@ant-design/icons';
-
-const Iconfont = createFromIconfontCN({
-  scriptUrl: '//at.alicdn.com/t/font_1615691_y9lfy84fltb.js', // 在 iconfont.cn 上生成
-});
 
 interface IProps {
   dispatch:Dispatch<any>;
@@ -56,7 +51,7 @@ class IndexPage extends Component<IProps> {
     this.props.dispatch({
       type: 'form/info',
       payload: {
-        actionUrl: 'admin/console/index',
+        actionUrl: 'admin/dashboard/index',
       },
       callback: (res:any) => {
         if (res) {
@@ -73,7 +68,7 @@ class IndexPage extends Component<IProps> {
     this.props.dispatch({
       type: 'form/info',
       payload: {
-        actionUrl: 'admin/console/update',
+        actionUrl: 'admin/dashboard/update',
       },
       callback: (res:any) => {
         if (res) {

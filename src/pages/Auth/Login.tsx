@@ -7,7 +7,7 @@ import { Form, Input, Button, Row, Col} from 'antd';
 import { createFromIconfontCN } from '@ant-design/icons';
 
 const Iconfont = createFromIconfontCN({
-  scriptUrl: '//at.alicdn.com/t/font_1615691_y9lfy84fltb.js', // 在 iconfont.cn 上生成
+  scriptUrl: '//at.alicdn.com/t/font_1615691_8i0ao5hvrm.js', // 在 iconfont.cn 上生成
 });
 
 interface IProps {
@@ -62,7 +62,7 @@ class LoginPage extends Component<IProps> {
           >
             <Input
               size="large"
-              prefix={<Iconfont type="icon-custom-user" style={{ color: 'rgba(0,0,0,.25)' }}/>}
+              prefix={<Iconfont type="icon-user" style={{ color: 'rgba(0,0,0,.25)' }}/>}
               placeholder="用户名"
             />
           </Form.Item>
@@ -85,7 +85,7 @@ class LoginPage extends Component<IProps> {
               <Col span={16}>
                 <Input
                   size="large"
-                  prefix={<Iconfont type="icon-yanzhengma" style={{ color: 'rgba(0,0,0,.25)' }}/>}
+                  prefix={<Iconfont type="icon-safetycertificate" style={{ color: 'rgba(0,0,0,.25)' }}/>}
                   placeholder="验证码"
                 />
               </Col>

@@ -7,18 +7,7 @@ import ProLayout, {
 } from '@ant-design/pro-layout';
 import router from 'umi/router';
 import {
-  MenuUnfoldOutlined,
-  MenuFoldOutlined,
-  HomeOutlined,
-  FileWordOutlined,
-  FilePptOutlined,
-  UserAddOutlined,
-  UsergroupAddOutlined,
-  SnippetsOutlined,
   SettingOutlined,
-  PaperClipOutlined,
-  UserOutlined,
-  ShopOutlined,
   LogoutOutlined
 } from '@ant-design/icons';
 import styles from './AdminLayout.less';
@@ -96,6 +85,7 @@ class AdminLayout extends Component<IProps> {
           style={{
             height:'100vh',
           }}
+          title={'FullStack'}
           menuDataRender={() => menus}
           fixedHeader={true}
           fixSiderbar={true}
@@ -114,6 +104,8 @@ class AdminLayout extends Component<IProps> {
             </div>
           }
           menuProps={{ onClick:this.onMenuClick}}
+          openKeys={['/article']}
+          selectedKeys={['/article/index']}
         >
           <PageHeaderWrapper content="欢迎使用">
             {children}
