@@ -34,10 +34,25 @@ class AdminLayout extends Component<IProps> {
       nickname:'tangtanglove',
       avatar:undefined
     },
+    menuOpenKeys:['/dashboard'],
+    menuSelectedKeys:['/dashboard/index'],
   };
 
   onMenuClick = (event:any) => {
+    let menuSelectedKeys = [];
+    menuSelectedKeys.push(event.key);
+    this.setState({
+      menuSelectedKeys:menuSelectedKeys
+    })
     router.push(event.key);
+  };
+
+  onMenuOpenChange = (openKeys:any) => {
+    let menuOpenKeys = [];
+    menuOpenKeys.push(openKeys);
+    this.setState({
+      menuOpenKeys:openKeys
+    })
   };
 
   onAvatarMenuClick = (event:any) => {
@@ -103,11 +118,11 @@ class AdminLayout extends Component<IProps> {
               }
             </div>
           }
-          menuProps={{ onClick:this.onMenuClick}}
-          openKeys={['/article']}
-          selectedKeys={['/article/index']}
+          menuProps={{ onOpenChange:this.onMenuOpenChange,onClick:this.onMenuClick}}
+          openKeys={this.state.menuOpenKeys}
+          selectedKeys={this.state.menuSelectedKeys}
         >
-          <PageHeaderWrapper content="欢迎使用">
+          <PageHeaderWrapper title={false} content={false}>
             {children}
           </PageHeaderWrapper>
         </ProLayout>
