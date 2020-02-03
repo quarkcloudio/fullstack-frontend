@@ -15,7 +15,8 @@ const config: IConfig =  {
       routes: [
         { path: '/', component: '../pages/Dashboard/Index' },
         { path: '/index', component: '../pages/Dashboard/Index' },
-        { path: '/dashboard/index', component: '../pages/Dashboard/Index' }
+        { path: '/dashboard/index', component: '../pages/Dashboard/Index' },
+        { path: '/planet/engine', component: '../pages/Planet/Engine' }
       ]
     }
   ],
