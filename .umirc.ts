@@ -3,6 +3,9 @@ import { IConfig } from 'umi-types';
 // ref: https://umijs.org/config/
 const config: IConfig =  {
   treeShaking: true,
+  history: 'hash', // url模式
+  base: '/admin/',
+  publicPath: '/admin/',
   routes: [
     {
       path: '/login',

@@ -1,4 +1,3 @@
-import { routerRedux } from 'dva/router';
 import { Reducer } from 'redux';
 import { Effect,Subscription } from 'dva';
 import router from 'umi/router';
@@ -8,15 +7,13 @@ import {
   post,
 } from '@/services/action';
 
-export interface FormModelState {
-  title:string;
-  loading:boolean;
-  controls: [];
-}
-
 export interface ModelType {
   namespace: string;
-  state: {loading:boolean};
+  state: {
+    title:string,
+    loading:boolean,
+    controls:any
+  };
   subscriptions:{ setup: Subscription };
   effects: {
     info: Effect;
@@ -24,15 +21,14 @@ export interface ModelType {
   };
   reducers: {
     updateState: Reducer<{}>;
-    pageLoading: Reducer<{}>;
     resetState: Reducer<{}>;
+    pageLoading: Reducer<{}>;
   };
 }
 
 const form: ModelType = {
   namespace: 'form',
   state: {
-    url:'',
     title:'',
     loading:true,
     controls: [],
@@ -45,7 +41,7 @@ const form: ModelType = {
     },
   },
   effects: {
-    *info({ payload, callback }, { put, call, select }) {
+    *info({ payload, callback }, { put, call }) {
       yield put({
         type: 'pageLoading',
         payload: { loading:true},
@@ -65,7 +61,7 @@ const form: ModelType = {
         }
       }
     },
-    *submit({ payload, callback }, { put, call, select }) {
+    *submit({ payload, callback }, { put, call }) {
       const response = yield call(post, payload);
       if(!response) {
         return false;

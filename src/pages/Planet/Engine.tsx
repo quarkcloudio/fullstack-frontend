@@ -6,13 +6,18 @@ import { stringify } from 'qs';
 class Engine extends PureComponent {
 
   state = {
-    url: 'admin/article/edit'+'?'+stringify(this.props.location.query),
+    api: this.props.location.query.api,
+    component:this.props.location.query.component
   };
+  
+  componentDidMount() {
+
+  }
 
   render() {
     return (
       <PageHeaderWrapper title={false}>
-        <FormPage url={this.state.url} />
+        <FormPage api={this.state.api} />
       </PageHeaderWrapper>
     );
   }

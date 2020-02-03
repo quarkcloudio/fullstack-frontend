@@ -19,15 +19,6 @@ interface IProps {
 
 class AdminLayout extends Component<IProps> {
 
-  componentDidMount() {
-    this.props.dispatch({
-      type: 'global/getMenus',
-      payload: {
-        actionUrl: 'admin/account/menus'
-      }
-    });
-  }
-
   state = {
     collapsed: false,
     userInfo:{
@@ -37,6 +28,21 @@ class AdminLayout extends Component<IProps> {
     menuOpenKeys:['/dashboard'],
     menuSelectedKeys:['/dashboard/index'],
   };
+
+  componentDidMount() {
+    this.props.dispatch({
+      type: 'global/getMenus',
+      payload: {
+        actionUrl: 'admin/account/menus'
+      }
+    });
+
+    let menuSelectedKeys = [];
+    menuSelectedKeys.push(this.props.location.query.api);
+    this.setState({
+      menuSelectedKeys:menuSelectedKeys
+    })
+  }
 
   onMenuClick = (event:any) => {
     let menuSelectedKeys = [];
@@ -122,9 +128,7 @@ class AdminLayout extends Component<IProps> {
           openKeys={this.state.menuOpenKeys}
           selectedKeys={this.state.menuSelectedKeys}
         >
-          <PageHeaderWrapper title={false} content={false}>
-            {children}
-          </PageHeaderWrapper>
+          {children}
         </ProLayout>
       </div>
     );

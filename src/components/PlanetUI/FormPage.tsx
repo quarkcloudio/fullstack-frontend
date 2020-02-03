@@ -1,8 +1,5 @@
 import React, { useEffect } from 'react';
 import styles from './FormPage.less';
-import moment from 'moment';
-import 'moment/locale/zh-cn';
-import locale from 'antd/lib/date-picker/locale/zh_CN';
 import { Dispatch } from 'redux';
 import { connect } from 'dva';
 import router from 'umi/router';
@@ -26,7 +23,6 @@ import {
   Tree,
   Cascader
 } from 'antd';
-moment.locale('zh-cn');
 
 const { TextArea } = Input;
 const TabPane = Tabs.TabPane;
@@ -39,8 +35,7 @@ export interface FormPageProps {
   title:string;
   loading: boolean;
   controls?: [];
-  random:string;
-  url?: string;
+  api?: string;
   submitting: boolean;
   dispatch: Dispatch<any>;
 }
@@ -50,7 +45,7 @@ const FormPage: React.SFC<FormPageProps> = props => {
   const {
     title,
     loading,
-    url,
+    api,
     dispatch
   } = props;
 
@@ -62,50 +57,67 @@ const FormPage: React.SFC<FormPageProps> = props => {
       dispatch({
         type: 'form/info',
         payload: {
-          actionUrl: url,
+          actionUrl: api,
         }
       });
     }
-  }, [dispatch, url]);
+  }, [dispatch, api]);
+
+  const onFinish = (values:any) => {
+    dispatch({
+      type: 'form/submit',
+      payload: {
+        actionUrl: 'admin/login',
+        ...values
+      },
+      callback: (res: any) => {
+
+      },
+    });
+  };
 
   return (
   <Spin spinning={loading} tip="Loading..." style={{background:'#fff'}}>
-    <div className={styles.container}>
       <Card
         size="small"
         title={title}
         bordered={false}
         extra={<Button type="link" onClick={(e) => router.go(-1)}>返回上一页</Button>}
       >
-
+        <Form onFinish={onFinish}>
+          <Form.Item
+            name="username"
+            rules={[{ required: true, message: '用户名必须填写！' }]}
+          >
+            <Input
+              placeholder="用户名"
+            />
+          </Form.Item>
+          <Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+            >
+              提交
+            </Button>
+          </Form.Item>
+        </Form>
       </Card>
-    </div>
   </Spin>
   );
 };
 
 function mapStateToProps(state:any) {
   const {
-    url,
     title,
-    random,
-    previewImage,
-    previewVisible,
     loading,
     controls,
-    labelCol,
-    wrapperCol
-    } = state.form;
+  } = state.form;
+
   return {
-    url,
     title,
-    random,
-    previewImage,
-    previewVisible,
     loading,
     controls,
-    labelCol,
-    wrapperCol
   };
 }
 
